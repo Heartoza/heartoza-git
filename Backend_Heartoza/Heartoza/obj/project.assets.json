@@ -447,23 +447,23 @@
     ]
   },
   "packageFolders": {
-    "C:\\Users\\LENOVO\\.nuget\\packages\\": {},
+    "C:\\Users\\Sapphire\\.nuget\\packages\\": {},
     "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages": {}
   },
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "D:\\FPT\\FA25\\EXE201\\Heartoza\\Heartoza\\Heartoza.csproj",
+      "projectUniqueName": "D:\\FA25\\EXE201\\heartoza-git\\Backend_Heartoza\\Heartoza\\Heartoza.csproj",
       "projectName": "Heartoza",
-      "projectPath": "D:\\FPT\\FA25\\EXE201\\Heartoza\\Heartoza\\Heartoza.csproj",
-      "packagesPath": "C:\\Users\\LENOVO\\.nuget\\packages\\",
-      "outputPath": "D:\\FPT\\FA25\\EXE201\\Heartoza\\Heartoza\\obj\\",
+      "projectPath": "D:\\FA25\\EXE201\\heartoza-git\\Backend_Heartoza\\Heartoza\\Heartoza.csproj",
+      "packagesPath": "C:\\Users\\Sapphire\\.nuget\\packages\\",
+      "outputPath": "D:\\FA25\\EXE201\\heartoza-git\\Backend_Heartoza\\Heartoza\\obj\\",
       "projectStyle": "PackageReference",
       "fallbackFolders": [
         "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
       ],
       "configFilePaths": [
-        "C:\\Users\\LENOVO\\AppData\\Roaming\\NuGet\\NuGet.Config",
+        "C:\\Users\\Sapphire\\AppData\\Roaming\\NuGet\\NuGet.Config",
         "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
         "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
       ],
@@ -490,7 +490,7 @@
         "auditLevel": "low",
         "auditMode": "direct"
       },
-      "SdkAnalysisLevel": "9.0.100"
+      "SdkAnalysisLevel": "9.0.300"
     },
     "frameworks": {
       "net8.0": {
@@ -520,7 +520,7 @@
             "privateAssets": "all"
           }
         },
-        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.102/PortableRuntimeIdentifierGraph.json"
+        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.302/PortableRuntimeIdentifierGraph.json"
       }
     }
   }

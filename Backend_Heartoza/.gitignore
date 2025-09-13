@@ -1,0 +1,32 @@
+# Visual Studio
+.vs/
+*.user
+*.suo
+
+# Build outputs
+bin/
+obj/
+out/
+[Bb]uild/
+
+# Packages
+*.nupkg
+*.snupkg
+*.nuspec
+packages/
+
+# Logs
+*.log
+
+# Temporary
+*.tmp
+*.temp
+*.cache
+
+# Secrets / Config local
+appsettings.Development.json
+secrets.json
+
+# Rider / VS Code
+.idea/
+.vscode/
