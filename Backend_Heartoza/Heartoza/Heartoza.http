@@ -1,0 +1,6 @@
+@Heartoza_HostAddress = http://localhost:5049
+
+GET {{Heartoza_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
