@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("Heartoza")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+1e066bc5d4b68ceb730a4e4589a4cc2039131da4")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+a1c198d5e6b8b224e3086840ffda6c6da1e3886a")]
 [assembly: System.Reflection.AssemblyProductAttribute("Heartoza")]
 [assembly: System.Reflection.AssemblyTitleAttribute("Heartoza")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
