@@ -1,4 +1,4 @@
-# Visual Studio
+# Visual Studio / build caches
 .vs/
 *.user
 *.suo
@@ -18,12 +18,25 @@ packages/
 # Logs
 *.log
 
-# Temporary
+# Temporary / cache
 *.tmp
 *.temp
 *.cache
+*.db
+*.sqlite
 
-# Secrets / Config local
+# MSBuild auto-gen
+*.props
+*.targets
+
+# NuGet / project cache
+project.nuget.cache
+
+# Assembly cache
+*.AssemblyInfoInputs.cache
+*.AssemblyReference.cache
+
+# Secrets / local config
 appsettings.Development.json
 secrets.json
 
