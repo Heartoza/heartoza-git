@@ -13,17 +13,15 @@ public partial class Order
 
     public int ShippingAddressId { get; set; }
 
-    public string Status { get; set; } = null!;
-
     public decimal Subtotal { get; set; }
 
-    public decimal ShippingFee { get; set; }
+    public decimal? ShippingFee { get; set; }
 
     public decimal GrandTotal { get; set; }
 
-    public DateTime CreatedAt { get; set; }
+    public string? Status { get; set; }
 
-    public DateTime? PaidAt { get; set; }
+    public DateTime? CreatedAt { get; set; }
 
     public virtual ICollection<OrderItem> OrderItems { get; set; } = new List<OrderItem>();
 

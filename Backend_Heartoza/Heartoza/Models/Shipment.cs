@@ -13,13 +13,9 @@ public partial class Shipment
 
     public string? TrackingCode { get; set; }
 
-    public string Status { get; set; } = null!;
+    public string? Status { get; set; }
 
-    public DateTime? ShippedAt { get; set; }
-
-    public DateTime? DeliveredAt { get; set; }
-
-    public DateTime CreatedAt { get; set; }
+    public DateTime? CreatedAt { get; set; }
 
     public virtual Order Order { get; set; } = null!;
 }

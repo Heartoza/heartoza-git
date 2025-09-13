@@ -9,21 +9,19 @@ public partial class Address
 
     public int UserId { get; set; }
 
-    public string FullName { get; set; } = null!;
+    public string? FullName { get; set; }
 
-    public string Phone { get; set; } = null!;
-
-    public string Line1 { get; set; } = null!;
-
-    public string City { get; set; } = null!;
+    public string? Line1 { get; set; }
 
     public string? District { get; set; }
 
-    public string Country { get; set; } = null!;
+    public string? City { get; set; }
+
+    public string? Country { get; set; }
 
     public string? PostalCode { get; set; }
 
-    public bool IsDefault { get; set; }
+    public string? Phone { get; set; }
 
     public virtual ICollection<Order> Orders { get; set; } = new List<Order>();
 

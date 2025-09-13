@@ -33,11 +33,14 @@ public partial class GiftBoxShopContext : DbContext
 
     public virtual DbSet<User> Users { get; set; }
 
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<Address>(entity =>
         {
-            entity.HasKey(e => e.AddressId).HasName("PK__Addresse__091C2AFB64291FF7");
+            entity.HasKey(e => e.AddressId).HasName("PK__Addresse__091C2AFB04A870DC");
+
+            entity.HasIndex(e => e.UserId, "IX_Address_UserId");
 
             entity.Property(e => e.City).HasMaxLength(100);
             entity.Property(e => e.Country)
@@ -53,13 +56,12 @@ public partial class GiftBoxShopContext : DbContext
 
             entity.HasOne(d => d.User).WithMany(p => p.Addresses)
                 .HasForeignKey(d => d.UserId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_Addr_User");
         });
 
         modelBuilder.Entity<Category>(entity =>
         {
-            entity.HasKey(e => e.CategoryId).HasName("PK__Categori__19093A0B84DFB3D0");
+            entity.HasKey(e => e.CategoryId).HasName("PK__Categori__19093A0BC4CC5CB9");
 
             entity.Property(e => e.Name).HasMaxLength(200);
 
@@ -70,7 +72,7 @@ public partial class GiftBoxShopContext : DbContext
 
         modelBuilder.Entity<Inventory>(entity =>
         {
-            entity.HasKey(e => e.ProductId).HasName("PK__Inventor__B40CC6CDB647ACD0");
+            entity.HasKey(e => e.ProductId).HasName("PK__Inventor__B40CC6CDAD6FFC1C");
 
             entity.ToTable("Inventory");
 
@@ -78,21 +80,28 @@ public partial class GiftBoxShopContext : DbContext
 
             entity.HasOne(d => d.Product).WithOne(p => p.Inventory)
                 .HasForeignKey<Inventory>(d => d.ProductId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_Inv_Product");
         });
 
         modelBuilder.Entity<Order>(entity =>
         {
-            entity.HasKey(e => e.OrderId).HasName("PK__Orders__C3905BCFEDED536B");
+            entity.HasKey(e => e.OrderId).HasName("PK__Orders__C3905BCF7536CA3D");
 
-            entity.HasIndex(e => e.OrderCode, "UQ__Orders__999B52295D3DF20E").IsUnique();
+            entity.HasIndex(e => e.ShippingAddressId, "IX_Order_ShippingAddrId");
+
+            entity.HasIndex(e => e.UserId, "IX_Order_UserId");
+
+            entity.HasIndex(e => e.OrderCode, "UQ__Orders__999B5229D19A39C1").IsUnique();
 
             entity.Property(e => e.CreatedAt).HasDefaultValueSql("(sysutcdatetime())");
             entity.Property(e => e.GrandTotal).HasColumnType("decimal(18, 2)");
             entity.Property(e => e.OrderCode)
                 .HasMaxLength(32)
                 .IsUnicode(false);
-            entity.Property(e => e.ShippingFee).HasColumnType("decimal(18, 2)");
+            entity.Property(e => e.ShippingFee)
+                .HasDefaultValue(0m)
+                .HasColumnType("decimal(18, 2)");
             entity.Property(e => e.Status)
                 .HasMaxLength(30)
                 .IsUnicode(false)
@@ -112,9 +121,11 @@ public partial class GiftBoxShopContext : DbContext
 
         modelBuilder.Entity<OrderItem>(entity =>
         {
-            entity.HasKey(e => e.OrderItemId).HasName("PK__OrderIte__57ED06812213B66D");
+            entity.HasKey(e => e.OrderItemId).HasName("PK__OrderIte__57ED06816B1D2172");
 
-            entity.HasIndex(e => e.OrderId, "IX_OrderItems_Order");
+            entity.HasIndex(e => e.OrderId, "IX_OrderItem_OrderId");
+
+            entity.HasIndex(e => e.ProductId, "IX_OrderItem_ProductId");
 
             entity.Property(e => e.LineTotal)
                 .HasComputedColumnSql("([Quantity]*[UnitPrice])", true)
@@ -123,6 +134,7 @@ public partial class GiftBoxShopContext : DbContext
 
             entity.HasOne(d => d.Order).WithMany(p => p.OrderItems)
                 .HasForeignKey(d => d.OrderId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_OI_Order");
 
             entity.HasOne(d => d.Product).WithMany(p => p.OrderItems)
@@ -133,7 +145,7 @@ public partial class GiftBoxShopContext : DbContext
 
         modelBuilder.Entity<Payment>(entity =>
         {
-            entity.HasKey(e => e.PaymentId).HasName("PK__Payments__9B556A38ABE7A8B0");
+            entity.HasKey(e => e.PaymentId).HasName("PK__Payments__9B556A380C79368A");
 
             entity.Property(e => e.Amount).HasColumnType("decimal(18, 2)");
             entity.Property(e => e.CreatedAt).HasDefaultValueSql("(sysutcdatetime())");
@@ -147,14 +159,17 @@ public partial class GiftBoxShopContext : DbContext
 
             entity.HasOne(d => d.Order).WithMany(p => p.Payments)
                 .HasForeignKey(d => d.OrderId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_Pay_Order");
         });
 
         modelBuilder.Entity<Product>(entity =>
         {
-            entity.HasKey(e => e.ProductId).HasName("PK__Products__B40CC6CD728B8C4B");
+            entity.HasKey(e => e.ProductId).HasName("PK__Products__B40CC6CD5AB63025");
 
-            entity.HasIndex(e => e.Sku, "UQ__Products__CA1ECF0DF3DC8A0A").IsUnique();
+            entity.HasIndex(e => e.CategoryId, "IX_Product_CategoryId");
+
+            entity.HasIndex(e => e.Sku, "UQ__Products__CA1ECF0DA06EDD61").IsUnique();
 
             entity.Property(e => e.CreatedAt).HasDefaultValueSql("(sysutcdatetime())");
             entity.Property(e => e.IsActive).HasDefaultValue(true);
@@ -173,7 +188,7 @@ public partial class GiftBoxShopContext : DbContext
 
         modelBuilder.Entity<Shipment>(entity =>
         {
-            entity.HasKey(e => e.ShipmentId).HasName("PK__Shipment__5CAD37ED18FD6FE3");
+            entity.HasKey(e => e.ShipmentId).HasName("PK__Shipment__5CAD37ED477C1CCE");
 
             entity.Property(e => e.Carrier)
                 .HasMaxLength(50)
@@ -189,14 +204,15 @@ public partial class GiftBoxShopContext : DbContext
 
             entity.HasOne(d => d.Order).WithMany(p => p.Shipments)
                 .HasForeignKey(d => d.OrderId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_Ship_Order");
         });
 
         modelBuilder.Entity<User>(entity =>
         {
-            entity.HasKey(e => e.UserId).HasName("PK__Users__1788CC4CF78887FF");
+            entity.HasKey(e => e.UserId).HasName("PK__Users__1788CC4C62D89EF3");
 
-            entity.HasIndex(e => e.Email, "UQ__Users__A9D105344A149FBF").IsUnique();
+            entity.HasIndex(e => e.Email, "UQ__Users__A9D105343ABD5DA5").IsUnique();
 
             entity.Property(e => e.CreatedAt).HasDefaultValueSql("(sysutcdatetime())");
             entity.Property(e => e.Email)
