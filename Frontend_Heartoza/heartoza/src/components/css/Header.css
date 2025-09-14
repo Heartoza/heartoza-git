@@ -1,0 +1,86 @@
+/* HEADER TRÊN */
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background-color: #fff;
+  padding: 10px 10px;
+  border-bottom: 1 px solid #eee;
+}
+
+.header-left{
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.logo {
+  height: 40px;
+  width: 40px;
+  object-fit: contain;
+}
+
+.site-name{
+    font-size: 1.5rem;
+    font-weight: bold;
+    margin: 0;
+    color: #ff4d6d;
+}
+
+.header-search input{
+    width: 300px;
+    padding: 8px 12px;
+    border: 1px solid #ccc;
+    border-radius: 20px;
+    outline: none;
+}
+
+.header-right{
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.login-btn, .register-btn {
+  text-decoration: none;
+  color: white;
+  background: #ff4d6d;
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-weight: 500;
+  transition: 0.3s ease-in-out;
+}
+
+.register-btn {
+  background: #ffa54d; /* màu khác cho phân biệt */
+}
+
+.login-btn:hover { background: #e63a59; }
+.register-btn:hover { background: #e68a3a; }
+
+
+.cart-btn{
+    text-decoration: none;
+    font-size: 1.5rem;
+}
+
+/* NAV MENU DƯỚI */
+.nav-menu{
+    display: flex;
+    justify-content: space-evenly;
+    background: #fff;
+    border-top: 1px solid #eee;
+    border-bottom: 1px solid #eee;
+    padding: 10px 0;
+}
+
+.nav-menu a{
+    text-decoration: none;
+    color: #333;
+    font-weight: 500;
+    position: relative;
+}
+
+.nav-menu a:hover{
+    color: #ff4d6d;
+}
