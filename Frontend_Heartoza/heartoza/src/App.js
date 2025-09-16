@@ -7,7 +7,7 @@ Route: Định nghĩa 1 đường dẫn (path) và component nào sẽ hiển th
 */
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Header from "./components/Header";
-import Products from "./components/Products";
+import Products from "./components/ProductList.jsx";
 
 function App() {
   return (
