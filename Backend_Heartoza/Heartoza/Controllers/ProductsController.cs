@@ -58,7 +58,8 @@ public class ProductsController : ControllerBase
         var items = await query
             .Skip((page - 1) * pageSize)
             .Take(pageSize)
-            .Select(p => new {
+            .Select(p => new
+            {
                 p.ProductId,
                 p.Name,
                 p.Sku,
@@ -87,4 +88,53 @@ public class ProductsController : ControllerBase
 
         return p == null ? NotFound() : Ok(p);
     }
+    [HttpPost]
+    public async Task<IActionResult> Create([FromBody] Product req, CancellationToken ct = default)
+    {
+        if (string.IsNullOrWhiteSpace(req.Name) || string.IsNullOrWhiteSpace(req.Sku))
+            return BadRequest("Tên và SKU không được để trống.");
+
+        if (await _db.Products.AnyAsync(p => p.Sku == req.Sku, ct))
+            return BadRequest("SKU đã tồn tại.");
+
+        req.ProductId = 0;
+        req.IsActive = true;
+        req.CreatedAt = DateTime.UtcNow;
+
+        _db.Products.Add(req);
+        await _db.SaveChangesAsync(ct);
+
+        return CreatedAtAction(nameof(GetById), new { id = req.ProductId }, req);
+    }
+    [HttpPut("{id:int}")]
+    public async Task<IActionResult> Update(int id, [FromBody] Product req, CancellationToken ct = default)
+    {
+        var p = await _db.Products.FindAsync(new object[] { id }, ct);
+        if (p == null) return NotFound();
+
+        if (!string.IsNullOrWhiteSpace(req.Sku) &&
+            await _db.Products.AnyAsync(x => x.Sku == req.Sku && x.ProductId != id, ct))
+            return BadRequest("SKU đã tồn tại.");
+
+        p.Name = req.Name ?? p.Name;
+        p.Sku = req.Sku ?? p.Sku;
+        p.Price = req.Price;
+        p.CategoryId = req.CategoryId;
+        p.IsActive = req.IsActive;
+
+        await _db.SaveChangesAsync(ct);
+        return Ok(p);
+    }
+    [HttpDelete("{id:int}")]
+    public async Task<IActionResult> Delete(int id, CancellationToken ct = default)
+    {
+        var p = await _db.Products.FindAsync(new object[] { id }, ct);
+        if (p == null) return NotFound();
+
+        p.IsActive = false;
+        await _db.SaveChangesAsync(ct);
+
+        return Ok(new { message = "Đã ngưng hoạt động sản phẩm." });
+    }
+
 }
