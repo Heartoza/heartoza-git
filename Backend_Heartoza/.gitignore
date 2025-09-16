@@ -1,7 +1,10 @@
-# Visual Studio / build caches
+
+# Visual Studio working files
 .vs/
-*.user
 *.suo
+*.user
+*.userosscache
+*.sln.docstates
 
 # Build outputs
 bin/
