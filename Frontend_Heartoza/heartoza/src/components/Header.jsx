@@ -1,4 +1,5 @@
 import React from "react";
+import {Link} from "react-router-dom";
 import logo from "../assets/Heartoza-Logo-Demo.png";
 import "./css/Header.css";
 
@@ -20,19 +21,19 @@ function Header() {
 
         {/*Login + cart*/}
         <div className="header-right">
-            <a href="/cart" className="cart-btn">🛒</a>
-            <a href="/login" className="login-btn">Đăng nhập</a>
-            <a href="/register" className="register-btn">Đăng ký</a>
-            </div>
+          <Link to="/cart" className="cart-btn">🛒</Link>
+          <Link to="/login" className="login-btn">Đăng nhập</Link>
+          <Link to="/register" className="register-btn">Đăng ký</Link>
+        </div>
     </header>
 
     {/* THANH MENU DUOI */}
     <nav className="nav-menu">
-        <a href="/">Trang chủ</a>
-        <a href="/gifts">Danh sách quà</a>
+        <Link to="/">Trang chủ</Link>
+        <Link to="/products">Danh sách quà</Link>
         {/* <a>Combo quà</a> */}
-        <a href="/about">Về Heartoza</a>
-        <a href="/contact">Liên hệ</a>
+        <Link to="/about">Về Heartoza</Link>
+        <Link to="/contact">Liên hệ</Link>
     </nav>
     </>
   );
