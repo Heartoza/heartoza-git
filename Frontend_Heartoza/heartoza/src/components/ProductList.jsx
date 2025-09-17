@@ -16,22 +16,41 @@ export default function ProductList(){
       .then((res) => {
         console.log("BE trả về:", res.data); // xem dữ liệu trả về từ BE
         // Nếu BE trả object chứa mảng, lấy đúng key:
-        const dataArray = Array.isArray(res.data) ? res.data : res.data.data;
-        setProducts(dataArray || []);
+        const dataArray = res.data?.items || [];
+        setProducts(dataArray);
       })
       .catch((err) => console.log(err));
   }, []);
 
   return (
-    <div>
-      <h2 className="title">Danh sách sản phẩm</h2>
-      <ul>
-        {Array.isArray(products) && products.map((p) => (
-          <li key={p.ProductId}>
-            {p.Name} - {p.Price}
-          </li>
-        ))}
-      </ul>
+    <div className="search-filter-group">
+        <div className="search-input-wrapper">
+            <i className="bi bi-search"></i>
+            <input type="text" id="searchInput" name="keyword" placeholder="Tìm theo tên dịch vụ" />
+        </div>
+        
+        <div className="select-wrapper">
+            <i className="bi bi-funnel"></i>
+            <select className="form-control" id="ageLimit" name="ageLimit">
+                <option value="" disabled selected>Chọn độ tuổi</option>
+                <c:forEach var="ageLimit" items="${ageLimits}">
+                    <option value="${ageLimit.ageLimitID}"></option>
+                </c:forEach>
+            </select>
+        </div>
+        
+        <div className="select-wrapper">
+            <i className="bi bi-funnel"></i>
+            <select className="form-control" id="priceFilter" name="priceFilter">
+                <option value="" disabled selected>Sắp xếp theo giá</option>
+                <option value="lowToHigh">Giá từ thấp đến cao</option>
+                <option value="highToLow">Giá từ cao đến thấp</option>
+            </select>
+        </div>
+        
+        <button type="submit" class="search-btn">
+            <i className="bi bi-search"></i>
+        </button>
     </div>
   );
 }
