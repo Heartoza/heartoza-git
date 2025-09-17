@@ -1,0 +1,75 @@
+.home-container {
+  text-align: center;
+  padding: 20px;
+}
+
+.home-banner {
+  background: linear-gradient(to right, #ff9a9e, #fad0c4);
+  color: #333;
+  padding: 50px 20px;
+  border-radius: 12px;
+  margin-bottom: 40px;
+}
+
+.home-banner h1 {
+  font-size: 2rem;
+  margin-bottom: 10px;
+}
+
+.cta-btn {
+  display: inline-block;
+  margin-top: 15px;
+  padding: 12px 20px;
+  background-color: #ff6f61;
+  color: white;
+  border-radius: 8px;
+  text-decoration: none;
+  transition: background 0.3s ease;
+}
+
+.cta-btn:hover {
+  background-color: #ff4a3d;
+}
+
+.home-about {
+  max-width: 700px;
+  margin: 0 auto 40px;
+  font-size: 1.1rem;
+  line-height: 1.6;
+}
+
+.home-featured .featured-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 20px;
+  margin-top: 20px;
+}
+
+.featured-card {
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  padding: 10px;
+  transition: transform 0.3s ease;
+}
+
+.featured-card img {
+  width: 100%;
+  border-radius: 10px;
+}
+
+.featured-card:hover {
+  transform: translateY(-5px);
+}
+
+.view-more {
+  display: inline-block;
+  margin-top: 20px;
+  font-weight: bold;
+  color: #ff6f61;
+  text-decoration: none;
+}
+
+.view-more:hover {
+  text-decoration: underline;
+}

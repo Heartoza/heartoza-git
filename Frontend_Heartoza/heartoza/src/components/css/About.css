@@ -1,0 +1,43 @@
+.about-container {
+  max-width: 900px;
+  margin: 30px auto;
+  padding: 20px;
+  text-align: center;
+}
+
+.intro {
+  font-size: 1.1rem;
+  color: #555;
+  margin-bottom: 30px;
+  line-height: 1.6;
+}
+
+.team-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 20px;
+}
+
+.team-card {
+  background: #fff;
+  padding: 20px;
+  border-radius: 16px;
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.1);
+  transition: transform 0.2s ease;
+}
+
+.team-card:hover {
+  transform: translateY(-4px);
+}
+
+.role {
+  font-weight: bold;
+  color: #ff4081;
+  margin: 6px 0;
+}
+
+.bio {
+  font-size: 0.95rem;
+  color: #444;
+  line-height: 1.4;
+}
