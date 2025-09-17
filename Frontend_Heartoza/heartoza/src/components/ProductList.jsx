@@ -16,8 +16,8 @@ export default function ProductList(){
       .then((res) => {
         console.log("BE trả về:", res.data); // xem dữ liệu trả về từ BE
         // Nếu BE trả object chứa mảng, lấy đúng key:
-        const dataArray = Array.isArray(res.data) ? res.data : res.data.data;
-        setProducts(dataArray || []);
+        const dataArray = res.data?.items || [];
+        setProducts(dataArray);
       })
       .catch((err) => console.log(err));
   }, []);
@@ -27,8 +27,8 @@ export default function ProductList(){
       <h2 className="title">Danh sách sản phẩm</h2>
       <ul>
         {Array.isArray(products) && products.map((p) => (
-          <li key={p.ProductId}>
-            {p.Name} - {p.Price}
+          <li key={p.productId}>
+            {p.name} - {p.price}
           </li>
         ))}
       </ul>
