@@ -1,5 +1,8 @@
 using Microsoft.EntityFrameworkCore;
 using Heartoza.Models;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using System.Text;
+using Microsoft.IdentityModel.Tokens;
 
 namespace Heartoza
 {
@@ -27,6 +30,31 @@ namespace Heartoza
                 });
             });
 
+            // JWT
+            var jwt = builder.Configuration.GetSection("Jwt");
+            var key = Encoding.UTF8.GetBytes(jwt["Key"]!);
+
+            builder.Services.AddAuthentication(o =>
+            {
+                o.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                o.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+            })
+            .AddJwtBearer(o =>
+            {
+                o.TokenValidationParameters = new TokenValidationParameters
+                {
+                    ValidateIssuer = true,
+                    ValidateAudience = true,
+                    ValidateIssuerSigningKey = true,
+                    ValidIssuer = jwt["Issuer"],
+                    ValidAudience = jwt["Audience"],
+                    IssuerSigningKey = new SymmetricSecurityKey(key)
+                };
+            });
+
+            builder.Services.AddAuthorization();
+            builder.Services.AddSingleton<ITokenService>(new TokenService(jwt["Issuer"]!, jwt["Audience"]!, jwt["Key"]!));
+
             var app = builder.Build();
 
             // Configure middleware
@@ -39,6 +67,7 @@ namespace Heartoza
             app.UseCors();
 
             app.UseHttpsRedirection();
+            app.UseAuthentication();
             app.UseAuthorization();
             app.MapControllers();
 

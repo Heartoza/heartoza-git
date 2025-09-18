@@ -1,4 +1,4 @@
-﻿namespace Heartoza.Dtos.Products
+﻿namespace Heartoza.DTO.Products
 {
     public class ProductDto
     {

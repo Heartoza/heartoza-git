@@ -300,3 +300,17 @@ VALUES
  (9,  'GHN', 'GHN-0009', 'Delivered'),
  (10, 'Ninja','NJ-0010','Packing');
 GO
+-- PasswordResets
+USE GiftBoxShop;
+GO
+
+CREATE TABLE PasswordResets (
+    ResetId INT IDENTITY PRIMARY KEY,
+    UserId INT NOT NULL,
+    Token VARCHAR(64) UNIQUE NOT NULL,
+    ExpiresAt DATETIME2 NOT NULL,
+    UsedAt DATETIME2 NULL,
+    CreatedAt DATETIME2 NOT NULL DEFAULT SYSUTCDATETIME(),
+    CONSTRAINT FK_PasswordResets_Users FOREIGN KEY (UserId) REFERENCES Users(UserId) ON DELETE CASCADE
+);
+CREATE INDEX IX_PasswordResets_Token ON PasswordResets(Token);

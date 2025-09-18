@@ -1,4 +1,4 @@
-﻿namespace Heartoza.Dtos.Orders
+﻿namespace Heartoza.DTO.Orders
 {
     public class OrderItemResponse
     {

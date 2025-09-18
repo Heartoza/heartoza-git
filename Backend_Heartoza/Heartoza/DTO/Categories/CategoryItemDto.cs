@@ -1,4 +1,4 @@
-﻿namespace Heartoza.Dtos.Categories
+﻿namespace Heartoza.DTO.Categories
 {
     public class CategoryItemDto
     {
