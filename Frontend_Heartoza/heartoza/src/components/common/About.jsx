@@ -1,5 +1,5 @@
 import React from "react";
-import "./css/About.css";
+import "../css/About.css";
 
 const team = [
   { name: "Nguyễn Thị Minh Huệ", role: "Founder & CEO", bio: "Đam mê công nghệ, yêu thích thiết kế giao diện đẹp và trải nghiệm mượt mà. Yui là người đưa ra ý tưởng và định hướng phát triển cho shop." },

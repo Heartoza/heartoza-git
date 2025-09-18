@@ -1,7 +1,7 @@
 import React from "react";
 import { NavLink } from "react-router-dom";
-import logo from "../assets/Heartoza-Logo-Demo.png";
-import "./css/Header.css";
+import logo from "../../assets/logo/Logo-Demo.png";
+import "../css/Header.css";
 
 function Header() {
   return (
