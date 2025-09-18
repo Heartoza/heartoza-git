@@ -1,26 +1,14 @@
 {
   "Version": 1,
-  "WorkspaceRootPath": "D:\\FPT\\FA25\\Heartoza\\Backend_Heartoza\\",
+  "WorkspaceRootPath": "D:\\FA25\\EXE201\\heartoza-git\\Backend_Heartoza\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{9F51160A-07B4-4347-8F06-B7D5DEC004B4}|Heartoza\\Heartoza.csproj|d:\\fpt\\fa25\\heartoza\\backend_heartoza\\heartoza\\controllers\\productscontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "AbsoluteMoniker": "D:0:0:{9F51160A-07B4-4347-8F06-B7D5DEC004B4}|Heartoza\\Heartoza.csproj|d:\\fa25\\exe201\\heartoza-git\\backend_heartoza\\heartoza\\controllers\\orderscontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{9F51160A-07B4-4347-8F06-B7D5DEC004B4}|Heartoza\\Heartoza.csproj|solutionrelative:heartoza\\controllers\\orderscontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{9F51160A-07B4-4347-8F06-B7D5DEC004B4}|Heartoza\\Heartoza.csproj|d:\\fa25\\exe201\\heartoza-git\\backend_heartoza\\heartoza\\controllers\\productscontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{9F51160A-07B4-4347-8F06-B7D5DEC004B4}|Heartoza\\Heartoza.csproj|solutionrelative:heartoza\\controllers\\productscontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{9F51160A-07B4-4347-8F06-B7D5DEC004B4}|Heartoza\\Heartoza.csproj|d:\\fpt\\fa25\\heartoza\\backend_heartoza\\heartoza\\dbsetup.sql||{CC5D8DF0-88F4-4BB2-9DBB-B48CEE65C30A}",
-      "RelativeMoniker": "D:0:0:{9F51160A-07B4-4347-8F06-B7D5DEC004B4}|Heartoza\\Heartoza.csproj|solutionrelative:heartoza\\dbsetup.sql||{CC5D8DF0-88F4-4BB2-9DBB-B48CEE65C30A}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{9F51160A-07B4-4347-8F06-B7D5DEC004B4}|Heartoza\\Heartoza.csproj|d:\\fpt\\fa25\\heartoza\\backend_heartoza\\heartoza\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{9F51160A-07B4-4347-8F06-B7D5DEC004B4}|Heartoza\\Heartoza.csproj|solutionrelative:heartoza\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{9F51160A-07B4-4347-8F06-B7D5DEC004B4}|Heartoza\\Heartoza.csproj|d:\\fpt\\fa25\\heartoza\\backend_heartoza\\heartoza\\properties\\launchsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}",
-      "RelativeMoniker": "D:0:0:{9F51160A-07B4-4347-8F06-B7D5DEC004B4}|Heartoza\\Heartoza.csproj|solutionrelative:heartoza\\properties\\launchsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{9F51160A-07B4-4347-8F06-B7D5DEC004B4}|Heartoza\\Heartoza.csproj|d:\\fpt\\fa25\\heartoza\\backend_heartoza\\heartoza\\dbsetup.sql||{CC5D8DF0-88F4-4BB2-9DBB-B48CEE65C30A}|CodeFrame",
-      "RelativeMoniker": "D:0:0:{9F51160A-07B4-4347-8F06-B7D5DEC004B4}|Heartoza\\Heartoza.csproj|solutionrelative:heartoza\\dbsetup.sql||{CC5D8DF0-88F4-4BB2-9DBB-B48CEE65C30A}|CodeFrame"
     }
   ],
   "DocumentGroupContainers": [
@@ -29,12 +17,20 @@
       "VerticalTabListWidth": 256,
       "DocumentGroups": [
         {
-          "DockedWidth": 293,
-          "SelectedChildIndex": 214,
+          "DockedWidth": 200,
+          "SelectedChildIndex": 210,
           "Children": [
             {
               "$type": "Bookmark",
-              "Name": "ST:0:0:{1c4feeaa-4718-4aa9-859d-94ce25d182ba}"
+              "Name": "ST:0:0:{e1b7d1f8-9b3c-49b1-8f4f-bfc63a88835d}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{3ae79031-e1bc-11d0-8f78-00a0c9110057}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:128:0:{116d2292-e37d-41cd-a077-ebacac4c8cc4}"
             },
             {
               "$type": "Bookmark",
@@ -43,14 +39,6 @@
             {
               "$type": "Bookmark",
               "Name": "ST:0:0:{b1e99781-ab81-11d0-b683-00aa00a3ee26}"
-            },
-            {
-              "$type": "Bookmark",
-              "Name": "ST:0:0:{1c64b9c2-e352-428e-a56d-0ace190b99a6}"
-            },
-            {
-              "$type": "Bookmark",
-              "Name": "ST:128:0:{116d2292-e37d-41cd-a077-ebacac4c8cc4}"
             },
             {
               "$type": "Bookmark",
@@ -83,10 +71,6 @@
             {
               "$type": "Bookmark",
               "Name": "ST:4:0:{fabf9319-47eb-497e-b8f6-d9f73fba5f55}"
-            },
-            {
-              "$type": "Bookmark",
-              "Name": "ST:0:0:{aa2115a1-9712-457b-9047-dbb71ca2cdd2}"
             },
             {
               "$type": "Bookmark",
@@ -866,10 +850,6 @@
             },
             {
               "$type": "Bookmark",
-              "Name": "ST:0:0:{3ae79031-e1bc-11d0-8f78-00a0c9110057}"
-            },
-            {
-              "$type": "Bookmark",
               "Name": "ST:28:0:{e8034f19-ab72-4f06-83fd-f6832b41aa63}"
             },
             {
@@ -877,58 +857,43 @@
               "Name": "ST:9:0:{e8034f19-ab72-4f06-83fd-f6832b41aa63}"
             },
             {
-              "$type": "Document",
-              "DocumentIndex": 1,
-              "Title": "DBSetup.sql ",
-              "DocumentMoniker": "D:\\FPT\\FA25\\Heartoza\\Backend_Heartoza\\Heartoza\\DBSetup.sql",
-              "RelativeDocumentMoniker": "Heartoza\\DBSetup.sql",
-              "ToolTip": "D:\\FPT\\FA25\\Heartoza\\Backend_Heartoza\\Heartoza\\DBSetup.sql",
-              "RelativeToolTip": "Heartoza\\DBSetup.sql",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000826|",
-              "WhenOpened": "2025-09-16T17:17:54.42Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 2,
-              "Title": "Program.cs",
-              "DocumentMoniker": "D:\\FPT\\FA25\\Heartoza\\Backend_Heartoza\\Heartoza\\Program.cs",
-              "RelativeDocumentMoniker": "Heartoza\\Program.cs",
-              "ToolTip": "D:\\FPT\\FA25\\Heartoza\\Backend_Heartoza\\Heartoza\\Program.cs",
-              "RelativeToolTip": "Heartoza\\Program.cs",
-              "ViewState": "AgIAABcAAAAAAAAAAAAuwB8AAAAjAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-09-16T17:04:10.005Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 3,
-              "Title": "launchSettings.json",
-              "DocumentMoniker": "D:\\FPT\\FA25\\Heartoza\\Backend_Heartoza\\Heartoza\\Properties\\launchSettings.json",
-              "RelativeDocumentMoniker": "Heartoza\\Properties\\launchSettings.json",
-              "ToolTip": "D:\\FPT\\FA25\\Heartoza\\Backend_Heartoza\\Heartoza\\Properties\\launchSettings.json",
-              "RelativeToolTip": "Heartoza\\Properties\\launchSettings.json",
-              "ViewState": "AgIAAAwAAAAAAAAAAAAAABoAAAAwAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001642|",
-              "WhenOpened": "2025-09-16T17:00:05.874Z"
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{1c4feeaa-4718-4aa9-859d-94ce25d182ba}"
             },
             {
               "$type": "Document",
               "DocumentIndex": 0,
-              "Title": "ProductsController.cs",
-              "DocumentMoniker": "D:\\FPT\\FA25\\Heartoza\\Backend_Heartoza\\Heartoza\\Controllers\\ProductsController.cs",
-              "RelativeDocumentMoniker": "Heartoza\\Controllers\\ProductsController.cs",
-              "ToolTip": "D:\\FPT\\FA25\\Heartoza\\Backend_Heartoza\\Heartoza\\Controllers\\ProductsController.cs",
-              "RelativeToolTip": "Heartoza\\Controllers\\ProductsController.cs",
-              "ViewState": "AgIAABgAAAAAAAAAAAAYwD4AAAAcAAAAAAAAAA==",
+              "Title": "OrdersController.cs",
+              "DocumentMoniker": "D:\\FA25\\EXE201\\heartoza-git\\Backend_Heartoza\\Heartoza\\Controllers\\OrdersController.cs",
+              "RelativeDocumentMoniker": "Heartoza\\Controllers\\OrdersController.cs",
+              "ToolTip": "D:\\FA25\\EXE201\\heartoza-git\\Backend_Heartoza\\Heartoza\\Controllers\\OrdersController.cs",
+              "RelativeToolTip": "Heartoza\\Controllers\\OrdersController.cs",
+              "ViewState": "AgIAACECAAAAAAAAAAAAwCwCAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-09-16T09:14:28.579Z",
+              "WhenOpened": "2025-09-17T06:03:08.877Z",
               "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "ProductsController.cs",
+              "DocumentMoniker": "D:\\FA25\\EXE201\\heartoza-git\\Backend_Heartoza\\Heartoza\\Controllers\\ProductsController.cs",
+              "RelativeDocumentMoniker": "Heartoza\\Controllers\\ProductsController.cs",
+              "ToolTip": "D:\\FA25\\EXE201\\heartoza-git\\Backend_Heartoza\\Heartoza\\Controllers\\ProductsController.cs",
+              "RelativeToolTip": "Heartoza\\Controllers\\ProductsController.cs",
+              "ViewState": "AgIAAG0AAAAAAAAAAIA6wFEAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-09-16T09:46:28.589Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{1c64b9c2-e352-428e-a56d-0ace190b99a6}"
             }
           ]
         },
         {
-          "DockedWidth": 386,
+          "DockedWidth": 479,
           "SelectedChildIndex": -1,
           "Children": [
             {
@@ -1132,10 +1097,6 @@
             {
               "$type": "Bookmark",
               "Name": "ST:22:0:{e8034f19-ab72-4f06-83fd-f6832b41aa63}"
-            },
-            {
-              "$type": "Bookmark",
-              "Name": "ST:0:0:{0ad07096-bba9-4900-a651-0598d26f6d24}"
             }
           ]
         }
