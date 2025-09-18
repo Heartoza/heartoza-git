@@ -17,10 +17,6 @@
     {
       "AbsoluteMoniker": "D:0:0:{9F51160A-07B4-4347-8F06-B7D5DEC004B4}|Heartoza\\Heartoza.csproj|d:\\fpt\\fa25\\heartoza\\backend_heartoza\\heartoza\\properties\\launchsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}",
       "RelativeMoniker": "D:0:0:{9F51160A-07B4-4347-8F06-B7D5DEC004B4}|Heartoza\\Heartoza.csproj|solutionrelative:heartoza\\properties\\launchsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{9F51160A-07B4-4347-8F06-B7D5DEC004B4}|Heartoza\\Heartoza.csproj|d:\\fpt\\fa25\\heartoza\\backend_heartoza\\heartoza\\dbsetup.sql||{CC5D8DF0-88F4-4BB2-9DBB-B48CEE65C30A}|CodeFrame",
-      "RelativeMoniker": "D:0:0:{9F51160A-07B4-4347-8F06-B7D5DEC004B4}|Heartoza\\Heartoza.csproj|solutionrelative:heartoza\\dbsetup.sql||{CC5D8DF0-88F4-4BB2-9DBB-B48CEE65C30A}|CodeFrame"
     }
   ],
   "DocumentGroupContainers": [
@@ -879,14 +875,13 @@
             {
               "$type": "Document",
               "DocumentIndex": 1,
-              "Title": "DBSetup.sql ",
+              "Title": "DBSetup.sql",
               "DocumentMoniker": "D:\\FPT\\FA25\\Heartoza\\Backend_Heartoza\\Heartoza\\DBSetup.sql",
               "RelativeDocumentMoniker": "Heartoza\\DBSetup.sql",
               "ToolTip": "D:\\FPT\\FA25\\Heartoza\\Backend_Heartoza\\Heartoza\\DBSetup.sql",
               "RelativeToolTip": "Heartoza\\DBSetup.sql",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000826|",
-              "WhenOpened": "2025-09-16T17:17:54.42Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-09-16T17:17:54.42Z"
             },
             {
               "$type": "Document",
@@ -920,7 +915,7 @@
               "RelativeDocumentMoniker": "Heartoza\\Controllers\\ProductsController.cs",
               "ToolTip": "D:\\FPT\\FA25\\Heartoza\\Backend_Heartoza\\Heartoza\\Controllers\\ProductsController.cs",
               "RelativeToolTip": "Heartoza\\Controllers\\ProductsController.cs",
-              "ViewState": "AgIAABgAAAAAAAAAAAAYwD4AAAAcAAAAAAAAAA==",
+              "ViewState": "AgIAABgAAAAAAAAAAAAYwBkAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2025-09-16T09:14:28.579Z",
               "EditorCaption": ""

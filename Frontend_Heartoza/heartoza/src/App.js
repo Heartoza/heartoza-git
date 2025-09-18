@@ -6,12 +6,12 @@ Routes: Container chứa nhiều Route.
 Route: Định nghĩa 1 đường dẫn (path) và component nào sẽ hiển thị khi URL khớp.
 */
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import Header from "./components/Header";
-import Home from "./components/Home";
-import Products from "./components/ProductList.jsx";
-import About from "./components/About.jsx";
-import Contact from "./components/Contact.jsx";
-import Footer from "./components/Footer.jsx";
+import Header from "./components/common/Header.jsx";
+import Home from "./components/common/Home.jsx";
+import Products from "./components/common/ProductList.jsx";
+import About from "./components/common/About.jsx";
+import Contact from "./components/common/Contact.jsx";
+import Footer from "./components/common/Footer.jsx";
 
 function App() {
   return (
