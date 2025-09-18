@@ -103,4 +103,37 @@ public class AuthController : ControllerBase
         await _db.SaveChangesAsync(ct);
         return Ok(new { message = "Đổi mật khẩu thành công." });
     }
+
+    [HttpPost("seed-admin")]
+    public async Task<IActionResult> SeedAdmin(CancellationToken ct)
+    {
+        // check nếu đã có admin
+        if (await _db.Users.AnyAsync(u => u.Role == "Admin", ct))
+            return BadRequest("Admin đã tồn tại.");
+
+        var admin = new User
+        {
+            FullName = "Super Admin",
+            Email = "admin@example.com",
+            Phone = "0123456789",
+            PasswordHash = BCrypt.Net.BCrypt.HashPassword("Admin@123"), // pass mặc định
+            Role = "Admin",
+            CreatedAt = DateTime.UtcNow
+        };
+
+        _db.Users.Add(admin);
+        await _db.SaveChangesAsync(ct);
+
+        // cấp token luôn để test
+        var token = _token.CreateToken(admin.UserId, admin.Email, admin.Role);
+        return Ok(new
+        {
+            Message = "Admin account created",
+            admin.UserId,
+            admin.Email,
+            Password = "Admin@123",
+            Token = token
+        });
+    }
+
 }

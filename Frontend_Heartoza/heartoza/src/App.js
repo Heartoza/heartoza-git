@@ -15,6 +15,14 @@ import Profile from "./components/customer/Profile.jsx";
 import ChangePassword from "./components/customer/ChangePassword.jsx";
 import ForgotPassword from "./components/customer/ForgotPassword.jsx";
 
+// Admin pages
+import AdminDashboard from "./components/admin/AdminDashboard.jsx";
+import AdminUsers from "./components/admin/AdminUsers.jsx";
+import AdminOrders from "./components/admin/AdminOrders.jsx";
+import AdminProducts from "./components/admin/AdminProducts.jsx";
+import AdminCategories from "./components/admin/AdminCategories.jsx";
+import AdminSidebar from "./components/admin/AdminSidebar.jsx";
+
 // Route guard
 import ProtectedRoute from "./routes/ProtectedRoute";
 
@@ -22,37 +30,68 @@ function App() {
     return (
         <AuthProvider>
             <BrowserRouter>
-                <Header />
                 <Routes>
-                    <Route path="/" element={<Home />} />
-                    <Route path="/products" element={<Products />} />
-                    <Route path="/about" element={<About />} />
-                    <Route path="/contact" element={<Contact />} />
-
-                    {/* auth routes */}
-                    <Route path="/login" element={<Login />} />
-                    <Route path="/register" element={<Register />} />
-                    <Route path="/forgot" element={<ForgotPassword />} />
-
-                    {/* protected */}
+                    {/* ================= Customer layout ================= */}
                     <Route
-                        path="/profile"
+                        path="/*"
                         element={
-                            <ProtectedRoute>
-                                <Profile />
-                            </ProtectedRoute>
+                            <>
+                                <Header />
+                                <Routes>
+                                    <Route path="/" element={<Home />} />
+                                    <Route path="/products" element={<Products />} />
+                                    <Route path="/about" element={<About />} />
+                                    <Route path="/contact" element={<Contact />} />
+
+                                    {/* Auth */}
+                                    <Route path="/login" element={<Login />} />
+                                    <Route path="/register" element={<Register />} />
+                                    <Route path="/forgot" element={<ForgotPassword />} />
+
+                                    {/* Protected (Customer) */}
+                                    <Route
+                                        path="/profile"
+                                        element={
+                                            <ProtectedRoute>
+                                                <Profile />
+                                            </ProtectedRoute>
+                                        }
+                                    />
+                                    <Route
+                                        path="/change-password"
+                                        element={
+                                            <ProtectedRoute>
+                                                <ChangePassword />
+                                            </ProtectedRoute>
+                                        }
+                                    />
+                                </Routes>
+                                <Footer />
+                            </>
                         }
                     />
+
+                    {/* ================= Admin layout ================= */}
                     <Route
-                        path="/change-password"
+                        path="/admin/*"
                         element={
-                            <ProtectedRoute>
-                                <ChangePassword />
+                            <ProtectedRoute role="Admin">
+                                <div className="admin-layout">
+                                    <AdminSidebar />
+                                    <div className="admin-content">
+                                        <Routes>
+                                            <Route path="" element={<AdminDashboard />} />
+                                            <Route path="users" element={<AdminUsers />} />
+                                            <Route path="orders" element={<AdminOrders />} />
+                                            <Route path="products" element={<AdminProducts />} />
+                                            <Route path="categories" element={<AdminCategories />} />
+                                        </Routes>
+                                    </div>
+                                </div>
                             </ProtectedRoute>
                         }
                     />
                 </Routes>
-                <Footer />
             </BrowserRouter>
         </AuthProvider>
     );

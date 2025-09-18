@@ -12,12 +12,10 @@ export default function Login() {
     const [err, setErr] = React.useState("");
     const [loading, setLoading] = React.useState(false);
 
-    const onChange =
-        (key) =>
-            (e) => {
-                const v = e.target.value;
-                setForm((s) => ({ ...s, [key]: v }));
-            };
+    const onChange = (key) => (e) => {
+        const v = e.target.value;
+        setForm((s) => ({ ...s, [key]: v }));
+    };
 
     const submit = async (e) => {
         e.preventDefault();
@@ -27,7 +25,13 @@ export default function Login() {
             const res = await AuthService.login(form);
             const { token, userId, email, fullName, role } = res;
             login(token, { userId, email, fullName, role });
-            nav("/profile");
+
+            // 🔑 Phân nhánh sau login
+            if (role === "Admin") {
+                nav("/admin");
+            } else {
+                nav("/profile");
+            }
         } catch (e) {
             setErr(
                 e?.response?.data ?? "Đăng nhập thất bại. Vui lòng kiểm tra thông tin."
