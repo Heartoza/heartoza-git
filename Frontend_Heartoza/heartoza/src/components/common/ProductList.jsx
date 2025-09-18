@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import "./css/ProductList.css";
+import "../css/ProductList.css";
 
 // React function component 
 // Giúp import component này từ file khác mà không cần ngoặc nhọn
