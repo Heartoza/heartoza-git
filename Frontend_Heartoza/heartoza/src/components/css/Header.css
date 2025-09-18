@@ -1,86 +1,95 @@
 /* HEADER TRÊN */
 .header {
   display: flex;
-  align-items: center;
   justify-content: space-between;
+  align-items: center;
   background-color: #fff;
-  padding: 10px 10px;
-  border-bottom: 1 px solid #eee;
+  padding: 10px 40px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
 }
 
-.header-left{
-    display: flex;
-    align-items: center;
-    gap: 10px;
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
 }
 
 .logo {
-  height: 40px;
-  width: 40px;
-  object-fit: contain;
+  height: 50px;
+  width: auto;
 }
 
-.site-name{
-    font-size: 1.5rem;
-    font-weight: bold;
-    margin: 0;
-    color: #ff4d6d;
+.site-name {
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: #ff4081;
+  margin: 0;
 }
 
-.header-search input{
-    width: 300px;
-    padding: 8px 12px;
-    border: 1px solid #ccc;
-    border-radius: 20px;
-    outline: none;
+.header-search {
+  flex: 1;
+  margin: 0 30px;
 }
 
-.header-right{
-    display: flex;
-    align-items: center;
-    gap: 10px;
+.header-search input {
+  width: 100%;
+  padding: 8px 12px;
+  font-size: 1rem;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  outline: none;
 }
 
-.login-btn, .register-btn {
+.header-search input:focus {
+  border-color: #ff4081;
+}
+
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.header-right a {
   text-decoration: none;
-  color: white;
-  background: #ff4d6d;
+  font-size: 1rem;
+  color: #333;
   padding: 6px 12px;
-  border-radius: 20px;
-  font-weight: 500;
-  transition: 0.3s ease-in-out;
+  border-radius: 6px;
+  transition: 0.2s ease-in-out;
 }
 
-.register-btn {
-  background: #ffa54d; /* màu khác cho phân biệt */
+.header-right a:hover {
+  background-color: #f5f5f5;
 }
 
-.login-btn:hover { background: #e63a59; }
-.register-btn:hover { background: #e68a3a; }
-
-
-.cart-btn{
-    text-decoration: none;
-    font-size: 1.5rem;
+/* NAV MENU */
+.nav-menu {
+  display: flex;
+  justify-content: center;
+  gap: 30px;
+  background-color: #fff;
+  padding: 12px 0;
+  border-top: 1px solid #ddd;
+  border-bottom: 1px solid #ddd;
 }
 
-/* NAV MENU DƯỚI */
-.nav-menu{
-    display: flex;
-    justify-content: space-evenly;
-    background: #fff;
-    border-top: 1px solid #eee;
-    border-bottom: 1px solid #eee;
-    padding: 10px 0;
+.nav-menu a {
+  text-decoration: none;
+  font-size: 1rem;
+  color: #333;
+  padding: 6px 12px;
+  transition: 0.2s ease-in-out;
+  border-radius: 8px;
 }
 
-.nav-menu a{
-    text-decoration: none;
-    color: #333;
-    font-weight: 500;
-    position: relative;
+.nav-menu a:hover {
+  background-color: #f5f5f5;
 }
 
-.nav-menu a:hover{
-    color: #ff4d6d;
+/* Khi active (đang ở trang đó) */
+.nav-menu a.active {
+  background-color: #ff4081;
+  color: white;
+  font-weight: bold;
 }
