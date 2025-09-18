@@ -1,14 +1,19 @@
 ﻿import React from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { AuthService } from "../../services/authService";
 import { AuthContext } from "../../context/AuthContext";
 import "../css/Auth.css";
 
-export default function Login() {
+export default function Register() {
     const nav = useNavigate();
     const { login } = React.useContext(AuthContext);
 
-    const [form, setForm] = React.useState({ email: "", password: "" });
+    const [form, setForm] = React.useState({
+        fullName: "",
+        email: "",
+        password: "",
+        phone: "",
+    });
     const [err, setErr] = React.useState("");
     const [loading, setLoading] = React.useState(false);
 
@@ -24,14 +29,12 @@ export default function Login() {
         setErr("");
         setLoading(true);
         try {
-            const res = await AuthService.login(form);
+            const res = await AuthService.register(form);
             const { token, userId, email, fullName, role } = res;
             login(token, { userId, email, fullName, role });
             nav("/profile");
         } catch (e) {
-            setErr(
-                e?.response?.data ?? "Đăng nhập thất bại. Vui lòng kiểm tra thông tin."
-            );
+            setErr(e?.response?.data ?? "Đăng ký thất bại.");
         } finally {
             setLoading(false);
         }
@@ -39,8 +42,15 @@ export default function Login() {
 
     return (
         <div className="auth-container">
-            <h2>Đăng nhập</h2>
+            <h2>Đăng ký</h2>
             <form onSubmit={submit}>
+                <input
+                    placeholder="Họ tên"
+                    value={form.fullName}
+                    onChange={onChange("fullName")}
+                    autoComplete="name"
+                    required
+                />
                 <input
                     type="email"
                     placeholder="Email"
@@ -51,24 +61,25 @@ export default function Login() {
                 />
                 <input
                     type="password"
-                    placeholder="Mật khẩu"
+                    placeholder="Mật khẩu (≥ 6 ký tự)"
                     value={form.password}
                     onChange={onChange("password")}
-                    autoComplete="current-password"
+                    autoComplete="new-password"
                     required
+                />
+                <input
+                    placeholder="SĐT (tuỳ chọn)"
+                    value={form.phone}
+                    onChange={onChange("phone")}
+                    autoComplete="tel"
                 />
 
                 {err && <p className="auth-message error">{String(err)}</p>}
 
                 <button type="submit" disabled={loading}>
-                    {loading ? "Đang đăng nhập..." : "Login"}
+                    {loading ? "Đang đăng ký..." : "Register"}
                 </button>
             </form>
-
-            <div className="link-group">
-                <Link to="/forgot">Quên mật khẩu?</Link> ·{" "}
-                <Link to="/register">Tạo tài khoản</Link>
-            </div>
         </div>
     );
 }
