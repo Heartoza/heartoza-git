@@ -25,6 +25,8 @@ public partial class GiftBoxShopContext : DbContext
 
     public virtual DbSet<OrderItem> OrderItems { get; set; }
 
+    public virtual DbSet<PasswordReset> PasswordResets { get; set; }
+
     public virtual DbSet<Payment> Payments { get; set; }
 
     public virtual DbSet<Product> Products { get; set; }
@@ -32,8 +34,6 @@ public partial class GiftBoxShopContext : DbContext
     public virtual DbSet<Shipment> Shipments { get; set; }
 
     public virtual DbSet<User> Users { get; set; }
-
-    public virtual DbSet<PasswordReset> PasswordResets { get; set; } = null!;
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -144,6 +144,24 @@ public partial class GiftBoxShopContext : DbContext
                 .HasConstraintName("FK_OI_Product");
         });
 
+        modelBuilder.Entity<PasswordReset>(entity =>
+        {
+            entity.HasKey(e => e.ResetId).HasName("PK__Password__783CF04D1B745DB3");
+
+            entity.HasIndex(e => e.Token, "IX_PasswordResets_Token");
+
+            entity.HasIndex(e => e.Token, "UQ__Password__1EB4F8178EB058E2").IsUnique();
+
+            entity.Property(e => e.CreatedAt).HasDefaultValueSql("(sysutcdatetime())");
+            entity.Property(e => e.Token)
+                .HasMaxLength(64)
+                .IsUnicode(false);
+
+            entity.HasOne(d => d.User).WithMany(p => p.PasswordResets)
+                .HasForeignKey(d => d.UserId)
+                .HasConstraintName("FK_PasswordResets_Users");
+        });
+
         modelBuilder.Entity<Payment>(entity =>
         {
             entity.HasKey(e => e.PaymentId).HasName("PK__Payments__9B556A380C79368A");
@@ -215,6 +233,7 @@ public partial class GiftBoxShopContext : DbContext
 
             entity.HasIndex(e => e.Email, "UQ__Users__A9D105343ABD5DA5").IsUnique();
 
+            entity.Property(e => e.AvatarUrl).HasMaxLength(500);
             entity.Property(e => e.CreatedAt).HasDefaultValueSql("(sysutcdatetime())");
             entity.Property(e => e.Email)
                 .HasMaxLength(255)

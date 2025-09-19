@@ -21,7 +21,11 @@ public partial class User
 
     public DateTime? CreatedAt { get; set; }
 
+    public string? AvatarUrl { get; set; }
+
     public virtual ICollection<Address> Addresses { get; set; } = new List<Address>();
 
     public virtual ICollection<Order> Orders { get; set; } = new List<Order>();
+
+    public virtual ICollection<PasswordReset> PasswordResets { get; set; } = new List<PasswordReset>();
 }

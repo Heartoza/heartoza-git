@@ -1,15 +1,17 @@
 {
   "ExpandedNodes": [
     "",
-    "\\.github",
-    "\\.github\\workflows",
     "\\Backend_Heartoza",
+    "\\Backend_Heartoza\\Heartoza",
+    "\\Backend_Heartoza\\Heartoza\\DTO",
+    "\\Backend_Heartoza\\Heartoza\\DTO\\Profile",
     "\\Frontend_Heartoza",
     "\\Frontend_Heartoza\\heartoza",
-    "\\Frontend_Heartoza\\heartoza\\public",
     "\\Frontend_Heartoza\\heartoza\\src",
-    "\\Frontend_Heartoza\\heartoza\\src\\assets",
-    "\\Frontend_Heartoza\\heartoza\\src\\components"
+    "\\Frontend_Heartoza\\heartoza\\src\\components",
+    "\\Frontend_Heartoza\\heartoza\\src\\components\\css",
+    "\\Frontend_Heartoza\\heartoza\\src\\context"
   ],
+  "SelectedNode": "\\Backend_Heartoza\\Heartoza.sln",
   "PreviewInSolutionExplorer": false
 }
