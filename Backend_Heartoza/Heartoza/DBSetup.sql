@@ -314,3 +314,8 @@ CREATE TABLE PasswordResets (
     CONSTRAINT FK_PasswordResets_Users FOREIGN KEY (UserId) REFERENCES Users(UserId) ON DELETE CASCADE
 );
 CREATE INDEX IX_PasswordResets_Token ON PasswordResets(Token);
+
+USE GiftBoxShop;
+GO
+ALTER TABLE Addresses ADD IsDefault BIT NOT NULL DEFAULT 0;
+ALTER TABLE Users ADD AvatarUrl NVARCHAR(500) NULL;
