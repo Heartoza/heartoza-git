@@ -10,6 +10,7 @@ export default function ProductList(){
     const [products, setProducts] = useState([]);
     const [filteredProducts, setFilteredProducts] = useState([]);
     const [priceFilter, setPriceFilter] = useState("");
+    const [categories, setCategories] = useState([]);
     
     // useEffect: chạy 1 lần khi component load 
     // useEffect(() => {}, []) -> Dùng để chạy 1 đoạn code khi component render.
