@@ -1,0 +1,15 @@
+{
+  "ExpandedNodes": [
+    "",
+    "\\.github",
+    "\\.github\\workflows",
+    "\\Backend_Heartoza",
+    "\\Frontend_Heartoza",
+    "\\Frontend_Heartoza\\heartoza",
+    "\\Frontend_Heartoza\\heartoza\\public",
+    "\\Frontend_Heartoza\\heartoza\\src",
+    "\\Frontend_Heartoza\\heartoza\\src\\assets",
+    "\\Frontend_Heartoza\\heartoza\\src\\components"
+  ],
+  "PreviewInSolutionExplorer": false
+}

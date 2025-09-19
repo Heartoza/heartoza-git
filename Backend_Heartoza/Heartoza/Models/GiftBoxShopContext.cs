@@ -33,6 +33,7 @@ public partial class GiftBoxShopContext : DbContext
 
     public virtual DbSet<User> Users { get; set; }
 
+    public virtual DbSet<PasswordReset> PasswordResets { get; set; } = null!;
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

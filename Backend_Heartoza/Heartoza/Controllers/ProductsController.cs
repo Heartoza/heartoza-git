@@ -1,8 +1,12 @@
-﻿// ProductsController
+﻿using System;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
+using System.Collections.Generic;
 using Heartoza.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using System.Linq;
+using Heartoza.DTO.Products;
 
 [ApiController]
 [Route("api/[controller]")]
@@ -11,11 +15,15 @@ public class ProductsController : ControllerBase
     private readonly GiftBoxShopContext _db;
     public ProductsController(GiftBoxShopContext db) => _db = db;
 
-    // GET /api/products?categoryId=1&q=tra&page=1&pageSize=20&sort=name
+    // GET /api/products?categoryId=1&categoryIds=2&categoryIds=3&q=tra&minPrice=10000&maxPrice=90000&active=true&page=1&pageSize=20&sort=name
     [HttpGet]
     public async Task<IActionResult> Get(
         [FromQuery] int? categoryId,
+        [FromQuery] List<int>? categoryIds,
         [FromQuery] string? q,
+        [FromQuery] decimal? minPrice,
+        [FromQuery] decimal? maxPrice,
+        [FromQuery] bool? active,
         [FromQuery] int page = 1,
         [FromQuery] int pageSize = 20,
         [FromQuery] string? sort = "name",
@@ -24,23 +32,32 @@ public class ProductsController : ControllerBase
         if (page <= 0) page = 1;
         if (pageSize <= 0 || pageSize > 100) pageSize = 20;
 
-        // Lưu ý: IsActive trong DB có thể nullable -> so sánh == true
-        var query = _db.Products
-            .AsNoTracking()
-            .Where(p => p.IsActive == true);
+        var query = _db.Products.AsNoTracking().AsQueryable();
 
+        // trạng thái
+        query = active is null
+            ? query.Where(p => p.IsActive == true)
+            : query.Where(p => p.IsActive == active.Value);
+
+        // category
         if (categoryId.HasValue)
             query = query.Where(p => p.CategoryId == categoryId.Value);
+        if (categoryIds is { Count: > 0 })
+            query = query.Where(p => categoryIds.Contains(p.CategoryId));
 
+        // keyword
         if (!string.IsNullOrWhiteSpace(q))
         {
             var pattern = $"%{q.Trim()}%";
-            query = query.Where(p =>
-                EF.Functions.Like(p.Name, pattern) ||
-                EF.Functions.Like(p.Sku, pattern)); // SKU trong DB là VARCHAR(64) 'SKU'
+            query = query.Where(p => EF.Functions.Like(p.Name, pattern) ||
+                                     EF.Functions.Like(p.Sku, pattern));
         }
 
-        // sort: name | price | created | sku  (mặc định name)
+        // price range
+        if (minPrice.HasValue) query = query.Where(p => p.Price >= minPrice.Value);
+        if (maxPrice.HasValue) query = query.Where(p => p.Price <= maxPrice.Value);
+
+        // sort
         query = sort?.ToLowerInvariant() switch
         {
             "price" => query.OrderBy(p => p.Price).ThenBy(p => p.Name),
@@ -54,81 +71,149 @@ public class ProductsController : ControllerBase
         };
 
         var total = await query.CountAsync(ct);
+        var totalPages = (int)Math.Ceiling(total / (double)pageSize);
 
         var items = await query
             .Skip((page - 1) * pageSize)
             .Take(pageSize)
-            .Select(p => new
+            .Select(p => new ProductDto
             {
-                p.ProductId,
-                p.Name,
-                p.Sku,
-                p.Price,
-                p.CategoryId,
-                p.IsActive,
-                p.CreatedAt
+                ProductId = p.ProductId,
+                Name = p.Name,
+                Sku = p.Sku,
+                Price = p.Price,
+                CategoryId = p.CategoryId,
+                IsActive = p.IsActive,
+                CreatedAt = p.CreatedAt
             })
             .ToListAsync(ct);
 
-        return Ok(new
-        {
-            page,
-            pageSize,
-            total,
-            items
-        });
+        return Ok(new { page, pageSize, total, totalPages, items });
     }
 
+    // GET /api/products/{id}?includeInactive=false
     [HttpGet("{id:int}")]
-    public async Task<IActionResult> GetById(int id, CancellationToken ct = default)
+    public async Task<IActionResult> GetById(int id, [FromQuery] bool includeInactive = false, CancellationToken ct = default)
     {
-        var p = await _db.Products
+        var product = await _db.Products
             .AsNoTracking()
-            .FirstOrDefaultAsync(x => x.ProductId == id && x.IsActive == true, ct);
+            .Where(x => x.ProductId == id && (includeInactive || x.IsActive == true))
+            .Select(x => new ProductDetailResponse
+            {
+                ProductId = x.ProductId,
+                Name = x.Name,
+                Sku = x.Sku,
+                Price = x.Price,
+                CategoryId = x.CategoryId,
+                CategoryName = _db.Categories.Where(c => c.CategoryId == x.CategoryId)
+                                             .Select(c => c.Name)
+                                             .FirstOrDefault()!,
+                IsActive = x.IsActive,
+                CreatedAt = x.CreatedAt,
+                OnHand = _db.Inventories.Where(i => i.ProductId == x.ProductId)
+                                              .Select(i => (int?)i.Quantity)
+                                              .FirstOrDefault() ?? 0
+            })
+            .FirstOrDefaultAsync(ct);
 
-        return p == null ? NotFound() : Ok(p);
+        return product == null ? NotFound() : Ok(product);
     }
-    [HttpPost]
-    public async Task<IActionResult> Create([FromBody] Product req, CancellationToken ct = default)
-    {
-        if (string.IsNullOrWhiteSpace(req.Name) || string.IsNullOrWhiteSpace(req.Sku))
-            return BadRequest("Tên và SKU không được để trống.");
 
-        if (await _db.Products.AnyAsync(p => p.Sku == req.Sku, ct))
+    // POST /api/products  (Create) — dùng DTO gọn cho Swagger
+    [HttpPost]
+    public async Task<IActionResult> Create([FromBody] ProductCreateDto req, CancellationToken ct = default)
+    {
+        if (string.IsNullOrWhiteSpace(req.Name)) return BadRequest("Tên sản phẩm không được để trống.");
+        if (string.IsNullOrWhiteSpace(req.Sku)) return BadRequest("SKU không được để trống.");
+        if (req.Price <= 0) return BadRequest("Giá phải > 0.");
+
+        var sku = req.Sku.Trim();
+        if (await _db.Products.AnyAsync(p => p.Sku == sku, ct))
             return BadRequest("SKU đã tồn tại.");
 
-        req.ProductId = 0;
-        req.IsActive = true;
-        req.CreatedAt = DateTime.UtcNow;
+        var entity = new Product
+        {
+            Name = req.Name.Trim(),
+            Sku = sku,
+            Price = req.Price,
+            CategoryId = req.CategoryId,
+            IsActive = true,
+            CreatedAt = DateTime.UtcNow
+        };
 
-        _db.Products.Add(req);
+        _db.Products.Add(entity);
         await _db.SaveChangesAsync(ct);
 
-        return CreatedAtAction(nameof(GetById), new { id = req.ProductId }, req);
+        var dto = new ProductDto
+        {
+            ProductId = entity.ProductId,
+            Name = entity.Name,
+            Sku = entity.Sku,
+            Price = entity.Price,
+            CategoryId = entity.CategoryId,
+            IsActive = entity.IsActive,
+            CreatedAt = entity.CreatedAt
+        };
+
+        return CreatedAtAction(nameof(GetById), new { id = entity.ProductId }, dto);
     }
+
+    // PUT /api/products/{id} (partial update qua DTO nullable fields)
     [HttpPut("{id:int}")]
-    public async Task<IActionResult> Update(int id, [FromBody] Product req, CancellationToken ct = default)
+    public async Task<IActionResult> Update(int id, [FromBody] ProductUpdateDto req, CancellationToken ct = default)
     {
-        var p = await _db.Products.FindAsync(new object[] { id }, ct);
+        var p = await _db.Products.FirstOrDefaultAsync(x => x.ProductId == id, ct);
         if (p == null) return NotFound();
 
-        if (!string.IsNullOrWhiteSpace(req.Sku) &&
-            await _db.Products.AnyAsync(x => x.Sku == req.Sku && x.ProductId != id, ct))
-            return BadRequest("SKU đã tồn tại.");
+        // validate/uniqueness
+        if (!string.IsNullOrWhiteSpace(req.Sku))
+        {
+            var sku = req.Sku.Trim();
+            var exists = await _db.Products.AnyAsync(x => x.Sku == sku && x.ProductId != id, ct);
+            if (exists) return BadRequest("SKU đã tồn tại.");
+            p.Sku = sku;
+        }
 
-        p.Name = req.Name ?? p.Name;
-        p.Sku = req.Sku ?? p.Sku;
-        p.Price = req.Price;
-        p.CategoryId = req.CategoryId;
-        p.IsActive = req.IsActive;
+        if (req.Name != null)
+        {
+            if (string.IsNullOrWhiteSpace(req.Name))
+                return BadRequest("Tên sản phẩm không được để trống.");
+            p.Name = req.Name.Trim();
+        }
+
+        if (req.Price.HasValue)
+        {
+            if (req.Price.Value <= 0) return BadRequest("Giá phải > 0.");
+            p.Price = req.Price.Value;
+        }
+
+        if (req.CategoryId.HasValue)
+            p.CategoryId = req.CategoryId.Value;
+
+        if (req.IsActive.HasValue)
+            p.IsActive = req.IsActive.Value;
 
         await _db.SaveChangesAsync(ct);
-        return Ok(p);
+
+        var dto = new ProductDto
+        {
+            ProductId = p.ProductId,
+            Name = p.Name,
+            Sku = p.Sku,
+            Price = p.Price,
+            CategoryId = p.CategoryId,
+            IsActive = p.IsActive,
+            CreatedAt = p.CreatedAt
+        };
+
+        return Ok(dto);
     }
+
+    // DELETE /api/products/{id}  (soft delete)
     [HttpDelete("{id:int}")]
     public async Task<IActionResult> Delete(int id, CancellationToken ct = default)
     {
-        var p = await _db.Products.FindAsync(new object[] { id }, ct);
+        var p = await _db.Products.FirstOrDefaultAsync(x => x.ProductId == id, ct);
         if (p == null) return NotFound();
 
         p.IsActive = false;
@@ -137,4 +222,16 @@ public class ProductsController : ControllerBase
         return Ok(new { message = "Đã ngưng hoạt động sản phẩm." });
     }
 
+    // PATCH /api/products/{id}/toggle
+    [HttpPatch("{id:int}/toggle")]
+    public async Task<IActionResult> ToggleActive(int id, CancellationToken ct = default)
+    {
+        var p = await _db.Products.FirstOrDefaultAsync(x => x.ProductId == id, ct);
+        if (p == null) return NotFound();
+
+        p.IsActive = !(p.IsActive ?? true);
+        await _db.SaveChangesAsync(ct);
+
+        return Ok(new { productId = p.ProductId, isActive = p.IsActive });
+    }
 }
