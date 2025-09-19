@@ -1,19 +1,18 @@
 ﻿import React from "react";
-import { Link } from "react-router-dom";
+import { NavLink } from "react-router-dom";
 import "../css/Admin.css";
 
-export default function AdminSidebar() {
-    return (
-        <aside className="admin-sidebar">
-            <h3>Admin Panel</h3>
-            <nav>
-                <ul>
-                    <li><Link to="/admin/users">👥 Users</Link></li>
-                    <li><Link to="/admin/orders">📦 Orders</Link></li>
-                    <li><Link to="/admin/products">🛍️ Products</Link></li>
-                    <li><Link to="/admin/categories">🗂️ Categories</Link></li>
-                </ul>
-            </nav>
-        </aside>
-    );
+export default function AdminDashboard() {
+  return (
+    <div className="admin-sidebar">
+      <h2>Admin Panel</h2>
+      <ul className="admin-menu">
+        <li>📊 <NavLink to="/admin/dashboard">Thống kê</NavLink></li>
+        <li>👥 <NavLink to="/admin/users">Người dùng</NavLink></li>
+        <li>📦 <NavLink to="/admin/orders">Đơn hàng</NavLink></li>
+        <li>🛍️ <NavLink to="/admin/products">Sản phẩm</NavLink></li>
+        <li>🗂️ <NavLink to="/admin/categories">Phân loại sản phẩm</NavLink></li>
+      </ul>
+    </div>
+  );
 }

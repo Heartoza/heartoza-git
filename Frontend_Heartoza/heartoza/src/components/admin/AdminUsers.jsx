@@ -1,9 +1,11 @@
 ﻿import React, { useEffect, useState } from "react";
 import { AdminService } from "../../services/adminService";
+import { NavLink } from "react-router-dom";
 import "../css/Admin.css";
 
 export default function AdminUsers() {
     const [users, setUsers] = useState([]);
+    let count = 0;
 
     useEffect(() => {
         (async () => {
@@ -18,17 +20,20 @@ export default function AdminUsers() {
             <table className="admin-table">
                 <thead>
                     <tr>
-                        <th>ID</th><th>Họ tên</th><th>Email</th><th>Role</th><th>Trạng thái</th>
+                        <th>STT</th><th>Họ tên</th><th>Số điện thoại</th><th>Role</th><th>Trạng thái</th><th>Chi tiết</th>
                     </tr>
                 </thead>
                 <tbody>
                     {users.map((u) => (
                         <tr key={u.userId}>
-                            <td>{u.userId}</td>
+                            <td>{count += 1}</td>
                             <td>{u.fullName}</td>
-                            <td>{u.email}</td>
+                            <td>{u.phone}</td>
                             <td>{u.role}</td>
                             <td>{u.isActive ? "✅ Active" : "⛔ Locked"}</td>
+                            <td>
+                                <NavLink to={`/admin/users/${u.userId}`}>Chi tiết</NavLink>
+                            </td>
                         </tr>
                     ))}
                 </tbody>
