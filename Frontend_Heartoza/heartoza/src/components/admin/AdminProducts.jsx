@@ -4,6 +4,7 @@ import "../css/Admin.css";
 
 export default function AdminProducts() {
   const [products, setProducts] = useState([]);
+  let count = 0;
 
   useEffect(() => {
     (async () => {
@@ -18,13 +19,13 @@ export default function AdminProducts() {
       <table className="admin-table">
         <thead>
           <tr>
-            <th>ID</th><th>Tên</th><th>SKU</th><th>Giá</th><th>Danh mục</th><th>Trạng thái</th>
+            <th>STT</th><th>Tên</th><th>SKU</th><th>Giá</th><th>Danh mục</th><th>Trạng thái</th>
           </tr>
         </thead>
         <tbody>
           {products.map((p) => (
             <tr key={p.productId}>
-              <td>{p.productId}</td>
+              <td>{count += 1}</td>
               <td>{p.name}</td>
               <td>{p.sku}</td>
               <td>{p.price.toLocaleString()} đ</td>

@@ -4,6 +4,7 @@ import "../css/Admin.css";
 
 export default function AdminCategories() {
   const [categories, setCategories] = useState([]);
+  let count = 0;
 
   useEffect(() => {
     (async () => {
@@ -18,13 +19,13 @@ export default function AdminCategories() {
       <table className="admin-table">
         <thead>
           <tr>
-            <th>ID</th><th>Tên</th><th>Parent</th><th>Số SP</th>
+            <th>STT</th><th>Tên</th><th>Parent</th><th>Số SP</th>
           </tr>
         </thead>
         <tbody>
           {categories.map((c) => (
             <tr key={c.categoryId}>
-              <td>{c.categoryId}</td>
+              <td>{count += 1}</td>
               <td>{c.name}</td>
               <td>{c.parentId ?? "—"}</td>
               <td>{c.productCount ?? 0}</td>
