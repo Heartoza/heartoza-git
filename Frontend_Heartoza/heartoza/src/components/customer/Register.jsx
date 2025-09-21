@@ -1,12 +1,11 @@
-﻿import React from "react";
+﻿// src/components/customer/Register.jsx
+import React from "react";
 import { useNavigate } from "react-router-dom";
 import { AuthService } from "../../services/authService";
-import { AuthContext } from "../../context/AuthContext";
 import "../css/Auth.css";
 
 export default function Register() {
     const nav = useNavigate();
-    const { login } = React.useContext(AuthContext);
 
     const [form, setForm] = React.useState({
         fullName: "",
@@ -15,24 +14,37 @@ export default function Register() {
         phone: "",
     });
     const [err, setErr] = React.useState("");
+    const [ok, setOk] = React.useState(""); // message thành công
     const [loading, setLoading] = React.useState(false);
 
-    const onChange =
-        (key) =>
-            (e) => {
-                const v = e.target.value;
-                setForm((s) => ({ ...s, [key]: v }));
-            };
+    const onChange = (key) => (e) =>
+        setForm((s) => ({ ...s, [key]: e.target.value }));
 
     const submit = async (e) => {
         e.preventDefault();
         setErr("");
+        setOk("");
+
+        // (optional) policy đơn giản phía FE
+        if ((form.password || "").length < 8) {
+            setErr("Mật khẩu tối thiểu 8 ký tự.");
+            return;
+        }
+
         setLoading(true);
         try {
-            const res = await AuthService.register(form);
-            const { token, userId, email, fullName, role } = res;
-            login(token, { userId, email, fullName, role });
-            nav("/profile");
+            // BE trả { message: "Đăng ký thành công. Vui lòng kiểm tra email..." }
+            const res = await AuthService.register({
+                fullName: form.fullName.trim(),
+                email: form.email.trim(),
+                password: form.password,
+                phone: form.phone?.trim(),
+            });
+
+            setOk(res?.message || "Đăng ký thành công! Hãy kiểm tra email để xác thực.");
+            // KHÔNG gọi login() ở đây. KHÔNG lưu token/user.
+            // (optional) tự điều hướng sang login sau 2–3s
+            setTimeout(() => nav("/login", { replace: true }), 2500);
         } catch (e) {
             setErr(e?.response?.data ?? "Đăng ký thất bại.");
         } finally {
@@ -61,7 +73,7 @@ export default function Register() {
                 />
                 <input
                     type="password"
-                    placeholder="Mật khẩu (≥ 6 ký tự)"
+                    placeholder="Mật khẩu (≥ 8 ký tự)"
                     value={form.password}
                     onChange={onChange("password")}
                     autoComplete="new-password"
@@ -75,6 +87,7 @@ export default function Register() {
                 />
 
                 {err && <p className="auth-message error">{String(err)}</p>}
+                {ok && <p className="auth-message success">{String(ok)}</p>}
 
                 <button type="submit" disabled={loading}>
                     {loading ? "Đang đăng ký..." : "Register"}

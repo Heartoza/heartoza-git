@@ -93,3 +93,47 @@
   color: white;
   font-weight: bold;
 }
+/* USER MENU TRONG HEADER */
+.user-menu {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.user-name {
+    font-size: 0.95rem;
+    color: #555;
+}
+
+/* Nút profile */
+.profile-btn {
+    text-decoration: none;
+    font-size: 0.95rem;
+    color: #333;
+    padding: 6px 12px;
+    border-radius: 6px;
+    transition: 0.2s ease-in-out;
+    border: 1px solid #ccc;
+    background-color: #fff;
+}
+
+    .profile-btn:hover {
+        background-color: #f5f5f5;
+        border-color: #bbb;
+    }
+
+/* Nút logout */
+.logout-btn {
+    font-size: 0.95rem;
+    color: #fff;
+    background-color: #ff4081;
+    border: none;
+    padding: 6px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: 0.2s ease-in-out;
+}
+
+    .logout-btn:hover {
+        background-color: #e73370;
+    }
