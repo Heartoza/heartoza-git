@@ -319,3 +319,188 @@ USE GiftBoxShop;
 GO
 ALTER TABLE Addresses ADD IsDefault BIT NOT NULL DEFAULT 0;
 ALTER TABLE Users ADD AvatarUrl NVARCHAR(500) NULL;
+
+USE GiftBoxShop;
+GO
+
+/* =======================================================
+   A) BỔ SUNG CỘT/CHỈ MỤC CHO HỒ SƠ & ĐỊA CHỈ
+   ======================================================= */
+
+-- Users.AvatarUrl
+IF COL_LENGTH('dbo.Users', 'AvatarUrl') IS NULL
+BEGIN
+    ALTER TABLE dbo.Users ADD AvatarUrl NVARCHAR(500) NULL;
+END
+
+-- Addresses.IsDefault (có default)
+IF COL_LENGTH('dbo.Addresses', 'IsDefault') IS NULL
+BEGIN
+    ALTER TABLE dbo.Addresses ADD IsDefault BIT NOT NULL CONSTRAINT DF_Addresses_IsDefault DEFAULT(0);
+END
+
+-- (An toàn) Nếu thiếu index cho Orders.OrderCode (đảm bảo unique)
+IF NOT EXISTS (
+    SELECT 1
+    FROM sys.indexes
+    WHERE name = 'UQ_Orders_OrderCode' AND object_id = OBJECT_ID('dbo.Orders')
+)
+BEGIN
+    CREATE UNIQUE INDEX UQ_Orders_OrderCode ON dbo.Orders(OrderCode);
+END
+GO
+
+/* Đặt địa chỉ mặc định cho mỗi user: nếu user chưa có IsDefault=1,
+   set địa chỉ có AddressId nhỏ nhất làm mặc định. */
+;WITH FirstAddr AS (
+    SELECT
+        a.AddressId, a.UserId,
+        ROW_NUMBER() OVER (PARTITION BY a.UserId ORDER BY a.AddressId) AS rn
+    FROM dbo.Addresses a
+)
+UPDATE a
+SET a.IsDefault = 1
+FROM dbo.Addresses a
+JOIN FirstAddr f ON a.AddressId = f.AddressId
+WHERE f.rn = 1
+  AND NOT EXISTS (
+        SELECT 1 FROM dbo.Addresses b
+        WHERE b.UserId = a.UserId AND b.IsDefault = 1
+  );
+GO
+
+
+/* =======================================================
+   B) BẢNG PASSWORD RESET (token 1 lần dùng)
+   (bọc IF NOT EXISTS để re-run không lỗi)
+   ======================================================= */
+IF OBJECT_ID('dbo.PasswordResets', 'U') IS NULL
+BEGIN
+    CREATE TABLE dbo.PasswordResets (
+        ResetId     INT IDENTITY PRIMARY KEY,
+        UserId      INT NOT NULL,
+        Token       VARCHAR(64) UNIQUE NOT NULL,
+        ExpiresAt   DATETIME2 NOT NULL,
+        UsedAt      DATETIME2 NULL,
+        CreatedAt   DATETIME2 NOT NULL DEFAULT SYSUTCDATETIME(),
+        CONSTRAINT FK_PasswordResets_Users FOREIGN KEY (UserId)
+            REFERENCES dbo.Users(UserId) ON DELETE CASCADE
+    );
+    CREATE INDEX IX_PasswordResets_Token ON dbo.PasswordResets(Token);
+END
+GO
+
+
+/* =======================================================
+   C) REFRESH TOKENS (đa phiên đăng nhập / gia hạn access token)
+   ======================================================= */
+IF OBJECT_ID('dbo.RefreshTokens', 'U') IS NULL
+BEGIN
+    CREATE TABLE dbo.RefreshTokens (
+        RefreshTokenId INT IDENTITY PRIMARY KEY,
+        UserId         INT NOT NULL,
+        Token          VARCHAR(255) NOT NULL,
+        ExpiresAt      DATETIME2 NOT NULL,
+        RevokedAt      DATETIME2 NULL,
+        CreatedAt      DATETIME2 NOT NULL DEFAULT SYSUTCDATETIME(),
+        UserAgent      NVARCHAR(200) NULL,
+        Ip             NVARCHAR(64) NULL,
+        CONSTRAINT FK_RefreshTokens_Users FOREIGN KEY (UserId)
+            REFERENCES dbo.Users(UserId) ON DELETE CASCADE
+    );
+    CREATE UNIQUE INDEX UQ_RefreshTokens_Token ON dbo.RefreshTokens(Token);
+    CREATE INDEX IX_RefreshTokens_User_Active
+        ON dbo.RefreshTokens(UserId, RevokedAt)
+        WHERE RevokedAt IS NULL;
+END
+GO
+
+
+/* =======================================================
+   D) EMAIL VERIFICATIONS (xác thực email)
+   ======================================================= */
+IF OBJECT_ID('dbo.EmailVerifications', 'U') IS NULL
+BEGIN
+    CREATE TABLE dbo.EmailVerifications (
+        EmailVerificationId INT IDENTITY PRIMARY KEY,
+        UserId      INT NOT NULL,
+        Token       VARCHAR(100) NOT NULL,
+        ExpiresAt   DATETIME2 NOT NULL,
+        UsedAt      DATETIME2 NULL,
+        CreatedAt   DATETIME2 NOT NULL DEFAULT SYSUTCDATETIME(),
+        CONSTRAINT FK_EmailVerifications_Users FOREIGN KEY (UserId)
+            REFERENCES dbo.Users(UserId) ON DELETE CASCADE
+    );
+    CREATE UNIQUE INDEX UQ_EmailVerifications_Token ON dbo.EmailVerifications(Token);
+END
+GO
+
+
+/* =======================================================
+   E) LOGIN ATTEMPTS (chống brute-force / lockout)
+   ======================================================= */
+IF OBJECT_ID('dbo.LoginAttempts', 'U') IS NULL
+BEGIN
+    CREATE TABLE dbo.LoginAttempts (
+        Id         BIGINT IDENTITY PRIMARY KEY,
+        Email      VARCHAR(255) NULL,
+        Ip         NVARCHAR(64) NULL,
+        Success    BIT NOT NULL,
+        CreatedAt  DATETIME2 NOT NULL DEFAULT SYSUTCDATETIME()
+    );
+    CREATE INDEX IX_LoginAttempts_EmailTime
+        ON dbo.LoginAttempts(Email, CreatedAt);
+    CREATE INDEX IX_LoginAttempts_IpTime
+        ON dbo.LoginAttempts(Ip, CreatedAt);
+END
+GO
+
+
+/* =======================================================
+   F) AUDIT LOGS (theo dõi hành động người dùng/hệ thống)
+   ======================================================= */
+IF OBJECT_ID('dbo.AuditLogs', 'U') IS NULL
+BEGIN
+    CREATE TABLE dbo.AuditLogs (
+        Id         BIGINT IDENTITY PRIMARY KEY,
+        UserId     INT NULL,
+        Action     NVARCHAR(100) NOT NULL,   -- ví dụ: 'LOGIN_SUCCESS', 'CHANGE_PASSWORD', 'ADD_ADDRESS'
+        Detail     NVARCHAR(2000) NULL,
+        Ip         NVARCHAR(64) NULL,
+        CreatedAt  DATETIME2 NOT NULL DEFAULT SYSUTCDATETIME(),
+        CONSTRAINT FK_AuditLogs_Users FOREIGN KEY (UserId)
+            REFERENCES dbo.Users(UserId)
+    );
+    CREATE INDEX IX_AuditLogs_UserTime ON dbo.AuditLogs(UserId, CreatedAt);
+END
+GO
+
+
+/* =======================================================
+   G) SEED NHẸ (TÙY CHỌN): set AvatarUrl demo, đánh dấu IsDefault
+   - Không bắt buộc. Bọc IF EXISTS để không phá dữ liệu thật.
+   ======================================================= */
+
+-- Thêm avatar mẫu cho vài user chưa có (demo)
+UPDATE u
+SET u.AvatarUrl = COALESCE(u.AvatarUrl, CONCAT('https://i.pravatar.cc/150?u=', u.Email))
+FROM dbo.Users u
+WHERE u.AvatarUrl IS NULL;
+
+-- (Đảm bảo) Sau khi thêm cột IsDefault, nếu còn user nào có nhiều địa chỉ nhưng không có địa chỉ nào IsDefault,
+-- đã có block CTE phía trên xử lý. Chạy lại để chắc chắn (idempotent).
+;WITH FirstAddr AS (
+    SELECT a.AddressId, a.UserId,
+           ROW_NUMBER() OVER (PARTITION BY a.UserId ORDER BY a.AddressId) rn
+    FROM dbo.Addresses a
+)
+UPDATE a
+SET a.IsDefault = 1
+FROM dbo.Addresses a
+JOIN FirstAddr f ON a.AddressId = f.AddressId
+WHERE f.rn = 1
+  AND NOT EXISTS (
+        SELECT 1 FROM dbo.Addresses b
+        WHERE b.UserId = a.UserId AND b.IsDefault = 1
+  );
+GO

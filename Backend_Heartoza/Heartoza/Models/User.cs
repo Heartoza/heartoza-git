@@ -25,7 +25,13 @@ public partial class User
 
     public virtual ICollection<Address> Addresses { get; set; } = new List<Address>();
 
+    public virtual ICollection<AuditLog> AuditLogs { get; set; } = new List<AuditLog>();
+
+    public virtual ICollection<EmailVerification> EmailVerifications { get; set; } = new List<EmailVerification>();
+
     public virtual ICollection<Order> Orders { get; set; } = new List<Order>();
 
     public virtual ICollection<PasswordReset> PasswordResets { get; set; } = new List<PasswordReset>();
+
+    public virtual ICollection<RefreshToken> RefreshTokens { get; set; } = new List<RefreshToken>();
 }
