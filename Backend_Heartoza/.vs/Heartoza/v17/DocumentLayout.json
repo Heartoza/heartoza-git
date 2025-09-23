@@ -70,6 +70,7 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
+<<<<<<< Updated upstream
 <<<<<<< HEAD
 <<<<<<< HEAD
           "SelectedChildIndex": 212,
@@ -82,37 +83,10 @@
               "Name": "ST:0:0:{1c4feeaa-4718-4aa9-859d-94ce25d182ba}"
 =======
           "SelectedChildIndex": 1,
+=======
+          "SelectedChildIndex": 211,
+>>>>>>> Stashed changes
           "Children": [
-            {
-              "$type": "Bookmark",
-              "Name": "ST:7:0:{e8034f19-ab72-4f06-83fd-f6832b41aa63}"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 0,
-              "Title": "appsettings.json",
-              "DocumentMoniker": "D:\\FA25\\EXE201\\heartoza-git\\Backend_Heartoza\\Heartoza\\appsettings.json",
-              "RelativeDocumentMoniker": "Heartoza\\appsettings.json",
-              "ToolTip": "D:\\FA25\\EXE201\\heartoza-git\\Backend_Heartoza\\Heartoza\\appsettings.json",
-              "RelativeToolTip": "Heartoza\\appsettings.json",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAABUAAAAnAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001642|",
-              "WhenOpened": "2025-09-21T00:10:59.261Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 1,
-              "Title": "AppRouter.jsx",
-              "DocumentMoniker": "D:\\FA25\\EXE201\\heartoza-git\\Frontend_Heartoza\\heartoza\\src\\routes\\AppRouter.jsx",
-              "RelativeDocumentMoniker": "..\\Frontend_Heartoza\\heartoza\\src\\routes\\AppRouter.jsx",
-              "ToolTip": "D:\\FA25\\EXE201\\heartoza-git\\Frontend_Heartoza\\heartoza\\src\\routes\\AppRouter.jsx",
-              "RelativeToolTip": "..\\Frontend_Heartoza\\heartoza\\src\\routes\\AppRouter.jsx",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAABEAAAApAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003663|",
-              "WhenOpened": "2025-09-20T23:14:34.217Z",
-              "EditorCaption": ""
-            },
             {
               "$type": "Bookmark",
               "Name": "ST:8:0:{e8034f19-ab72-4f06-83fd-f6832b41aa63}"
@@ -974,11 +948,15 @@
             {
               "$type": "Bookmark",
               "Name": "ST:0:0:{1c64b9c2-e352-428e-a56d-0ace190b99a6}"
+<<<<<<< Updated upstream
 =======
+=======
+>>>>>>> Stashed changes
             },
             {
               "$type": "Document",
               "DocumentIndex": 0,
+<<<<<<< Updated upstream
               "Title": "AuthController.cs",
               "DocumentMoniker": "D:\\FPT\\FA25\\Heartoza\\Backend_Heartoza\\Heartoza\\Controllers\\AuthController.cs",
               "RelativeDocumentMoniker": "Heartoza\\Controllers\\AuthController.cs",
@@ -987,11 +965,22 @@
               "ViewState": "AgIAAC0AAAAAAAAAAAAYwDEAAAAFAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2025-09-19T06:04:35.029Z",
+=======
+              "Title": "appsettings.json",
+              "DocumentMoniker": "D:\\FA25\\EXE201\\heartoza-git\\Backend_Heartoza\\Heartoza\\appsettings.json",
+              "RelativeDocumentMoniker": "Heartoza\\appsettings.json",
+              "ToolTip": "D:\\FA25\\EXE201\\heartoza-git\\Backend_Heartoza\\Heartoza\\appsettings.json",
+              "RelativeToolTip": "Heartoza\\appsettings.json",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAB0AAAAhAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001642|",
+              "WhenOpened": "2025-09-21T00:10:59.261Z",
+>>>>>>> Stashed changes
               "EditorCaption": ""
             },
             {
               "$type": "Document",
               "DocumentIndex": 1,
+<<<<<<< Updated upstream
               "Title": "DBSetup.sql ",
               "DocumentMoniker": "D:\\FPT\\FA25\\Heartoza\\Backend_Heartoza\\Heartoza\\DBSetup.sql",
               "RelativeDocumentMoniker": "Heartoza\\DBSetup.sql",
@@ -1122,6 +1111,16 @@
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003663|",
               "WhenOpened": "2025-09-18T23:10:34.968Z"
 >>>>>>> 266259ed80b83a4e65f1f48cd7f00184629032b1
+=======
+              "Title": "AppRouter.jsx",
+              "DocumentMoniker": "D:\\FA25\\EXE201\\heartoza-git\\Frontend_Heartoza\\heartoza\\src\\routes\\AppRouter.jsx",
+              "RelativeDocumentMoniker": "..\\Frontend_Heartoza\\heartoza\\src\\routes\\AppRouter.jsx",
+              "ToolTip": "D:\\FA25\\EXE201\\heartoza-git\\Frontend_Heartoza\\heartoza\\src\\routes\\AppRouter.jsx",
+              "RelativeToolTip": "..\\Frontend_Heartoza\\heartoza\\src\\routes\\AppRouter.jsx",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABEAAAApAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003663|",
+              "WhenOpened": "2025-09-20T23:14:34.217Z"
+>>>>>>> Stashed changes
             }
           ]
         },
