@@ -40,6 +40,7 @@ public class ProfileController : ControllerBase
                 IsActive = x.IsActive,
                 CreatedAt = x.CreatedAt,
                 AvatarUrl = x.AvatarUrl,
+                LastLoginAt = x.LastLoginAt,
 
                 Addresses = x.Addresses.Select(a => new AddressResponse
                 {

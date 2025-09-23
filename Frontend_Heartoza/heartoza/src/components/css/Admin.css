@@ -113,3 +113,93 @@
   text-decoration: none;
   color: #333;
 }
+
+/* Button */
+/* Admin.css */
+
+.admin-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+}
+
+.btn-add {
+    background-color: #ef8abe; /* xanh đậm */
+    color: white;
+    font-weight: bold;
+    padding: 8px 16px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s ease-in-out;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.btn-add:hover {
+    background-color: #1e40af; /* xanh đậm hơn */
+    transform: scale(1.05);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.btn-add:active {
+    transform: scale(0.98);
+}
+
+/* User Detail */
+.user-detail {
+    max-width: 500px;
+    margin: 30px auto;
+    background: #fff;
+    padding: 25px;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.user-info p {
+    font-size: 16px;
+    margin: 10px 0;
+}
+
+.btn-group {
+    display: flex;
+    gap: 10px;
+    margin-top: 20px;
+}
+
+.btn-primary,
+.btn-danger,
+.btn-secondary {
+    flex: 1;
+    padding: 10px 15px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 15px;
+    font-weight: 500;
+    transition: 0.2s;
+}
+
+.btn-primary {
+    background: #4CAF50;
+    color: white;
+}
+.btn-primary:hover {
+    background: #43a047;
+}
+
+.btn-danger {
+    background: #f44336;
+    color: white;
+}
+.btn-danger:hover {
+    background: #d32f2f;
+}
+
+.btn-secondary {
+    background: #9e9e9e;
+    color: white;
+}
+.btn-secondary:hover {
+    background: #757575;
+}

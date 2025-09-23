@@ -504,3 +504,7 @@ WHERE f.rn = 1
         WHERE b.UserId = a.UserId AND b.IsDefault = 1
   );
 GO
+
+/* Update Table Users */
+ALTER TABLE Users
+ADD LastLoginAt DATETIME2 NULL;

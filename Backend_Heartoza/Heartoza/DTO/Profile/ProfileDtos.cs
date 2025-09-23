@@ -18,6 +18,9 @@
 
         // NEW: id địa chỉ mặc định
         public int? DefaultAddressId { get; set; }
+
+        // NEW: Thêm thời gian đăng nhập gần nhất
+        public DateTime? LastLoginAt { get; set; }
     }
 
     public class UpdateProfileRequest
