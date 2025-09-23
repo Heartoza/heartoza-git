@@ -174,6 +174,8 @@ public class AuthController : ControllerBase
             return Unauthorized("Tài khoản chưa xác thực email.");
         }
 
+        user.LastLoginAt = DateTime.UtcNow;
+
         var access = _jwt.CreateAccessToken(user);
         var refresh = NewTokenHex(48);
         _db.RefreshTokens.Add(new RefreshToken

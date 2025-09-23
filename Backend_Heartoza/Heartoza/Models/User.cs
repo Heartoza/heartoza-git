@@ -23,6 +23,8 @@ public partial class User
 
     public string? AvatarUrl { get; set; }
 
+    public DateTime? LastLoginAt { get; set; }
+
     public virtual ICollection<Address> Addresses { get; set; } = new List<Address>();
 
     public virtual ICollection<AuditLog> AuditLogs { get; set; } = new List<AuditLog>();

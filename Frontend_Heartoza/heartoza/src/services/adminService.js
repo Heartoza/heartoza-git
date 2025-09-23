@@ -10,6 +10,12 @@ export const AdminService = {
     getOrders: (page = 1, pageSize = 20) =>
         api.get(`/admin/orders?page=${page}&pageSize=${pageSize}`).then(r => r.data),
 
+    getUserById: (id) =>
+        api.get(`/admin/users/${id}`).then(r => r.data),
+
+    deleteUser: (id) =>
+        api.delete(`/admin/users/${id}`).then(r => r.data),
+    
     updateOrderStatus: (id, status) =>
         api.post(`/admin/orders/${id}/status`, JSON.stringify(status), {
             headers: { "Content-Type": "application/json" },
