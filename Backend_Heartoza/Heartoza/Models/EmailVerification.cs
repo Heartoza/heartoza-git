@@ -3,9 +3,9 @@ using System.Collections.Generic;
 
 namespace Heartoza.Models;
 
-public partial class PasswordReset
+public partial class EmailVerification
 {
-    public int ResetId { get; set; }
+    public int EmailVerificationId { get; set; }
 
     public int UserId { get; set; }
 

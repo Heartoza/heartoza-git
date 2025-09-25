@@ -3,9 +3,9 @@ using System.Collections.Generic;
 
 namespace Heartoza.Models;
 
-public partial class PasswordReset
+public partial class RefreshToken
 {
-    public int ResetId { get; set; }
+    public int RefreshTokenId { get; set; }
 
     public int UserId { get; set; }
 
@@ -13,9 +13,13 @@ public partial class PasswordReset
 
     public DateTime ExpiresAt { get; set; }
 
-    public DateTime? UsedAt { get; set; }
+    public DateTime? RevokedAt { get; set; }
 
     public DateTime CreatedAt { get; set; }
+
+    public string? UserAgent { get; set; }
+
+    public string? Ip { get; set; }
 
     public virtual User User { get; set; } = null!;
 }

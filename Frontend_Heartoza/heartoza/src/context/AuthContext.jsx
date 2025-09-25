@@ -1,4 +1,5 @@
-﻿import React, { createContext, useEffect, useMemo, useState } from "react";
+﻿import React, { createContext, useMemo, useState } from "react";
+import http from "../services/api";
 
 export const AuthContext = createContext({
     user: null,
@@ -11,26 +12,24 @@ export default function AuthProvider({ children }) {
     const [token, setToken] = useState(() => localStorage.getItem("token"));
     const [user, setUser] = useState(() => {
         const raw = localStorage.getItem("user");
-        return raw ? JSON.parse(raw) : null;
-        // user = { userId, email, fullName, role }
+        return raw ? JSON.parse(raw) : null; // { userId, email, fullName, role }
     });
 
-    // Nếu token không hợp lệ/ hết hạn (BE sẽ 401), FE chỉ cần logout khi cần.
-    useEffect(() => {
-        if (!token) return;
-        // có thể kiểm tra exp trong JWT nếu muốn, ở đây để đơn giản
-    }, [token]);
-
-    const login = (t, u) => {
+    const login = (t, u, refreshToken) => {
         localStorage.setItem("token", t);
+        if (refreshToken) localStorage.setItem("refreshToken", refreshToken);
         localStorage.setItem("user", JSON.stringify(u));
         setToken(t);
         setUser(u);
+        // set header cho axios instance
+        http.defaults.headers.common.Authorization = `Bearer ${t}`;
     };
 
     const logout = () => {
         localStorage.removeItem("token");
+        localStorage.removeItem("refreshToken");
         localStorage.removeItem("user");
+        delete http.defaults.headers.common.Authorization;
         setToken(null);
         setUser(null);
     };
