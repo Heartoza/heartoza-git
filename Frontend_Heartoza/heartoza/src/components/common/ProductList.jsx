@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import "../css/ProductList.css";
+import { Link } from "react-router-dom";
 
 // React function component 
 // Giúp import component này từ file khác mà không cần ngoặc nhọn
@@ -75,6 +76,9 @@ export default function ProductList(){
               <h3>{p.name}</h3>
               <p className="price">{p.price.toLocaleString()} đ</p>
               <p className="sku">SKU: {p.sku}</p>
+               <Link to={`/product/${p.productId}`} className="btn-detail">
+                                Xem chi tiết
+               </Link>
             </div>
           ))
         ) : (
