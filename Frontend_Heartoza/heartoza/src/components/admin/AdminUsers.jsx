@@ -28,7 +28,7 @@ export default function AdminUsers() {
                         <th>Role</th>
                         <th>Lần cuối đăng nhập</th>
                         <th>Trạng thái</th>
-                        <th>Chi tiết</th>
+                        <th>Điều chỉnh</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -43,7 +43,7 @@ export default function AdminUsers() {
                                 <td>{u.isActive ? "✅ Active" : "⛔ Locked"}</td>
                                 <td>
                                     <NavLink 
-                                        to={`/admin/users/${u.userId}`} 
+                                        to={`/admin/users/${u.userId}/toggle`} 
                                         className="btn-view"
                                     >
                                         Xem
