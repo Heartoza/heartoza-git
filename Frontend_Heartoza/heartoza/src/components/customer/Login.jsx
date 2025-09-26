@@ -12,14 +12,17 @@ export default function Login() {
     const [err, setErr] = React.useState("");
     const [loading, setLoading] = React.useState(false);
 
-    // Nếu đã đăng nhập, tự redirect
+    // resend verify state
+    const [canResend, setCanResend] = React.useState(false);
+    const [resendMsg, setResendMsg] = React.useState("");
+    const [resendLoading, setResendLoading] = React.useState(false);
+
     React.useEffect(() => {
         if (!user) return;
         if (user.role === "Admin") nav("/admin", { replace: true });
         else nav("/profile", { replace: true });
     }, [user, nav]);
 
-    // JS thuần: bỏ kiểu TS
     const onChange = (key) => (e) => {
         setForm((s) => ({ ...s, [key]: e.target.value }));
     };
@@ -27,23 +30,43 @@ export default function Login() {
     const submit = async (e) => {
         e.preventDefault();
         setErr("");
+        setResendMsg("");
+        setCanResend(false);
         setLoading(true);
         try {
             const res = await AuthService.login(form);
             const { token, refreshToken, userId, email, fullName, role } = res;
-
-            // Lưu token + refreshToken
             login(token, { userId, email, fullName, role }, refreshToken);
-
-            // Điều hướng sau login
-            if (role === "Admin") nav("/admin", { replace: true });
-            else nav("/profile", { replace: true });
+            nav(role === "Admin" ? "/admin" : "/profile", { replace: true });
         } catch (e) {
-            setErr(
-                e?.response?.data ?? "Đăng nhập thất bại. Vui lòng kiểm tra thông tin."
-            );
+            const msg =
+                e?.response?.data ??
+                "Đăng nhập thất bại. Vui lòng kiểm tra thông tin.";
+            setErr(msg);
+
+            // nếu chưa xác thực email → show nút resend
+            if (typeof msg === "string" && msg.includes("chưa xác thực")) {
+                setCanResend(true);
+            }
         } finally {
             setLoading(false);
+        }
+    };
+
+    const resend = async () => {
+        setResendMsg("");
+        setResendLoading(true);
+        try {
+            if (!form.email.trim()) {
+                setResendMsg("Vui lòng nhập email trước khi gửi lại.");
+            } else {
+                const r = await AuthService.resendVerify(form.email.trim());
+                setResendMsg(r?.message || "Đã gửi lại email xác thực. Check mail nha!");
+            }
+        } catch (e) {
+            setResendMsg(e?.response?.data || "Không thể gửi lại email xác thực.");
+        } finally {
+            setResendLoading(false);
         }
     };
 
@@ -69,6 +92,20 @@ export default function Login() {
                 />
 
                 {err && <p className="auth-message error">{String(err)}</p>}
+
+                {canResend && (
+                    <div className="resend-verify-wrap">
+                        <button
+                            type="button"
+                            className="linklike"
+                            onClick={resend}
+                            disabled={resendLoading}
+                        >
+                            {resendLoading ? "Đang gửi..." : "Gửi lại email xác thực"}
+                        </button>
+                        {resendMsg && <p className="auth-message success">{resendMsg}</p>}
+                    </div>
+                )}
 
                 <button type="submit" disabled={loading}>
                     {loading ? "Đang đăng nhập..." : "Login"}

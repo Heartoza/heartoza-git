@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+﻿import { BrowserRouter, Routes, Route } from "react-router-dom";
 import AuthProvider from "./context/AuthContext";
 
 import Header from "./components/common/Header.jsx";
@@ -14,10 +14,13 @@ import Register from "./components/customer/Register.jsx";
 import Profile from "./components/customer/Profile.jsx";
 import ChangePassword from "./components/customer/ChangePassword.jsx";
 import ForgotPassword from "./components/customer/ForgotPassword.jsx";
+import VerifyEmail from "./components/customer/VerifyEmail.jsx"; 
+import ResetPassword from "./components/customer/ResetPassword.jsx"; 
 
 // Admin pages
 import AdminDashboard from "./components/admin/AdminDashboard.jsx";
 import AdminUsers from "./components/admin/AdminUsers.jsx";
+import UserDetail from "./components/admin/UserDetail.jsx";
 import AdminOrders from "./components/admin/AdminOrders.jsx";
 import AdminProducts from "./components/admin/AdminProducts.jsx";
 import AdminCategories from "./components/admin/AdminCategories.jsx";
@@ -43,10 +46,14 @@ function App() {
                                     <Route path="/about" element={<About />} />
                                     <Route path="/contact" element={<Contact />} />
 
-                                    {/* Auth */}
+                                    {/* Public auth pages */}
                                     <Route path="/login" element={<Login />} />
                                     <Route path="/register" element={<Register />} />
                                     <Route path="/forgot" element={<ForgotPassword />} />
+
+                                    {/* ✅ Public special: phải vào được kể cả khi đã login */}
+                                    <Route path="/verify-email" element={<VerifyEmail />} />
+                                    <Route path="/reset-password" element={<ResetPassword />} />
 
                                     {/* Protected (Customer) */}
                                     <Route
@@ -75,7 +82,6 @@ function App() {
                     <Route
                         path="/admin/*"
                         element={
-                            <>
                             <ProtectedRoute role="Admin">
                                 <div className="admin-layout">
                                     <AdminSidebar />
@@ -83,6 +89,7 @@ function App() {
                                         <Routes>
                                             <Route path="dashboard" element={<AdminDashboard />} />
                                             <Route path="users" element={<AdminUsers />} />
+                                            <Route path="users/:id" element={<UserDetail />} /> {/* ✅ sửa path */}
                                             <Route path="orders" element={<AdminOrders />} />
                                             <Route path="products" element={<AdminProducts />} />
                                             <Route path="categories" element={<AdminCategories />} />
@@ -90,7 +97,6 @@ function App() {
                                     </div>
                                 </div>
                             </ProtectedRoute>
-                            </>
                         }
                     />
                 </Routes>

@@ -24,23 +24,21 @@ export default function AppRouter() {
         <BrowserRouter>
             <Header />
             <Routes>
-                {/* Root: nếu đã login thì về profile, chưa login thì về login */}
-                <Route
-                    path="/"
-                    element={<Navigate to={user ? "/profile" : "/login"} replace />}
-                />
+                {/* ✅ PUBLIC đặc biệt: KHÔNG đặt trong RequireGuest */}
+                <Route path="/verify-email" element={<DebugVerify />} />
+                <Route path="/reset-password" element={<ResetPassword />} />
 
-                {/* Chỉ cho khách (chưa đăng nhập) */}
+                {/* Root */}
+                <Route path="/" element={<Navigate to={user ? "/profile" : "/login"} replace />} />
+
+                {/* Guest-only */}
                 <Route element={<RequireGuest />}>
                     <Route path="/login" element={<Login />} />
                     <Route path="/register" element={<Register />} />
                     <Route path="/forgot" element={<ForgotPassword />} />
-                    <Route path="/verify-email" element={<VerifyEmail />} />
-                    <Route path="/reset-password" element={<ResetPassword />} />
                 </Route>
 
-
-                {/* Cần đăng nhập */}
+                {/* Auth-only */}
                 <Route
                     path="/profile"
                     element={
@@ -58,12 +56,10 @@ export default function AppRouter() {
                     }
                 />
 
-                {/* fallback */}
-                <Route
-                    path="*"
-                    element={<Navigate to={user ? "/profile" : "/login"} replace />}
-                />
+                {/* Fallback */}
+                <Route path="*" element={<Navigate to={user ? "/profile" : "/login"} replace />} />
             </Routes>
+
             <Footer />
         </BrowserRouter>
     );
