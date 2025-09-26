@@ -78,9 +78,18 @@ public class AuthController : ControllerBase
         await _db.SaveChangesAsync(ct);
 
         var verifyUrl = $"{_cfg["Frontend:BaseUrl"]?.TrimEnd('/')}/verify-email?token={token}";
-        await _mail.SendAsync(user.Email, "[Heartoza] Xác thực email",
-            $"<p>Chào {System.Net.WebUtility.HtmlEncode(user.FullName ?? user.Email)},</p>" +
-            $"<p>Nhấn để xác thực: <a href='{verifyUrl}'>Verify email</a></p>");
+        await _mail.SendAsync(
+            user.Email,
+            "[Heartoza] Xác thực email",
+            $@"
+        <p>Xin chào {System.Net.WebUtility.HtmlEncode(user.FullName ?? user.Email)},</p>
+        <p>Cảm ơn bạn đã đăng ký tài khoản tại <b>Heartoza</b>.</p>
+        <p>Để hoàn tất đăng ký, vui lòng bấm vào liên kết sau để xác thực email:</p>
+        <p><a href='{verifyUrl}' style='color: #1a73e8;'>Xác thực tài khoản</a></p>
+        <p>Nếu bạn không đăng ký tài khoản, hãy bỏ qua email này.</p>
+        <p>Trân trọng,<br/>Đội ngũ Heartoza</p>
+    ");
+
 
         await _audit.LogAsync(user.UserId, "REGISTER", null, Ip());
         return Ok(new { message = "Đăng ký thành công. Vui lòng kiểm tra email để xác thực." });
@@ -275,8 +284,17 @@ public class AuthController : ControllerBase
         await _db.SaveChangesAsync(ct);
 
         var url = $"{_cfg["Frontend:BaseUrl"]?.TrimEnd('/')}/reset-password?token={token}";
-        await _mail.SendAsync(user.Email, "[Heartoza] Đặt lại mật khẩu",
-            $"<p>Nhấn để đặt lại mật khẩu: <a href='{url}'>Reset</a></p>");
+        await _mail.SendAsync(
+            user.Email,
+            "[Heartoza] Đặt lại mật khẩu",
+            $@"
+        <p>Xin chào {System.Net.WebUtility.HtmlEncode(user.FullName ?? user.Email)},</p>
+        <p>Chúng tôi nhận được yêu cầu đặt lại mật khẩu cho tài khoản của bạn.</p>
+        <p>Nhấn vào liên kết sau để đổi mật khẩu mới (hạn trong 30 phút):</p>
+        <p><a href='{url}'>Đặt lại mật khẩu</a></p>
+        <p>Nếu bạn không thực hiện yêu cầu này, vui lòng bỏ qua email.</p>
+    ");
+
 
         return Ok(new { message = "Nếu email hợp lệ, hướng dẫn đã được gửi." });
     }
