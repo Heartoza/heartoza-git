@@ -3,6 +3,10 @@
   "WorkspaceRootPath": "D:\\FPT\\FA25\\Heartoza\\Backend_Heartoza\\",
   "Documents": [
     {
+      "AbsoluteMoniker": "D:0:0:{9F51160A-07B4-4347-8F06-B7D5DEC004B4}|Heartoza\\Heartoza.csproj|d:\\fpt\\fa25\\heartoza\\backend_heartoza\\heartoza\\controllers\\categoriescontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{9F51160A-07B4-4347-8F06-B7D5DEC004B4}|Heartoza\\Heartoza.csproj|solutionrelative:heartoza\\controllers\\categoriescontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
       "AbsoluteMoniker": "D:0:0:{9F51160A-07B4-4347-8F06-B7D5DEC004B4}|Heartoza\\Heartoza.csproj|d:\\fpt\\fa25\\heartoza\\backend_heartoza\\heartoza\\controllers\\authcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{9F51160A-07B4-4347-8F06-B7D5DEC004B4}|Heartoza\\Heartoza.csproj|solutionrelative:heartoza\\controllers\\authcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
@@ -33,7 +37,7 @@
       "DocumentGroups": [
         {
           "DockedWidth": 449,
-          "SelectedChildIndex": 213,
+          "SelectedChildIndex": 211,
           "Children": [
             {
               "$type": "Bookmark",
@@ -881,7 +885,20 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 2,
+              "DocumentIndex": 0,
+              "Title": "CategoriesController.cs",
+              "DocumentMoniker": "D:\\FPT\\FA25\\Heartoza\\Backend_Heartoza\\Heartoza\\Controllers\\CategoriesController.cs",
+              "RelativeDocumentMoniker": "Heartoza\\Controllers\\CategoriesController.cs",
+              "ToolTip": "D:\\FPT\\FA25\\Heartoza\\Backend_Heartoza\\Heartoza\\Controllers\\CategoriesController.cs",
+              "RelativeToolTip": "Heartoza\\Controllers\\CategoriesController.cs",
+              "ViewState": "AgIAAMIAAAAAAAAAAAAUwAABAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-09-27T02:43:20.557Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
               "Title": "Auth.css",
               "DocumentMoniker": "D:\\FA25\\EXE201\\heartoza-git\\Frontend_Heartoza\\heartoza\\src\\components\\css\\Auth.css",
               "RelativeDocumentMoniker": "..\\..\\..\\..\\FA25\\EXE201\\heartoza-git\\Frontend_Heartoza\\heartoza\\src\\components\\css\\Auth.css",
@@ -893,7 +910,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 1,
+              "DocumentIndex": 2,
               "Title": "Login.jsx",
               "DocumentMoniker": "D:\\FA25\\EXE201\\heartoza-git\\Frontend_Heartoza\\heartoza\\src\\components\\customer\\Login.jsx",
               "RelativeDocumentMoniker": "..\\..\\..\\..\\FA25\\EXE201\\heartoza-git\\Frontend_Heartoza\\heartoza\\src\\components\\customer\\Login.jsx",
@@ -905,20 +922,20 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 0,
+              "DocumentIndex": 1,
               "Title": "AuthController.cs",
               "DocumentMoniker": "D:\\FPT\\FA25\\Heartoza\\Backend_Heartoza\\Heartoza\\Controllers\\AuthController.cs",
               "RelativeDocumentMoniker": "Heartoza\\Controllers\\AuthController.cs",
               "ToolTip": "D:\\FPT\\FA25\\Heartoza\\Backend_Heartoza\\Heartoza\\Controllers\\AuthController.cs",
               "RelativeToolTip": "Heartoza\\Controllers\\AuthController.cs",
-              "ViewState": "AgIAAKABAAAAAAAAAAAuwK4BAAAqAAAAAAAAAA==",
+              "ViewState": "AgIAAH0BAAAAAAAAAAA8wK4BAAAqAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2025-09-26T06:57:05.037Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 5,
+              "DocumentIndex": 6,
               "Title": "ForgotPassword.jsx",
               "DocumentMoniker": "D:\\FA25\\EXE201\\heartoza-git\\Frontend_Heartoza\\heartoza\\src\\components\\customer\\ForgotPassword.jsx",
               "RelativeDocumentMoniker": "..\\..\\..\\..\\FA25\\EXE201\\heartoza-git\\Frontend_Heartoza\\heartoza\\src\\components\\customer\\ForgotPassword.jsx",
@@ -930,7 +947,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 4,
+              "DocumentIndex": 5,
               "Title": "ResetPassword.jsx",
               "DocumentMoniker": "D:\\FA25\\EXE201\\heartoza-git\\Frontend_Heartoza\\heartoza\\src\\components\\customer\\ResetPassword.jsx",
               "RelativeDocumentMoniker": "..\\..\\..\\..\\FA25\\EXE201\\heartoza-git\\Frontend_Heartoza\\heartoza\\src\\components\\customer\\ResetPassword.jsx",
@@ -942,7 +959,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 3,
+              "DocumentIndex": 4,
               "Title": "VerifyEmail.jsx",
               "DocumentMoniker": "D:\\FA25\\EXE201\\heartoza-git\\Frontend_Heartoza\\heartoza\\src\\components\\customer\\VerifyEmail.jsx",
               "RelativeDocumentMoniker": "..\\..\\..\\..\\FA25\\EXE201\\heartoza-git\\Frontend_Heartoza\\heartoza\\src\\components\\customer\\VerifyEmail.jsx",
@@ -954,7 +971,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 6,
+              "DocumentIndex": 7,
               "Title": "Heartoza.csproj",
               "DocumentMoniker": "D:\\FPT\\FA25\\Heartoza\\Backend_Heartoza\\Heartoza\\Heartoza.csproj",
               "RelativeDocumentMoniker": "Heartoza\\Heartoza.csproj",

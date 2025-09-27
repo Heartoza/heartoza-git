@@ -9,43 +9,51 @@ export default function ProductList() {
   const [categoryFilter, setCategoryFilter] = useState("");
   const [categories, setCategories] = useState([]);
 
+  // Lấy tất cả category từ API riêng
   useEffect(() => {
     axios
-      .get("https://localhost:7109/api/Products")
+      .get("https://localhost:7109/api/Categories?tree=false")
+      .then((res) => {
+        setCategories(res.data || []);
+      })
+      .catch((err) => console.log(err));
+  }, []);
+
+  // Hàm load product từ API (kèm categoryId nếu có)
+  const fetchProducts = (categoryId = "") => {
+    axios
+      .get("https://localhost:7109/api/Products", {
+        params: categoryId ? { categoryId } : {},
+      })
       .then((res) => {
         const dataArray = res.data?.items || [];
         setProducts(dataArray);
-        setFilteredProducts(dataArray);
-
-        // Lấy danh sách category từ product list
-        const uniqueCategories = [...new Set(dataArray.map((p) => p.category))];
-        setCategories(uniqueCategories);
+        applyFilters(priceFilter, dataArray); // sort nếu cần
       })
       .catch((err) => console.log(err));
+  };
+
+  // Load all product ban đầu
+  useEffect(() => {
+    fetchProducts();
   }, []);
 
   const handlePriceFilter = (e) => {
     const value = e.target.value;
     setPriceFilter(value);
-    applyFilters(value, categoryFilter);
+    applyFilters(value, products);
   };
 
   const handleCategoryFilter = (e) => {
     const value = e.target.value;
     setCategoryFilter(value);
-    applyFilters(priceFilter, value);
+    fetchProducts(value); // gọi API lại với categoryId
   };
 
-  // Hàm lọc chung
-  const applyFilters = (priceValue, categoryValue) => {
-    let result = [...products];
+  // Sort/filter theo giá
+  const applyFilters = (priceValue, list) => {
+    let result = [...list];
 
-    // Lọc theo category
-    if (categoryValue) {
-      result = result.filter((p) => p.category === categoryValue);
-    }
-
-    // Sắp xếp theo giá
     if (priceValue === "increament") {
       result.sort((a, b) => a.price - b.price);
     } else if (priceValue === "decreament") {
@@ -70,9 +78,9 @@ export default function ProductList() {
             onChange={handleCategoryFilter}
           >
             <option value="">Tất cả loại</option>
-            {categories.map((cat, index) => (
-              <option key={index} value={cat}>
-                {cat}
+            {categories.map((cat) => (
+              <option key={cat.categoryId} value={cat.categoryId}>
+                {cat.name}
               </option>
             ))}
           </select>
