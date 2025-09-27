@@ -2,48 +2,83 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import "../css/ProductList.css";
 
-// React function component 
-// Giúp import component này từ file khác mà không cần ngoặc nhọn
-export default function ProductList(){
-    // Dùng để tạo biến lưu dữ liệu trong component (state).
-// Khi state thay đổi → React tự render lại UI.
-    const [products, setProducts] = useState([]);
-    const [filteredProducts, setFilteredProducts] = useState([]);
-    const [priceFilter, setPriceFilter] = useState("");
-    const [categories, setCategories] = useState([]);
-    
-    // useEffect: chạy 1 lần khi component load 
-    // useEffect(() => {}, []) -> Dùng để chạy 1 đoạn code khi component render.
-     useEffect(() => {
+export default function ProductList() {
+  const [products, setProducts] = useState([]);
+  const [filteredProducts, setFilteredProducts] = useState([]);
+  const [priceFilter, setPriceFilter] = useState("");
+  const [categoryFilter, setCategoryFilter] = useState("");
+  const [categories, setCategories] = useState([]);
+
+  useEffect(() => {
     axios
       .get("https://localhost:7109/api/Products")
       .then((res) => {
-        console.log("BE trả về:", res.data); // xem dữ liệu trả về từ BE
-        // Nếu BE trả object chứa mảng, lấy đúng key:
         const dataArray = res.data?.items || [];
         setProducts(dataArray);
         setFilteredProducts(dataArray);
+
+        // Lấy danh sách category từ product list
+        const uniqueCategories = [...new Set(dataArray.map((p) => p.category))];
+        setCategories(uniqueCategories);
       })
       .catch((err) => console.log(err));
   }, []);
 
-    const handlePriceFilter = (e) => {
+  const handlePriceFilter = (e) => {
     const value = e.target.value;
     setPriceFilter(value);
+    applyFilters(value, categoryFilter);
+  };
 
-    let sorted = [...products]; // clone mảng, tránh mutate state
-    if (value === "increament") {
-      sorted.sort((a, b) => a.price - b.price);
-    } else if (value === "decreament") {
-      sorted.sort((a, b) => b.price - a.price);
+  const handleCategoryFilter = (e) => {
+    const value = e.target.value;
+    setCategoryFilter(value);
+    applyFilters(priceFilter, value);
+  };
+
+  // Hàm lọc chung
+  const applyFilters = (priceValue, categoryValue) => {
+    let result = [...products];
+
+    // Lọc theo category
+    if (categoryValue) {
+      result = result.filter((p) => p.category === categoryValue);
     }
-    setFilteredProducts(sorted);
+
+    // Sắp xếp theo giá
+    if (priceValue === "increament") {
+      result.sort((a, b) => a.price - b.price);
+    } else if (priceValue === "decreament") {
+      result.sort((a, b) => b.price - a.price);
+    }
+
+    setFilteredProducts(result);
   };
 
   return (
     <div className="product-page">
       {/* Filter */}
       <div className="search-filter-group">
+        {/* Category filter */}
+        <div className="select-wrapper">
+          <i className="bi bi-tags"></i>
+          <select
+            className="form-control"
+            id="categoryFilter"
+            name="categoryFilter"
+            value={categoryFilter}
+            onChange={handleCategoryFilter}
+          >
+            <option value="">Tất cả loại</option>
+            {categories.map((cat, index) => (
+              <option key={index} value={cat}>
+                {cat}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        {/* Price filter */}
         <div className="select-wrapper">
           <i className="bi bi-funnel"></i>
           <select
@@ -53,9 +88,7 @@ export default function ProductList(){
             value={priceFilter}
             onChange={handlePriceFilter}
           >
-            <option value="" disabled>
-              Sắp xếp theo giá
-            </option>
+            <option value="">Sắp xếp theo giá</option>
             <option value="increament">Giá từ thấp đến cao</option>
             <option value="decreament">Giá từ cao đến thấp</option>
           </select>
@@ -84,4 +117,3 @@ export default function ProductList(){
     </div>
   );
 }
-

@@ -1,16 +1,16 @@
 {
   "Version": 1,
-  "WorkspaceRootPath": "D:\\FA25\\EXE201\\heartoza-git\\Backend_Heartoza\\",
+  "WorkspaceRootPath": "D:\\FPT\\FA25\\Heartoza\\Backend_Heartoza\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|D:\\FA25\\EXE201\\heartoza-git\\Frontend_Heartoza\\heartoza\\src\\components\\css\\Auth.css||{A5401142-F49D-43DB-90B1-F57BA349E55C}"
+      "AbsoluteMoniker": "D:0:0:{9F51160A-07B4-4347-8F06-B7D5DEC004B4}|Heartoza\\Heartoza.csproj|d:\\fpt\\fa25\\heartoza\\backend_heartoza\\heartoza\\controllers\\authcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{9F51160A-07B4-4347-8F06-B7D5DEC004B4}|Heartoza\\Heartoza.csproj|solutionrelative:heartoza\\controllers\\authcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|D:\\FA25\\EXE201\\heartoza-git\\Frontend_Heartoza\\heartoza\\src\\components\\customer\\Login.jsx||{14D17961-FE51-464D-9111-C4AF11D7D99A}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{9F51160A-07B4-4347-8F06-B7D5DEC004B4}|Heartoza\\Heartoza.csproj|d:\\fa25\\exe201\\heartoza-git\\backend_heartoza\\heartoza\\controllers\\authcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{9F51160A-07B4-4347-8F06-B7D5DEC004B4}|Heartoza\\Heartoza.csproj|solutionrelative:heartoza\\controllers\\authcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|D:\\FA25\\EXE201\\heartoza-git\\Frontend_Heartoza\\heartoza\\src\\components\\css\\Auth.css||{A5401142-F49D-43DB-90B1-F57BA349E55C}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|D:\\FA25\\EXE201\\heartoza-git\\Frontend_Heartoza\\heartoza\\src\\components\\customer\\VerifyEmail.jsx||{14D17961-FE51-464D-9111-C4AF11D7D99A}"
@@ -22,7 +22,7 @@
       "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|D:\\FA25\\EXE201\\heartoza-git\\Frontend_Heartoza\\heartoza\\src\\components\\customer\\ForgotPassword.jsx||{14D17961-FE51-464D-9111-C4AF11D7D99A}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{9F51160A-07B4-4347-8F06-B7D5DEC004B4}|Heartoza\\Heartoza.csproj|d:\\fa25\\exe201\\heartoza-git\\backend_heartoza\\heartoza\\heartoza.csproj||{FA3CD31E-987B-443A-9B81-186104E8DAC1}|",
+      "AbsoluteMoniker": "D:0:0:{9F51160A-07B4-4347-8F06-B7D5DEC004B4}|Heartoza\\Heartoza.csproj|d:\\fpt\\fa25\\heartoza\\backend_heartoza\\heartoza\\heartoza.csproj||{FA3CD31E-987B-443A-9B81-186104E8DAC1}|",
       "RelativeMoniker": "D:0:0:{9F51160A-07B4-4347-8F06-B7D5DEC004B4}|Heartoza\\Heartoza.csproj|solutionrelative:heartoza\\heartoza.csproj||{FA3CD31E-987B-443A-9B81-186104E8DAC1}|"
     }
   ],
@@ -33,45 +33,11 @@
       "DocumentGroups": [
         {
           "DockedWidth": 449,
-          "SelectedChildIndex": 0,
+          "SelectedChildIndex": 213,
           "Children": [
             {
-              "$type": "Document",
-              "DocumentIndex": 0,
-              "Title": "Auth.css",
-              "DocumentMoniker": "D:\\FA25\\EXE201\\heartoza-git\\Frontend_Heartoza\\heartoza\\src\\components\\css\\Auth.css",
-              "RelativeDocumentMoniker": "..\\Frontend_Heartoza\\heartoza\\src\\components\\css\\Auth.css",
-              "ToolTip": "D:\\FA25\\EXE201\\heartoza-git\\Frontend_Heartoza\\heartoza\\src\\components\\css\\Auth.css",
-              "RelativeToolTip": "..\\Frontend_Heartoza\\heartoza\\src\\components\\css\\Auth.css",
-              "ViewState": "AgIAADkAAAAAAAAAAAAAAFIAAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003000|",
-              "WhenOpened": "2025-09-26T07:09:53.49Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 1,
-              "Title": "Login.jsx",
-              "DocumentMoniker": "D:\\FA25\\EXE201\\heartoza-git\\Frontend_Heartoza\\heartoza\\src\\components\\customer\\Login.jsx",
-              "RelativeDocumentMoniker": "..\\Frontend_Heartoza\\heartoza\\src\\components\\customer\\Login.jsx",
-              "ToolTip": "D:\\FA25\\EXE201\\heartoza-git\\Frontend_Heartoza\\heartoza\\src\\components\\customer\\Login.jsx",
-              "RelativeToolTip": "..\\Frontend_Heartoza\\heartoza\\src\\components\\customer\\Login.jsx",
-              "ViewState": "AgIAAGwAAAAAAAAAAAAuwHkAAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003663|",
-              "WhenOpened": "2025-09-26T07:05:19.227Z",
-              "EditorCaption": ""
-            },
-            {
               "$type": "Bookmark",
-              "Name": "ST:0:0:{e1b7d1f8-9b3c-49b1-8f4f-bfc63a88835d}"
-            },
-            {
-              "$type": "Bookmark",
-              "Name": "ST:0:0:{3ae79031-e1bc-11d0-8f78-00a0c9110057}"
-            },
-            {
-              "$type": "Bookmark",
-              "Name": "ST:128:0:{116d2292-e37d-41cd-a077-ebacac4c8cc4}"
+              "Name": "ST:0:0:{1c4feeaa-4718-4aa9-859d-94ce25d182ba}"
             },
             {
               "$type": "Bookmark",
@@ -80,6 +46,14 @@
             {
               "$type": "Bookmark",
               "Name": "ST:0:0:{b1e99781-ab81-11d0-b683-00aa00a3ee26}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{1c64b9c2-e352-428e-a56d-0ace190b99a6}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:128:0:{116d2292-e37d-41cd-a077-ebacac4c8cc4}"
             },
             {
               "$type": "Bookmark",
@@ -112,6 +86,10 @@
             {
               "$type": "Bookmark",
               "Name": "ST:4:0:{fabf9319-47eb-497e-b8f6-d9f73fba5f55}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{aa2115a1-9712-457b-9047-dbb71ca2cdd2}"
             },
             {
               "$type": "Bookmark",
@@ -156,6 +134,10 @@
             {
               "$type": "Bookmark",
               "Name": "ST:6:0:{e8034f19-ab72-4f06-83fd-f6832b41aa63}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:7:0:{e8034f19-ab72-4f06-83fd-f6832b41aa63}"
             },
             {
               "$type": "Bookmark",
@@ -887,25 +869,49 @@
             },
             {
               "$type": "Bookmark",
+              "Name": "ST:0:0:{3ae79031-e1bc-11d0-8f78-00a0c9110057}"
+            },
+            {
+              "$type": "Bookmark",
               "Name": "ST:28:0:{e8034f19-ab72-4f06-83fd-f6832b41aa63}"
             },
             {
               "$type": "Bookmark",
-              "Name": "ST:0:0:{aa2115a1-9712-457b-9047-dbb71ca2cdd2}"
-            },
-            {
-              "$type": "Bookmark",
-              "Name": "ST:0:0:{1c4feeaa-4718-4aa9-859d-94ce25d182ba}"
+              "Name": "ST:9:0:{e8034f19-ab72-4f06-83fd-f6832b41aa63}"
             },
             {
               "$type": "Document",
               "DocumentIndex": 2,
+              "Title": "Auth.css",
+              "DocumentMoniker": "D:\\FA25\\EXE201\\heartoza-git\\Frontend_Heartoza\\heartoza\\src\\components\\css\\Auth.css",
+              "RelativeDocumentMoniker": "..\\..\\..\\..\\FA25\\EXE201\\heartoza-git\\Frontend_Heartoza\\heartoza\\src\\components\\css\\Auth.css",
+              "ToolTip": "D:\\FA25\\EXE201\\heartoza-git\\Frontend_Heartoza\\heartoza\\src\\components\\css\\Auth.css",
+              "RelativeToolTip": "..\\..\\..\\..\\FA25\\EXE201\\heartoza-git\\Frontend_Heartoza\\heartoza\\src\\components\\css\\Auth.css",
+              "ViewState": "AgIAADkAAAAAAAAAAAAAAFIAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003000|",
+              "WhenOpened": "2025-09-26T07:09:53.49Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "Login.jsx",
+              "DocumentMoniker": "D:\\FA25\\EXE201\\heartoza-git\\Frontend_Heartoza\\heartoza\\src\\components\\customer\\Login.jsx",
+              "RelativeDocumentMoniker": "..\\..\\..\\..\\FA25\\EXE201\\heartoza-git\\Frontend_Heartoza\\heartoza\\src\\components\\customer\\Login.jsx",
+              "ToolTip": "D:\\FA25\\EXE201\\heartoza-git\\Frontend_Heartoza\\heartoza\\src\\components\\customer\\Login.jsx",
+              "RelativeToolTip": "..\\..\\..\\..\\FA25\\EXE201\\heartoza-git\\Frontend_Heartoza\\heartoza\\src\\components\\customer\\Login.jsx",
+              "ViewState": "AgIAADIAAAAAAAAAAAAwwEIAAAA4AAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003663|",
+              "WhenOpened": "2025-09-26T07:05:19.227Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
               "Title": "AuthController.cs",
-              "DocumentMoniker": "D:\\FA25\\EXE201\\heartoza-git\\Backend_Heartoza\\Heartoza\\Controllers\\AuthController.cs",
+              "DocumentMoniker": "D:\\FPT\\FA25\\Heartoza\\Backend_Heartoza\\Heartoza\\Controllers\\AuthController.cs",
               "RelativeDocumentMoniker": "Heartoza\\Controllers\\AuthController.cs",
-              "ToolTip": "D:\\FA25\\EXE201\\heartoza-git\\Backend_Heartoza\\Heartoza\\Controllers\\AuthController.cs",
+              "ToolTip": "D:\\FPT\\FA25\\Heartoza\\Backend_Heartoza\\Heartoza\\Controllers\\AuthController.cs",
               "RelativeToolTip": "Heartoza\\Controllers\\AuthController.cs",
-              "ViewState": "AgIAAGUAAAAAAAAAAAAuwHEAAAAAAAAAAAAAAA==",
+              "ViewState": "AgIAAKABAAAAAAAAAAAuwK4BAAAqAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2025-09-26T06:57:05.037Z",
               "EditorCaption": ""
@@ -915,61 +921,63 @@
               "DocumentIndex": 5,
               "Title": "ForgotPassword.jsx",
               "DocumentMoniker": "D:\\FA25\\EXE201\\heartoza-git\\Frontend_Heartoza\\heartoza\\src\\components\\customer\\ForgotPassword.jsx",
-              "RelativeDocumentMoniker": "..\\Frontend_Heartoza\\heartoza\\src\\components\\customer\\ForgotPassword.jsx",
+              "RelativeDocumentMoniker": "..\\..\\..\\..\\FA25\\EXE201\\heartoza-git\\Frontend_Heartoza\\heartoza\\src\\components\\customer\\ForgotPassword.jsx",
               "ToolTip": "D:\\FA25\\EXE201\\heartoza-git\\Frontend_Heartoza\\heartoza\\src\\components\\customer\\ForgotPassword.jsx",
-              "RelativeToolTip": "..\\Frontend_Heartoza\\heartoza\\src\\components\\customer\\ForgotPassword.jsx",
+              "RelativeToolTip": "..\\..\\..\\..\\FA25\\EXE201\\heartoza-git\\Frontend_Heartoza\\heartoza\\src\\components\\customer\\ForgotPassword.jsx",
               "ViewState": "AgIAABAAAAAAAAAAAAAwwC8AAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003663|",
-              "WhenOpened": "2025-09-26T06:55:47.876Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-09-26T06:55:47.876Z"
             },
             {
               "$type": "Document",
               "DocumentIndex": 4,
               "Title": "ResetPassword.jsx",
               "DocumentMoniker": "D:\\FA25\\EXE201\\heartoza-git\\Frontend_Heartoza\\heartoza\\src\\components\\customer\\ResetPassword.jsx",
-              "RelativeDocumentMoniker": "..\\Frontend_Heartoza\\heartoza\\src\\components\\customer\\ResetPassword.jsx",
+              "RelativeDocumentMoniker": "..\\..\\..\\..\\FA25\\EXE201\\heartoza-git\\Frontend_Heartoza\\heartoza\\src\\components\\customer\\ResetPassword.jsx",
               "ToolTip": "D:\\FA25\\EXE201\\heartoza-git\\Frontend_Heartoza\\heartoza\\src\\components\\customer\\ResetPassword.jsx",
-              "RelativeToolTip": "..\\Frontend_Heartoza\\heartoza\\src\\components\\customer\\ResetPassword.jsx",
+              "RelativeToolTip": "..\\..\\..\\..\\FA25\\EXE201\\heartoza-git\\Frontend_Heartoza\\heartoza\\src\\components\\customer\\ResetPassword.jsx",
               "ViewState": "AgIAACAAAAAAAAAAAAAwwD8AAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003663|",
-              "WhenOpened": "2025-09-26T06:55:45.51Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-09-26T06:55:45.51Z"
             },
             {
               "$type": "Document",
               "DocumentIndex": 3,
               "Title": "VerifyEmail.jsx",
               "DocumentMoniker": "D:\\FA25\\EXE201\\heartoza-git\\Frontend_Heartoza\\heartoza\\src\\components\\customer\\VerifyEmail.jsx",
-              "RelativeDocumentMoniker": "..\\Frontend_Heartoza\\heartoza\\src\\components\\customer\\VerifyEmail.jsx",
+              "RelativeDocumentMoniker": "..\\..\\..\\..\\FA25\\EXE201\\heartoza-git\\Frontend_Heartoza\\heartoza\\src\\components\\customer\\VerifyEmail.jsx",
               "ToolTip": "D:\\FA25\\EXE201\\heartoza-git\\Frontend_Heartoza\\heartoza\\src\\components\\customer\\VerifyEmail.jsx",
-              "RelativeToolTip": "..\\Frontend_Heartoza\\heartoza\\src\\components\\customer\\VerifyEmail.jsx",
+              "RelativeToolTip": "..\\..\\..\\..\\FA25\\EXE201\\heartoza-git\\Frontend_Heartoza\\heartoza\\src\\components\\customer\\VerifyEmail.jsx",
               "ViewState": "AgIAAD8AAAAAAAAAAAAqwFwAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003663|",
-              "WhenOpened": "2025-09-26T05:46:16.592Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-09-26T05:46:16.592Z"
             },
             {
               "$type": "Document",
               "DocumentIndex": 6,
-              "Title": "Heartoza",
-              "DocumentMoniker": "D:\\FA25\\EXE201\\heartoza-git\\Backend_Heartoza\\Heartoza\\Heartoza.csproj",
+              "Title": "Heartoza.csproj",
+              "DocumentMoniker": "D:\\FPT\\FA25\\Heartoza\\Backend_Heartoza\\Heartoza\\Heartoza.csproj",
               "RelativeDocumentMoniker": "Heartoza\\Heartoza.csproj",
-              "ToolTip": "D:\\FA25\\EXE201\\heartoza-git\\Backend_Heartoza\\Heartoza\\Heartoza.csproj",
+              "ToolTip": "D:\\FPT\\FA25\\Heartoza\\Backend_Heartoza\\Heartoza\\Heartoza.csproj",
               "RelativeToolTip": "Heartoza\\Heartoza.csproj",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000758|",
-              "WhenOpened": "2025-09-26T06:55:40.434Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Bookmark",
-              "Name": "ST:0:0:{1c64b9c2-e352-428e-a56d-0ace190b99a6}"
+              "WhenOpened": "2025-09-26T06:55:40.434Z"
             }
           ]
         },
         {
           "DockedWidth": 479,
+          "SelectedChildIndex": -1,
+          "Children": [
+            {
+              "$type": "Bookmark",
+              "Name": "ST:6:0:{d212f56b-c48a-434c-a121-1c5d80b59b9f}"
+            }
+          ]
+        },
+        {
+          "DockedWidth": 48,
           "SelectedChildIndex": -1,
           "Children": [
             {
@@ -1051,7 +1059,7 @@
           ]
         },
         {
-          "DockedWidth": 48,
+          "DockedWidth": 297,
           "SelectedChildIndex": -1,
           "Children": [
             {
@@ -1176,7 +1184,7 @@
             },
             {
               "$type": "Bookmark",
-              "Name": "ST:9:0:{e8034f19-ab72-4f06-83fd-f6832b41aa63}"
+              "Name": "ST:0:0:{0ad07096-bba9-4900-a651-0598d26f6d24}"
             }
           ]
         }
