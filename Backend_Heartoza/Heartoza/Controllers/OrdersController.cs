@@ -22,6 +22,11 @@ public class OrdersController : ControllerBase
     {
         if (req?.Items == null || req.Items.Count == 0)
             return BadRequest("Thiếu danh sách sản phẩm.");
+        var userIdStr = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+        if (string.IsNullOrEmpty(userIdStr))
+            return Unauthorized("Không tìm thấy thông tin user trong token.");
+
+        int userId = int.Parse(userIdStr);
         if (req.Items.Any(i => i.ProductId <= 0 || i.Quantity <= 0))
             return BadRequest("Mỗi item phải có ProductId hợp lệ và Quantity > 0.");
         if (req.ShippingFee < 0)
@@ -99,7 +104,7 @@ public class OrdersController : ControllerBase
             var order = new Order
             {
                 OrderCode = $"GBX-{nowUtc:yyyyMMddHHmmssfff}",
-                UserId = req.UserId > 0 ? req.UserId : 1,
+                UserId = userId,
                 ShippingAddressId = req.ShippingAddressId,
                 Subtotal = subtotal,
                 ShippingFee = req.ShippingFee,

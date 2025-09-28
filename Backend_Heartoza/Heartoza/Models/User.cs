@@ -29,6 +29,8 @@ public partial class User
 
     public virtual ICollection<AuditLog> AuditLogs { get; set; } = new List<AuditLog>();
 
+    public virtual ICollection<Cart> Carts { get; set; } = new List<Cart>();
+
     public virtual ICollection<EmailVerification> EmailVerifications { get; set; } = new List<EmailVerification>();
 
     public virtual ICollection<Order> Orders { get; set; } = new List<Order>();

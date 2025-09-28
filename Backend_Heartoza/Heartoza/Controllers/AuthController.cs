@@ -24,6 +24,10 @@ public class AuthController : ControllerBase
     private static readonly TimeSpan RESET_EXPIRES = TimeSpan.FromMinutes(30);
     private static readonly TimeSpan REFRESH_LIFETIME = TimeSpan.FromDays(14);
 
+    // Anti-spam cooldowns
+    private static readonly TimeSpan RESEND_VERIFY_COOLDOWN = TimeSpan.FromSeconds(60);
+    private static readonly TimeSpan FORGOT_COOLDOWN = TimeSpan.FromSeconds(60);
+
     public AuthController(GiftBoxShopContext db, IJwtService jwt, IEmailSender mail, IAuditService audit, IConfiguration cfg)
     {
         _db = db; _jwt = jwt; _mail = mail; _audit = audit; _cfg = cfg;
@@ -41,14 +45,20 @@ public class AuthController : ControllerBase
     private string UA() => Request.Headers.UserAgent.ToString();
     private static string NewTokenHex(int bytes) => Convert.ToHexString(RandomNumberGenerator.GetBytes(bytes));
 
+    private static bool MeetsPasswordPolicy(string? pw)
+        => !string.IsNullOrWhiteSpace(pw)
+           && pw.Length >= 8
+           && pw.Any(char.IsLetter)
+           && pw.Any(char.IsDigit);
+
     /* ========== REGISTER ========== */
     [HttpPost("register")]
     [AllowAnonymous]
     public async Task<IActionResult> Register([FromBody] RegisterRequest req, CancellationToken ct)
     {
         var email = (req.Email ?? "").Trim().ToLowerInvariant();
-        if (string.IsNullOrWhiteSpace(email) || string.IsNullOrWhiteSpace(req.Password))
-            return BadRequest("Thiếu email hoặc mật khẩu.");
+        if (string.IsNullOrWhiteSpace(email)) return BadRequest("Thiếu email.");
+        if (!MeetsPasswordPolicy(req.Password)) return BadRequest("Mật khẩu tối thiểu 8 ký tự và gồm cả chữ & số.");
 
         if (await _db.Users.AnyAsync(x => x.Email == email, ct))
             return Conflict("Email đã tồn tại.");
@@ -77,16 +87,36 @@ public class AuthController : ControllerBase
         });
         await _db.SaveChangesAsync(ct);
 
+        // Tạo link verify
         var verifyUrl = $"{_cfg["Frontend:BaseUrl"]?.TrimEnd('/')}/verify-email?token={token}";
-        await _mail.SendAsync(user.Email, "[Heartoza] Xác thực email",
-            $"<p>Chào {System.Net.WebUtility.HtmlEncode(user.FullName ?? user.Email)},</p>" +
-            $"<p>Nhấn để xác thực: <a href='{verifyUrl}'>Verify email</a></p>");
+
+        // Nội dung email
+        var html = $@"
+  <div style=""font-family:Arial,Helvetica,sans-serif;font-size:14px;color:#222;line-height:1.6"">
+    <h2 style=""margin:0 0 12px"">Chào {System.Net.WebUtility.HtmlEncode(user.FullName ?? user.Email)},</h2>
+    <p>Cảm ơn bạn đã đăng ký tài khoản tại <b>Heartoza</b>.</p>
+    <p>Để hoàn tất đăng ký, vui lòng bấm vào liên kết dưới đây để xác thực email:</p>
+    <p>
+      <a href=""{verifyUrl}""
+         style=""display:inline-block;background:#ff4081;color:#fff;padding:10px 16px;border-radius:6px;
+                text-decoration:none;font-weight:600"">
+        Xác thực tài khoản
+      </a>
+    </p>
+    <p>Nếu nút trên không hoạt động, hãy copy đường dẫn sau và dán vào trình duyệt:</p>
+    <p style=""word-break:break-all;color:#1a73e8;"">{verifyUrl}</p>
+    <hr style=""border:none;border-top:1px solid #eee;margin:16px 0""/>
+    <p>Nếu bạn không đăng ký tài khoản, vui lòng bỏ qua email này.</p>
+    <p>Trân trọng,<br/>Đội ngũ Heartoza</p>
+  </div>";
+
+        await _mail.SendAsync(user.Email, "[Heartoza] Xác thực email", html);
 
         await _audit.LogAsync(user.UserId, "REGISTER", null, Ip());
         return Ok(new { message = "Đăng ký thành công. Vui lòng kiểm tra email để xác thực." });
     }
 
-    /* ========== RESEND VERIFY ========== */
+    /* ========== RESEND VERIFY (có cooldown) ========== */
     [HttpPost("resend-verify")]
     [AllowAnonymous]
     public async Task<IActionResult> ResendVerify([FromBody] ForgotRequest req, CancellationToken ct)
@@ -95,6 +125,17 @@ public class AuthController : ControllerBase
         var user = await _db.Users.FirstOrDefaultAsync(u => u.Email == email, ct);
         if (user == null || user.IsActive == true)
             return Ok(new { message = "Nếu email hợp lệ/chưa xác thực, hướng dẫn đã được gửi." });
+
+        // Chống spam: nếu vừa gửi trong vòng cooldown -> trả message “đã gửi gần đây”
+        var last = await _db.EmailVerifications
+            .Where(v => v.UserId == user.UserId)
+            .OrderByDescending(v => v.CreatedAt)
+            .FirstOrDefaultAsync(ct);
+
+        if (last != null && last.CreatedAt >= DateTime.UtcNow - RESEND_VERIFY_COOLDOWN)
+        {
+            return Ok(new { message = "Email xác thực đã được gửi gần đây. Vui lòng kiểm tra hộp thư hoặc thử lại sau ít phút." });
+        }
 
         // Invalidate tokens cũ
         var olds = _db.EmailVerifications.Where(v => v.UserId == user.UserId && v.UsedAt == null && v.ExpiresAt > DateTime.UtcNow);
@@ -111,26 +152,61 @@ public class AuthController : ControllerBase
         await _db.SaveChangesAsync(ct);
 
         var verifyUrl = $"{_cfg["Frontend:BaseUrl"]?.TrimEnd('/')}/verify-email?token={token}";
-        await _mail.SendAsync(user.Email, "[Heartoza] Xác thực email",
-            $"<p>Nhấn để xác thực: <a href='{verifyUrl}'>Verify</a></p>");
+        var html = $@"
+  <div style=""font-family:Arial,Helvetica,sans-serif;font-size:14px;color:#222;line-height:1.6"">
+    <h2 style=""margin:0 0 12px"">Chào {System.Net.WebUtility.HtmlEncode(user.FullName ?? user.Email)},</h2>
+    <p>Đây là email xác thực lại tài khoản <b>Heartoza</b>.</p>
+    <p>Vui lòng bấm vào liên kết dưới đây để xác thực email:</p>
+    <p>
+      <a href=""{verifyUrl}""
+         style=""display:inline-block;background:#ff4081;color:#fff;padding:10px 16px;border-radius:6px;
+                text-decoration:none;font-weight:600"">
+        Xác thực tài khoản
+      </a>
+    </p>
+    <p>Nếu nút trên không hoạt động, hãy copy đường dẫn sau và dán vào trình duyệt:</p>
+    <p style=""word-break:break-all;color:#1a73e8;"">{verifyUrl}</p>
+    <hr style=""border:none;border-top:1px solid #eee;margin:16px 0""/>
+    <p>Nếu bạn không yêu cầu, vui lòng bỏ qua email này.</p>
+    <p>Trân trọng,<br/>Đội ngũ Heartoza</p>
+  </div>";
+
+        await _mail.SendAsync(user.Email, "[Heartoza] Xác thực email (gửi lại)", html);
 
         return Ok(new { message = "Nếu email hợp lệ/chưa xác thực, hướng dẫn đã được gửi." });
     }
 
-    /* ========== VERIFY EMAIL ========== */
+    /* ========== VERIFY EMAIL (idempotent) ========== */
     [HttpGet("verify-email")]
     [AllowAnonymous]
     public async Task<IActionResult> VerifyEmail([FromQuery] string token, CancellationToken ct)
     {
-        var ev = await _db.EmailVerifications.FirstOrDefaultAsync(x => x.Token == token && x.UsedAt == null, ct);
-        if (ev == null || ev.ExpiresAt < DateTime.UtcNow)
-            return BadRequest("Token không hợp lệ/hết hạn.");
+        if (string.IsNullOrWhiteSpace(token)) return BadRequest("Thiếu token.");
 
-        var user = await _db.Users.FindAsync(new object[] { ev.UserId }, ct);
+        // Tìm token bất kể đã dùng hay chưa để UX tốt hơn
+        var evAny = await _db.EmailVerifications.FirstOrDefaultAsync(x => x.Token == token, ct);
+        if (evAny == null) return BadRequest("Token không hợp lệ.");
+
+        var user = await _db.Users.FindAsync(new object[] { evAny.UserId }, ct);
         if (user == null) return BadRequest("User không tồn tại.");
 
+        // Nếu đã active hoặc token đã dùng → coi như OK để UX mượt
+        if (user.IsActive == true || evAny.UsedAt != null)
+        {
+            if (user.IsActive != true)
+            {
+                user.IsActive = true; // idempotent: đảm bảo bật
+                await _db.SaveChangesAsync(ct);
+            }
+            await _audit.LogAsync(user.UserId, "VERIFY_EMAIL_IDEMPOTENT", null, Ip());
+            return Ok(new { message = "Email đã được xác thực trước đó." });
+        }
+
+        // Token còn hạn & chưa dùng
+        if (evAny.ExpiresAt < DateTime.UtcNow) return BadRequest("Token đã hết hạn. Vui lòng yêu cầu gửi lại email xác thực.");
+
         user.IsActive = true;
-        ev.UsedAt = DateTime.UtcNow;
+        evAny.UsedAt = DateTime.UtcNow;
         await _db.SaveChangesAsync(ct);
 
         await _audit.LogAsync(user.UserId, "VERIFY_EMAIL", null, Ip());
@@ -254,7 +330,7 @@ public class AuthController : ControllerBase
         return Ok(new { message = "Đã đăng xuất khỏi tất cả thiết bị." });
     }
 
-    /* ========== FORGOT ========== */
+    /* ========== FORGOT (cooldown) ========== */
     [HttpPost("forgot")]
     [AllowAnonymous]
     public async Task<IActionResult> Forgot([FromBody] ForgotRequest req, CancellationToken ct)
@@ -263,6 +339,17 @@ public class AuthController : ControllerBase
         var user = await _db.Users.FirstOrDefaultAsync(x => x.Email == email, ct);
         if (user == null)
             return Ok(new { message = "Nếu email hợp lệ, hướng dẫn đã được gửi." });
+
+        // chống spam: chỉ tạo reset token mới nếu qua cooldown
+        var last = await _db.PasswordResets
+            .Where(p => p.UserId == user.UserId)
+            .OrderByDescending(p => p.CreatedAt)
+            .FirstOrDefaultAsync(ct);
+
+        if (last != null && last.CreatedAt >= DateTime.UtcNow - FORGOT_COOLDOWN)
+        {
+            return Ok(new { message = "Đã gửi hướng dẫn gần đây. Vui lòng kiểm tra email hoặc thử lại sau ít phút." });
+        }
 
         var token = NewTokenHex(32);
         _db.PasswordResets.Add(new PasswordReset
@@ -275,8 +362,16 @@ public class AuthController : ControllerBase
         await _db.SaveChangesAsync(ct);
 
         var url = $"{_cfg["Frontend:BaseUrl"]?.TrimEnd('/')}/reset-password?token={token}";
-        await _mail.SendAsync(user.Email, "[Heartoza] Đặt lại mật khẩu",
-            $"<p>Nhấn để đặt lại mật khẩu: <a href='{url}'>Reset</a></p>");
+        await _mail.SendAsync(
+            user.Email,
+            "[Heartoza] Đặt lại mật khẩu",
+            $@"
+        <p>Xin chào {System.Net.WebUtility.HtmlEncode(user.FullName ?? user.Email)},</p>
+        <p>Chúng tôi nhận được yêu cầu đặt lại mật khẩu cho tài khoản của bạn.</p>
+        <p>Nhấn vào liên kết sau để đổi mật khẩu mới (hạn trong 30 phút):</p>
+        <p><a href='{url}'>Đặt lại mật khẩu</a></p>
+        <p>Nếu bạn không thực hiện yêu cầu này, vui lòng bỏ qua email.</p>
+    ");
 
         return Ok(new { message = "Nếu email hợp lệ, hướng dẫn đã được gửi." });
     }
@@ -293,11 +388,10 @@ public class AuthController : ControllerBase
         var user = await _db.Users.FindAsync(new object[] { pr.UserId }, ct);
         if (user == null) return BadRequest("User không tồn tại.");
 
-        var pw = req.NewPassword ?? "";
-        if (pw.Length < 8 || !pw.Any(char.IsLetter) || !pw.Any(char.IsDigit))
-            return BadRequest("Mật khẩu mới tối thiểu 8 ký tự, gồm chữ & số.");
+        if (!MeetsPasswordPolicy(req.NewPassword))
+            return BadRequest("Mật khẩu mới tối thiểu 8 ký tự và gồm cả chữ & số.");
 
-        user.PasswordHash = BCrypt.Net.BCrypt.HashPassword(pw);
+        user.PasswordHash = BCrypt.Net.BCrypt.HashPassword(req.NewPassword!);
         pr.UsedAt = DateTime.UtcNow;
 
         var tokens = _db.RefreshTokens.Where(t => t.UserId == user.UserId && t.RevokedAt == null);

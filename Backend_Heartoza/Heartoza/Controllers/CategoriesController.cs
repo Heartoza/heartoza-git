@@ -165,54 +165,6 @@ public class CategoriesController : ControllerBase
 
         return CreatedAtAction(nameof(GetById), new { id = cat.CategoryId }, new { cat.CategoryId, cat.Name, cat.ParentId });
     }
-
-    /// <summary>
-    /// PUT /api/categories/{id}
-    /// - Không cho set ParentId = chính nó
-    /// - Không cho tạo vòng (đặt parent là con/cháu của chính nó)
-    /// </summary>
-    [HttpPut("{id:int}")]
-    public async Task<IActionResult> Update(int id, [FromBody] CategoryUpdateDto req, CancellationToken ct = default)
-    {
-        var cat = await _db.Categories.FirstOrDefaultAsync(c => c.CategoryId == id, ct);
-        if (cat is null) return NotFound();
-
-        if (!string.IsNullOrWhiteSpace(req.Name))
-            cat.Name = req.Name.Trim();
-
-        if (req.ParentIdHasValue)
-        {
-            // Phân biệt: client có gửi ParentId hay không
-            var newParentId = req.ParentId; // có thể null
-
-            // Không cho set parent = chính nó
-            if (newParentId.HasValue && newParentId.Value == id)
-                return BadRequest("ParentId không thể là chính danh mục.");
-
-            // Nếu có newParent, check tồn tại
-            if (newParentId.HasValue)
-            {
-                var parentExists = await _db.Categories.AnyAsync(c => c.CategoryId == newParentId.Value, ct);
-                if (!parentExists) return BadRequest("ParentId không tồn tại.");
-
-                // Check vòng: newParent không được là hậu duệ của id
-                var all = await _db.Categories
-                    .AsNoTracking()
-                    .Select(c => new CatNode(c.CategoryId, c.ParentId))
-                    .ToListAsync(ct);
-
-                var descendants = GetDescendants(id, all);
-                if (descendants.Contains(newParentId.Value))
-                    return BadRequest("Không thể đặt ParentId thành con/cháu của danh mục hiện tại (gây vòng).");
-            }
-
-            cat.ParentId = newParentId; // chấp nhận null (đẩy lên root)
-        }
-
-        await _db.SaveChangesAsync(ct);
-        return Ok(new { cat.CategoryId, cat.Name, cat.ParentId });
-    }
-
     /// <summary>
     /// DELETE /api/categories/{id}
     /// - Chặn xóa nếu còn category con
@@ -236,34 +188,45 @@ public class CategoriesController : ControllerBase
     }
 
     // Helpers
-    private static HashSet<int> GetDescendants(int id, List<dynamic> all)
+    [HttpPut("{id:int}")]
+    public async Task<IActionResult> Update(int id, [FromBody] CategoryUpdateDto req, CancellationToken ct = default)
     {
-        // all: { CategoryId, ParentId }
-        var childrenMap = all
-            .GroupBy(x => (int?)(x.ParentId ?? null))
-            .ToDictionary(g => g.Key, g => g.Select(v => (int)v.CategoryId).ToList());
+        var cat = await _db.Categories.FirstOrDefaultAsync(c => c.CategoryId == id, ct);
+        if (cat is null) return NotFound();
 
-        var result = new HashSet<int>();
-        var stack = new Stack<int>();
-        if (childrenMap.TryGetValue(id, out var directChildren))
-        {
-            foreach (var c in directChildren) stack.Push(c);
-        }
+        if (!string.IsNullOrWhiteSpace(req.Name))
+            cat.Name = req.Name.Trim();
 
-        while (stack.Count > 0)
+        if (req.ParentIdHasValue) // phải có trong DTO
         {
-            var cur = stack.Pop();
-            if (!result.Add(cur)) continue;
-            if (childrenMap.TryGetValue(cur, out var more))
+            var newParentId = req.ParentId; // có thể null
+
+            if (newParentId.HasValue && newParentId.Value == id)
+                return BadRequest("ParentId không thể là chính danh mục.");
+
+            if (newParentId.HasValue)
             {
-                foreach (var m in more) stack.Push(m);
+                var parentExists = await _db.Categories.AnyAsync(c => c.CategoryId == newParentId.Value, ct);
+                if (!parentExists) return BadRequest("ParentId không tồn tại.");
+
+                var all = await _db.Categories
+                    .AsNoTracking()
+                    .Select(c => new CatNode(c.CategoryId, c.ParentId))
+                    .ToListAsync(ct);
+
+                var descendants = GetDescendants(id, all);
+                if (descendants.Contains(newParentId.Value))
+                    return BadRequest("Không thể đặt ParentId thành con/cháu của danh mục hiện tại (gây vòng).");
             }
+
+            cat.ParentId = newParentId;
         }
 
-        return result;
+        await _db.SaveChangesAsync(ct);
+        return Ok(new { message = "Đã cập nhật danh mục", cat.CategoryId, cat.Name, cat.ParentId });
     }
 
-    // Helpers
+    // Giữ lại duy nhất hàm này
     private record CatNode(int CategoryId, int? ParentId);
 
     private static HashSet<int> GetDescendants(int id, List<CatNode> all)
@@ -274,6 +237,7 @@ public class CategoriesController : ControllerBase
 
         var result = new HashSet<int>();
         var stack = new Stack<int>();
+
         if (childrenMap.TryGetValue(id, out var directChildren))
         {
             foreach (var c in directChildren) stack.Push(c);
@@ -288,8 +252,8 @@ public class CategoriesController : ControllerBase
                 foreach (var m in more) stack.Push(m);
             }
         }
-
         return result;
     }
+
 
 }
