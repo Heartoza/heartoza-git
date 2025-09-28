@@ -80,3 +80,20 @@
     .auth-message.success {
         color: seagreen;
     }
+
+.resend-verify-wrap {
+    margin: 8px 0 12px;
+}
+
+.linklike {
+    background: none;
+    border: none;
+    color: #1a73e8;
+    padding: 0;
+    cursor: pointer;
+    font-size: 0.95rem;
+}
+
+    .linklike:hover {
+        text-decoration: underline;
+    }

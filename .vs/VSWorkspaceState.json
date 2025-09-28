@@ -1,16 +1,5 @@
 {
-  "ExpandedNodes": [
-    "",
-    "\\Backend_Heartoza",
-    "\\Frontend_Heartoza",
-    "\\Frontend_Heartoza\\heartoza",
-    "\\Frontend_Heartoza\\heartoza\\src",
-    "\\Frontend_Heartoza\\heartoza\\src\\components",
-    "\\Frontend_Heartoza\\heartoza\\src\\components\\customer",
-    "\\Frontend_Heartoza\\heartoza\\src\\context",
-    "\\Frontend_Heartoza\\heartoza\\src\\routes",
-    "\\Frontend_Heartoza\\heartoza\\src\\services"
-  ],
-  "SelectedNode": "\\Frontend_Heartoza\\heartoza\\src\\components\\customer\\ForgotPassword.jsx",
+  "ExpandedNodes": [],
+  "SelectedNode": "\\Heartoza.sln",
   "PreviewInSolutionExplorer": false
 }

@@ -508,3 +508,22 @@ GO
 /* Update Table Users */
 ALTER TABLE Users
 ADD LastLoginAt DATETIME2 NULL;
+
+--CART
+CREATE TABLE Carts (
+    CartId INT IDENTITY PRIMARY KEY,
+    UserId INT NOT NULL,
+    CreatedAt DATETIME2 DEFAULT SYSUTCDATETIME(),
+    CONSTRAINT FK_Cart_User FOREIGN KEY (UserId) REFERENCES Users(UserId) ON DELETE CASCADE
+);
+
+CREATE TABLE CartItems (
+    CartItemId INT IDENTITY PRIMARY KEY,
+    CartId INT NOT NULL,
+    ProductId INT NOT NULL,
+    Quantity INT NOT NULL,
+    UnitPrice DECIMAL(18,2) NOT NULL,
+    LineTotal AS (Quantity * UnitPrice) PERSISTED,
+    CONSTRAINT FK_CartItem_Cart FOREIGN KEY (CartId) REFERENCES Carts(CartId),
+    CONSTRAINT FK_CartItem_Product FOREIGN KEY (ProductId) REFERENCES Products(ProductId)
+);
