@@ -1,0 +1,103 @@
+/* Container tổng */
+.cart-container {
+    max-width: 900px;
+    margin: 30px auto;
+    padding: 20px;
+    background-color: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* Tiêu đề */
+.cart-container h2 {
+    text-align: center;
+    margin-bottom: 20px;
+    color: #333333;
+}
+
+/* Bảng giỏ hàng */
+.cart-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0 12px;
+    font-size: 16px;
+}
+
+.cart-table th {
+    background-color: #f8f8f8;
+    color: #555;
+    font-weight: 600;
+    padding: 12px;
+    text-align: left;
+    border-bottom: 2px solid #e0e0e0;
+}
+
+.cart-table td {
+    padding: 12px;
+    background-color: #fafafa;
+    vertical-align: middle;
+    border-radius: 8px;
+}
+
+/* Dòng hover */
+.cart-table tbody tr:hover {
+    background-color: #f0f7ff;
+    transition: background-color 0.2s ease-in-out;
+}
+
+/* Nút cộng trừ */
+.cart-table button {
+    background-color: #007bff;
+    color: #fff;
+    border: none;
+    padding: 5px 10px;
+    margin: 0 5px;
+    font-size: 16px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.cart-table button:hover {
+    background-color: #0056b3;
+}
+
+.cart-table button:disabled {
+    background-color: #cccccc;
+    cursor: not-allowed;
+}
+
+/* Nút xóa */
+.cart-table td button {
+    background-color: #dc3545;
+}
+
+.cart-table td button:hover {
+    background-color: #a71d2a;
+}
+
+/* Tổng tiền */
+.cart-container h3 {
+    text-align: right;
+    margin-top: 20px;
+    font-size: 20px;
+    color: #111;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .cart-table th, .cart-table td {
+        padding: 10px 6px;
+        font-size: 14px;
+    }
+
+    .cart-table button {
+        padding: 4px 8px;
+        font-size: 14px;
+    }
+
+    .cart-container h3 {
+        font-size: 18px;
+    }
+}

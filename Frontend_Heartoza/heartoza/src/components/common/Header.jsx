@@ -44,6 +44,7 @@ function Header() {
                 <NavLink to="/products">Danh sách quà</NavLink>
                 <NavLink to="/about">Về Heartoza</NavLink>
                 <NavLink to="/contact">Liên hệ</NavLink>
+                {user && <NavLink to="/orders">Đơn hàng</NavLink>}
             </nav>
         </>
     );
