@@ -159,9 +159,8 @@ export default function Cart() {
   if (loading) return <p>Đang tải giỏ hàng...</p>;
   if (!cart || !cart.cartItems || cart.cartItems.length === 0) return <p>Giỏ hàng trống</p>;
 
-  const total = cart.cartItems
-    .filter((ci) => selectedItems.includes(ci.cartItemId))
-    .reduce((sum, i) => sum + i.lineTotal, 0);
+const total = cart.cartItems.reduce((sum, i) => sum + i.lineTotal, 0);
+
 
   return (
     <div className="cart-container">
