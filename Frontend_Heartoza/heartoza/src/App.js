@@ -16,6 +16,7 @@ import Register from "./components/customer/Register.jsx";
 import Profile from "./components/customer/Profile.jsx";
 import ChangePassword from "./components/customer/ChangePassword.jsx";
 import ForgotPassword from "./components/customer/ForgotPassword.jsx";
+import ForgotPassword from "./components/customer/VerifyEmail.jsx";
 import OrderList from "./components/customer/OrderList.jsx";
 import OrderDetail from "./components/customer/OrderDetail.jsx";
 import Cart from "./components/customer/Cart.jsx";   // ✅ thêm giỏ hàng
