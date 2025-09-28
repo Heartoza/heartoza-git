@@ -1,8 +1,10 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
+import { useNavigate } from "react-router-dom";
 import "../css/ProductList.css";
 
 export default function ProductList() {
+  const navigate = useNavigate();
   const [products, setProducts] = useState([]);
   const [filteredProducts, setFilteredProducts] = useState([]);
   const [priceFilter, setPriceFilter] = useState("");
@@ -104,10 +106,15 @@ export default function ProductList() {
       </div>
 
       {/* Product grid */}
-      <div className="product-grid">
+     <div className="product-grid">
         {filteredProducts.length > 0 ? (
           filteredProducts.map((p) => (
-            <div key={p.productId} className="product-card">
+            <div
+              key={p.productId}
+              className="product-card"
+              onClick={() => navigate(`/products/${p.productId}`)} // navigate tới ProductDetail
+              style={{ cursor: "pointer" }} // hiện con trỏ tay khi hover
+            >
               <img
                 src={p.imageUrl || "/img/no-image.png"}
                 alt={p.name}
