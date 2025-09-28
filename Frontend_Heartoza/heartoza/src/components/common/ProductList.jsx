@@ -1,14 +1,17 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import "../css/ProductList.css";
-
+import { useNavigate } from "react-router-dom";
 export default function ProductList() {
   const [products, setProducts] = useState([]);
   const [filteredProducts, setFilteredProducts] = useState([]);
   const [priceFilter, setPriceFilter] = useState("");
   const [categoryFilter, setCategoryFilter] = useState("");
   const [categories, setCategories] = useState([]);
-
+ const navigate = useNavigate();
+   const handleProductClick = (productId) => {
+    navigate(`/products/${productId}`);
+  };
   useEffect(() => {
     axios
       .get("https://localhost:7109/api/Products")
@@ -99,7 +102,12 @@ export default function ProductList() {
       <div className="product-grid">
         {filteredProducts.length > 0 ? (
           filteredProducts.map((p) => (
-            <div key={p.productId} className="product-card">
+            <div
+              key={p.productId}
+              className="product-card"
+              onClick={() => handleProductClick(p.productId)}
+              style={{ cursor: "pointer" }}
+            >
               <img
                 src={p.imageUrl || "/img/no-image.png"}
                 alt={p.name}
