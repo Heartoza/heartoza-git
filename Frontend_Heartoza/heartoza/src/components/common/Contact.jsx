@@ -14,19 +14,19 @@ export default function Contact() {
         <div className="contact-card">
           <i className="bi bi-envelope"></i>
           <h3>Email</h3>
-          <p>support@heartoza.com</p>
+          <p>weelearn10@gmail.com</p>
         </div>
 
         <div className="contact-card">
           <i className="bi bi-telephone"></i>
           <h3>Điện thoại</h3>
-          <p>+84 123 456 789</p>
+          <p>+84 835 236 437</p>
         </div>
 
         <div className="contact-card">
           <i className="bi bi-geo-alt"></i>
           <h3>Địa chỉ</h3>
-          <p>123 Đường ABC, Quận 1, TP.HCM</p>
+          <p>Trường Đại học FPT Hà Nội</p>
         </div>
 
         <div className="contact-card">
