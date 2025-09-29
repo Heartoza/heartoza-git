@@ -16,6 +16,7 @@ import Register from "./components/customer/Register.jsx";
 import Profile from "./components/customer/Profile.jsx";
 import ChangePassword from "./components/customer/ChangePassword.jsx";
 import ForgotPassword from "./components/customer/ForgotPassword.jsx";
+import VerifyEmail from "./components/customer/VerifyEmail.jsx";
 import OrderList from "./components/customer/OrderList.jsx";
 import OrderDetail from "./components/customer/OrderDetail.jsx";
 import Cart from "./components/customer/Cart.jsx";   // ✅ thêm giỏ hàng
@@ -58,7 +59,7 @@ function App() {
                                     <Route path="/login" element={<Login />} />
                                     <Route path="/register" element={<Register />} />
                                     <Route path="/forgot" element={<ForgotPassword />} />
-
+                                    <Route path="/verify-email" element={<VerifyEmail />} />
                                     {/* Protected (Customer) */}
                                     <Route
                                         path="/profile"
