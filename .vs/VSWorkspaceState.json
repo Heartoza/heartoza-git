@@ -3,18 +3,14 @@
     "",
     "\\Frontend_Heartoza",
     "\\Frontend_Heartoza\\heartoza",
+    "\\Frontend_Heartoza\\heartoza\\public",
     "\\Frontend_Heartoza\\heartoza\\src",
+    "\\Frontend_Heartoza\\heartoza\\src\\assets",
     "\\Frontend_Heartoza\\heartoza\\src\\components",
-    "\\Frontend_Heartoza\\heartoza\\src\\components\\admin",
-<<<<<<< Updated upstream
-    "\\Frontend_Heartoza\\heartoza\\src\\components\\customer"
-=======
-    "\\Frontend_Heartoza\\heartoza\\src\\components\\common",
-    "\\Frontend_Heartoza\\heartoza\\src\\components\\customer",
     "\\Frontend_Heartoza\\heartoza\\src\\context",
-    "\\Frontend_Heartoza\\heartoza\\src\\routes"
->>>>>>> Stashed changes
+    "\\Frontend_Heartoza\\heartoza\\src\\routes",
+    "\\Frontend_Heartoza\\heartoza\\src\\services"
   ],
-  "SelectedNode": "\\Frontend_Heartoza\\heartoza",
+  "SelectedNode": "\\Frontend_Heartoza\\heartoza\\src\\routes\\RequireGuest.jsx",
   "PreviewInSolutionExplorer": false
 }
