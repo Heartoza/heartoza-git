@@ -6,8 +6,15 @@
     "\\Frontend_Heartoza\\heartoza\\src",
     "\\Frontend_Heartoza\\heartoza\\src\\components",
     "\\Frontend_Heartoza\\heartoza\\src\\components\\admin",
+<<<<<<< Updated upstream
     "\\Frontend_Heartoza\\heartoza\\src\\components\\customer"
+=======
+    "\\Frontend_Heartoza\\heartoza\\src\\components\\common",
+    "\\Frontend_Heartoza\\heartoza\\src\\components\\customer",
+    "\\Frontend_Heartoza\\heartoza\\src\\context",
+    "\\Frontend_Heartoza\\heartoza\\src\\routes"
+>>>>>>> Stashed changes
   ],
-  "SelectedNode": "\\Frontend_Heartoza\\heartoza\\src\\App.js",
+  "SelectedNode": "\\Frontend_Heartoza\\heartoza",
   "PreviewInSolutionExplorer": false
 }
