@@ -234,4 +234,6 @@ public class ProductsController : ControllerBase
 
         return Ok(new { productId = p.ProductId, isActive = p.IsActive });
     }
+
+
 }
