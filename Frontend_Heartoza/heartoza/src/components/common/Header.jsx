@@ -9,17 +9,19 @@ import debounce from "lodash.debounce";
 function Header() {
     const { user, logout } = useContext(AuthContext);
     const [searchText, setSearchText] = useState("");
+    const [results, setResults] = useState([]); // lưu kết quả search
     const navigate = useNavigate();
 
-    // debounce search để gọi API khi người dùng ngừng gõ
     const handleSearch = debounce(async (text) => {
-        if (!text.trim()) return;
+        if (!text.trim()) {
+            setResults([]);
+            return;
+        }
         try {
-            const res = await axios.get("https://localhost:7109/api/Products", {
-                params: { q: text, page: 1, pageSize: 10 },
+            const res = await axios.get("https://localhost:7109/api/Products/search", {
+                params: { q: text },
             });
-            // res.data.items chứa danh sách sản phẩm khớp
-            console.log(res.data.items); // bạn có thể hiển thị dropdown gợi ý ở đây
+            setResults(res.data.items); // lưu kết quả vào state
         } catch (err) {
             console.error(err);
         }
@@ -35,6 +37,7 @@ function Header() {
         if (e.key === "Enter" && searchText.trim()) {
             navigate(`/products?search=${encodeURIComponent(searchText)}`);
             setSearchText("");
+            setResults([]);
         }
     };
 
@@ -54,11 +57,26 @@ function Header() {
                         onChange={onSearchChange}
                         onKeyDown={onSearchEnter}
                     />
+                    {results.length > 0 && (
+                        <ul className="search-suggestions">
+                            {results.map((item) => (
+                                <li
+                                    key={item.productId}
+                                    onClick={() => {
+                                        navigate(`/products/${item.productId}`);
+                                        setSearchText("");
+                                        setResults([]);
+                                    }}
+                                >
+                                    {item.name} - {item.sku}
+                                </li>
+                            ))}
+                        </ul>
+                    )}
                 </div>
 
                 <div className="header-right">
                     <NavLink to="/cart" className="cart-btn">🛒</NavLink>
-
                     {!user ? (
                         <>
                             <NavLink to="/login" className="login-btn">Đăng nhập</NavLink>

@@ -235,5 +235,36 @@ public class ProductsController : ControllerBase
         return Ok(new { productId = p.ProductId, isActive = p.IsActive });
     }
 
+    // GET /api/products/search?q=tra
+    [HttpGet("search")]
+    public async Task<IActionResult> Search([FromQuery] string q, CancellationToken ct = default)
+    {
+        if (string.IsNullOrWhiteSpace(q))
+            return BadRequest(new { message = "Vui lòng nhập từ khóa tìm kiếm." });
+
+        var pattern = $"%{q.Trim()}%";
+
+        var results = await _db.Products
+            .AsNoTracking()
+            .Where(p => !string.IsNullOrEmpty(p.Name) && EF.Functions.Like(p.Name, pattern) && p.IsActive == true)
+            .OrderBy(p => p.Name)
+            .Select(p => new ProductDto
+            {
+                ProductId = p.ProductId,
+                Name = p.Name,
+                Sku = p.Sku,
+                Price = p.Price,
+                CategoryId = p.CategoryId,
+                IsActive = p.IsActive,
+                CreatedAt = p.CreatedAt
+            })
+            .ToListAsync(ct);
+
+        return Ok(new
+        {
+            total = results.Count,
+            items = results
+        });
+    }
 
 }

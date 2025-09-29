@@ -1,13 +1,50 @@
 import React from "react";
 import "../css/About.css";
+import MinhHue from "../../assets/team/MinhHue.jpg";
+// import VietAn from "../../assets/team/VietAn.jpg";
+// import DucVu from "../../assets/team/DucVu.jpg";
+// import ThuThanh from "../../assets/team/ThuThanh.jpg";
+// import DucAnh from "../../assets/team/DucAnh.jpg";
+// import TrungThanh from "../../assets/team/TrungThanh.jpg";
 
+// Team data
 const team = [
-  { name: "Nguyễn Thị Minh Huệ", role: "Founder & CEO", bio: "Đam mê công nghệ, yêu thích thiết kế giao diện đẹp và trải nghiệm mượt mà. Yui là người đưa ra ý tưởng và định hướng phát triển cho shop." },
-  { name: "Lê Phạm Việt An", role: "Backend Developer", bio: "Chuyên xây dựng API nhanh, bảo mật, xử lý dữ liệu mượt mà. Minh là người đảm bảo hệ thống luôn chạy ổn định." },
-  { name: "Hà Đức Vũ", role: "Frontend Developer", bio: "Người biến ý tưởng thành giao diện sống động. An yêu thích React, UX/UI, luôn muốn mang trải nghiệm tốt nhất đến người dùng." },
-  { name: "Nguyễn Thu Thanh", role: "Marketing", bio: "Luôn tìm cách đưa sản phẩm tiếp cận khách hàng nhanh và hiệu quả. Lan chịu trách nhiệm quảng bá và chăm sóc khách hàng." },
-  { name: "Trần Trung Thành", role: "Marketing", bio: "Luôn tìm cách đưa sản phẩm tiếp cận khách hàng nhanh và hiệu quả. Lan chịu trách nhiệm quảng bá và chăm sóc khách hàng." },
-  { name: "Nguyễn Đức Anh", role: "Marketing", bio: "Luôn tìm cách đưa sản phẩm tiếp cận khách hàng nhanh và hiệu quả. Lan chịu trách nhiệm quảng bá và chăm sóc khách hàng." }
+  { 
+    name: "Nguyễn Thị Minh Huệ", 
+    role: "Team Leader & Developer", 
+    bio: "Là leader kiêm dev, phụ trách cả frontend và backend, định hướng và quản lý tiến độ dự án.",
+    img: MinhHue
+  },
+  { 
+    name: "Lê Phạm Việt An", 
+    role: "Fullstack Developer", 
+    bio: "Tham gia phát triển cả frontend và backend, đảm bảo tính năng vận hành ổn định.",
+    img: "/assets/team/dev1.jpg"
+  },
+  { 
+    name: "Hà Đức Vũ", 
+    role: "Fullstack Developer", 
+    bio: "Tham gia phát triển cả frontend và backend, tối ưu hiệu năng và trải nghiệm người dùng.",
+    img: "/assets/team/dev2.jpg"
+  },
+  { 
+    name: "Nguyễn Thu Thanh", 
+    role: "Marketing", 
+    bio: "Chịu trách nhiệm quảng bá sản phẩm, chăm sóc khách hàng và tăng độ nhận diện thương hiệu.",
+    img: "/assets/team/mkt1.jpg"
+  },
+  { 
+    name: "Trần Trung Thành", 
+    role: "Marketing", 
+    bio: "Chịu trách nhiệm quảng bá sản phẩm, chăm sóc khách hàng và tăng doanh số.",
+    img: "/assets/team/mkt2.jpg"
+  },
+  { 
+    name: "Nguyễn Đức Anh", 
+    role: "Marketing", 
+    bio: "Chịu trách nhiệm quảng bá sản phẩm, quản lý các chiến dịch marketing hiệu quả.",
+    img: "/assets/team/mkt3.jpg"
+  }
 ];
 
 export default function About() {
@@ -19,10 +56,16 @@ export default function About() {
         Mục tiêu của chúng tôi là xây dựng một cửa hàng hiện đại, dễ sử dụng, 
         giúp bạn tìm sản phẩm yêu thích chỉ với vài cú click chuột.
       </p>
+
       <h2>Meet Our Team</h2>
       <div className="team-grid">
         {team.map((member, idx) => (
           <div key={idx} className="team-card">
+            <img 
+              src={member.img} 
+              alt={member.name} 
+              className="team-img" 
+            />
             <h3>{member.name}</h3>
             <p className="role">{member.role}</p>
             <p className="bio">{member.bio}</p>
