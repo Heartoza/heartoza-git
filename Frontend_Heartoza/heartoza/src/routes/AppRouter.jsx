@@ -25,7 +25,7 @@ export default function AppRouter() {
             <Header />
             <Routes>
                 {/* ✅ PUBLIC đặc biệt: KHÔNG đặt trong RequireGuest */}
-                <Route path="/verify-email" element={<DebugVerify />} />
+                <Route path="/verify-email" element={<VerifyEmail />} />
                 <Route path="/reset-password" element={<ResetPassword />} />
 
                 {/* Root */}
