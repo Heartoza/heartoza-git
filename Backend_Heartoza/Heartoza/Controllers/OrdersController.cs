@@ -557,5 +557,33 @@ public class OrdersController : ControllerBase
         await _db.SaveChangesAsync(ct);
         return Ok(new { message = "Đã cập nhật trạng thái.", orderId = order.OrderId, from = current, to = next });
     }
+    // GET /api/orders/address/{shippingId}
+    [HttpGet("address/{shippingId:int}")]
+    public async Task<IActionResult> GetAddressByShippingId(int shippingId, CancellationToken ct = default)
+    {
+        // Tìm địa chỉ dựa trên ShippingAddressId trong Orders
+        var address = await _db.Addresses
+            .AsNoTracking()
+            .Where(a => a.AddressId == shippingId)
+            .Select(a => new
+            {
+                a.AddressId,
+                a.UserId,
+                a.FullName,
+                a.Line1,
+                a.District,
+                a.City,
+                a.Country,
+                a.PostalCode,
+                a.Phone,
+                a.IsDefault
+            })
+            .FirstOrDefaultAsync(ct);
+
+        if (address == null) return NotFound("Không tìm thấy địa chỉ.");
+        return Ok(address);
+    }
+
+
 
 }

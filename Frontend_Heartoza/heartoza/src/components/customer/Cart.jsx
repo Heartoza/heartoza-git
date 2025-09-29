@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { jwtDecode } from "jwt-decode"; // dùng để decode token
+import { AuthService } from "../../services/authService";
+
 import "../css/Cart.css";
 
 export default function Cart() {
@@ -8,6 +10,52 @@ export default function Cart() {
   const [loading, setLoading] = useState(true);
   const [selectedItems, setSelectedItems] = useState([]);
   const [selectAll, setSelectAll] = useState(false);
+  const [addresses, setAddresses] = useState([]);
+  const [selectedAddress, setSelectedAddress] = useState(null);
+
+
+  //LOAD ĐỊA CHỈ
+  useEffect(() => {
+    const fetchCartAndAddresses = async () => {
+      const token = localStorage.getItem("token");
+      if (!token) {
+        alert("Bạn cần đăng nhập để xem giỏ hàng.");
+        return;
+      }
+
+      try {
+        // 1) Lấy cart
+        const cartRes = await axios.get("https://localhost:7109/api/Cart", {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+
+        const mappedCart = {
+          ...cartRes.data,
+          cartItems: cartRes.data.cartItems.map(ci => ({
+            ...ci,
+            cartItemId: Number(ci.cartItemId),
+            productName: ci.product?.name || ci.productName || "Sản phẩm không xác định",
+            lineTotal: ci.quantity * ci.unitPrice,
+          })),
+        };
+        setCart(mappedCart);
+
+        // 2) Lấy profile + địa chỉ
+        const profile = await AuthService.getProfile();
+        setAddresses(profile.addresses || []);
+        const defaultAddr = profile.addresses?.find(a => a.isDefault);
+        if (defaultAddr) setSelectedAddress(defaultAddr.addressId);
+
+      } catch (err) {
+        console.error("Lỗi khi load Cart/Addresses:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchCartAndAddresses();
+  }, []);
+
 
   // 🔹 Load giỏ hàng
   useEffect(() => {
@@ -126,16 +174,20 @@ export default function Cart() {
       alert("Vui lòng chọn ít nhất một sản phẩm để thanh toán.");
       return;
     }
+    if (!selectedAddress) {
+      alert("Vui lòng chọn địa chỉ giao hàng.");
+      return;
+    }
 
     try {
       const token = localStorage.getItem("token");
 
       const payload = {
-        shippingAddressId: 1, // TODO: sau này user chọn địa chỉ
+        shippingAddressId: selectedAddress,
         shippingFee: 0,
         method: "COD",
-        items: selectedItems.map((id) => {
-          const item = cart.cartItems.find((ci) => ci.cartItemId === id);
+        items: selectedItems.map(id => {
+          const item = cart.cartItems.find(ci => ci.cartItemId === id);
           return {
             productId: item.productId,
             quantity: item.quantity,
@@ -151,9 +203,11 @@ export default function Cart() {
       setSelectedItems([]);
     } catch (err) {
       console.error("Lỗi thanh toán:", err.response?.data || err.message);
-      alert("❌ Vui lòng chọn 1 hộp cho đơn hàng!");
+      alert("❌ Vui lòng thử lại!");
     }
   };
+
+
 
   // 🔹 Render UI
   if (loading) return <p>Đang tải giỏ hàng...</p>;
@@ -222,9 +276,45 @@ export default function Cart() {
           Tổng cộng: <span className="text-red-600 font-bold">{total.toLocaleString()} đ</span>
         </h3>
       )}
-      <button className="checkout-btn" onClick={handleCheckout}>
+      <button
+        className="checkout-btn"
+        onClick={handleCheckout}
+        disabled={selectedItems.length === 0 || !selectedAddress}
+      >
         ✅ Thanh toán
       </button>
+
+      <div className="address-section my-4">
+        <h3>🏠 Chọn địa chỉ giao hàng</h3>
+        {addresses.length === 0 ? (
+          <div>
+            <p>Chưa có địa chỉ nào.</p>
+            <a href="/profile" className="text-blue-600 underline">
+              Thêm địa chỉ
+            </a>
+          </div>
+        ) : (
+          <ul>
+            {addresses.map(addr => (
+              <li key={addr.addressId}>
+                <label>
+                  <input
+                    type="radio"
+                    name="shippingAddress"
+                    value={addr.addressId}
+                    checked={selectedAddress === addr.addressId}
+                    onChange={() => setSelectedAddress(addr.addressId)}
+                  />
+                  {addr.fullName}, {addr.line1}, {addr.district}, {addr.city}
+                  {addr.isDefault && <span className="default-badge">Mặc định</span>}
+                </label>
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
+
+
     </div>
   );
 }
