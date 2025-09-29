@@ -151,7 +151,7 @@ export default function Cart() {
       setSelectedItems([]);
     } catch (err) {
       console.error("Lỗi thanh toán:", err.response?.data || err.message);
-      alert("❌ Thanh toán thất bại!");
+      alert("❌ Vui lòng chọn 1 hộp cho đơn hàng!");
     }
   };
 
