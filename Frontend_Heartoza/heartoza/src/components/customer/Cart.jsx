@@ -62,10 +62,10 @@ export default function Cart() {
           .map((ci) =>
             ci.cartItemId === cartItemId
               ? {
-                  ...ci,
-                  quantity: newQuantity,
-                  lineTotal: newQuantity * ci.unitPrice,
-                }
+                ...ci,
+                quantity: newQuantity,
+                lineTotal: newQuantity * ci.unitPrice,
+              }
               : ci
           )
           .filter((ci) => ci.quantity > 0);
@@ -159,7 +159,11 @@ export default function Cart() {
   if (loading) return <p>Đang tải giỏ hàng...</p>;
   if (!cart || !cart.cartItems || cart.cartItems.length === 0) return <p>Giỏ hàng trống</p>;
 
-const total = cart.cartItems.reduce((sum, i) => sum + i.lineTotal, 0);
+  // Tổng chỉ tính những item được chọn
+  const total = cart.cartItems
+    .filter(i => selectedItems.includes(i.cartItemId))
+    .reduce((sum, i) => sum + i.lineTotal, 0);
+
 
 
   return (
@@ -213,7 +217,11 @@ const total = cart.cartItems.reduce((sum, i) => sum + i.lineTotal, 0);
         </tbody>
       </table>
 
-      <h3>Tổng cộng: {total.toLocaleString()} đ</h3>
+      {selectedItems.length > 0 && (
+        <h3>
+          Tổng cộng: <span className="text-red-600 font-bold">{total.toLocaleString()} đ</span>
+        </h3>
+      )}
       <button className="checkout-btn" onClick={handleCheckout}>
         ✅ Thanh toán
       </button>
