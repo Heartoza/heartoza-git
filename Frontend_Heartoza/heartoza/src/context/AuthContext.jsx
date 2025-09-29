@@ -32,6 +32,7 @@ export default function AuthProvider({ children }) {
         delete http.defaults.headers.common.Authorization;
         setToken(null);
         setUser(null);
+        window.location.href = "/login";
     };
 
     const value = useMemo(() => ({ user, token, login, logout }), [user, token]);
