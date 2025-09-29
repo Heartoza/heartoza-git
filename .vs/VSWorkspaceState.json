@@ -6,7 +6,8 @@
     "\\Frontend_Heartoza\\heartoza\\src",
     "\\Frontend_Heartoza\\heartoza\\src\\components",
     "\\Frontend_Heartoza\\heartoza\\src\\components\\admin",
-    "\\Frontend_Heartoza\\heartoza\\src\\components\\customer"
+    "\\Frontend_Heartoza\\heartoza\\src\\components\\customer",
+    "\\Frontend_Heartoza\\heartoza\\src\\routes"
   ],
   "SelectedNode": "\\Frontend_Heartoza\\heartoza\\src\\App.js",
   "PreviewInSolutionExplorer": false

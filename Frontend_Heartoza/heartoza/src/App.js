@@ -16,6 +16,7 @@ import Register from "./components/customer/Register.jsx";
 import Profile from "./components/customer/Profile.jsx";
 import ChangePassword from "./components/customer/ChangePassword.jsx";
 import ForgotPassword from "./components/customer/ForgotPassword.jsx";
+import ResetPassword from "./components/customer/ResetPassword.jsx";
 import VerifyEmail from "./components/customer/VerifyEmail.jsx";
 import OrderList from "./components/customer/OrderList.jsx";
 import OrderDetail from "./components/customer/OrderDetail.jsx";
@@ -59,6 +60,7 @@ function App() {
                                     <Route path="/login" element={<Login />} />
                                     <Route path="/register" element={<Register />} />
                                     <Route path="/forgot" element={<ForgotPassword />} />
+                                    <Route path="/reset-password" element={<ResetPassword />} />
                                     <Route path="/verify-email" element={<VerifyEmail />} />
                                     {/* Protected (Customer) */}
                                     <Route

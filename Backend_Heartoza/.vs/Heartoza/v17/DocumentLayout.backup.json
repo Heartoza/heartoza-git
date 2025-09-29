@@ -79,7 +79,7 @@
       "DocumentGroups": [
         {
           "DockedWidth": 301,
-          "SelectedChildIndex": 211,
+          "SelectedChildIndex": 209,
           "Children": [
             {
               "$type": "Bookmark",
@@ -915,14 +915,6 @@
             },
             {
               "$type": "Bookmark",
-              "Name": "ST:0:0:{1c4feeaa-4718-4aa9-859d-94ce25d182ba}"
-            },
-            {
-              "$type": "Bookmark",
-              "Name": "ST:0:0:{1c64b9c2-e352-428e-a56d-0ace190b99a6}"
-            },
-            {
-              "$type": "Bookmark",
               "Name": "ST:9:0:{e8034f19-ab72-4f06-83fd-f6832b41aa63}"
             },
             {
@@ -948,8 +940,7 @@
               "RelativeToolTip": "Heartoza\\Controllers\\OrdersController.cs",
               "ViewState": "AgIAAA0AAAAAAAAAAAAuwCoCAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-09-27T15:53:43.864Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-09-27T15:53:43.864Z"
             },
             {
               "$type": "Document",
@@ -1141,6 +1132,10 @@
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000758|",
               "WhenOpened": "2025-09-26T06:55:40.434Z"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{1c64b9c2-e352-428e-a56d-0ace190b99a6}"
             }
           ]
         },
@@ -1228,7 +1223,7 @@
         },
         {
           "DockedWidth": 196,
-          "SelectedChildIndex": 23,
+          "SelectedChildIndex": 30,
           "Children": [
             {
               "$type": "Bookmark",
@@ -1323,6 +1318,8 @@
               "Name": "ST:12:0:{d212f56b-c48a-434c-a121-1c5d80b59b9f}"
             },
             {
+<<<<<<< HEAD
+=======
               "$type": "Document",
               "DocumentIndex": 0,
               "Title": "App.js",
@@ -1336,6 +1333,7 @@
               "EditorCaption": ""
             },
             {
+>>>>>>> ad266f663397f7bbc4b3439949f8fae4fa34c178
               "$type": "Bookmark",
               "Name": "ST:10:0:{e8034f19-ab72-4f06-83fd-f6832b41aa63}"
             },
@@ -1362,6 +1360,19 @@
             {
               "$type": "Bookmark",
               "Name": "ST:22:0:{e8034f19-ab72-4f06-83fd-f6832b41aa63}"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "App.js",
+              "DocumentMoniker": "D:\\FA25\\EXE201\\heartoza-git\\Frontend_Heartoza\\heartoza\\src\\App.js",
+              "RelativeDocumentMoniker": "..\\Frontend_Heartoza\\heartoza\\src\\App.js",
+              "ToolTip": "D:\\FA25\\EXE201\\heartoza-git\\Frontend_Heartoza\\heartoza\\src\\App.js",
+              "RelativeToolTip": "..\\Frontend_Heartoza\\heartoza\\src\\App.js",
+              "ViewState": "AgIAACEAAAAAAAAAAAAAADwAAABOAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001646|",
+              "WhenOpened": "2025-09-29T04:44:44.632Z",
+              "EditorCaption": ""
             }
           ]
         }
