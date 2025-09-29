@@ -1,5 +1,13 @@
 {
-  "ExpandedNodes": [],
-  "SelectedNode": "\\Heartoza.sln",
+  "ExpandedNodes": [
+    "",
+    "\\Frontend_Heartoza",
+    "\\Frontend_Heartoza\\heartoza",
+    "\\Frontend_Heartoza\\heartoza\\src",
+    "\\Frontend_Heartoza\\heartoza\\src\\components",
+    "\\Frontend_Heartoza\\heartoza\\src\\components\\admin",
+    "\\Frontend_Heartoza\\heartoza\\src\\components\\customer"
+  ],
+  "SelectedNode": "\\Frontend_Heartoza\\heartoza\\src\\App.js",
   "PreviewInSolutionExplorer": false
 }
