@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from "react";
-import { useParams, Link, useNavigate } from "react-router-dom";
+import { useParams, Link } from "react-router-dom";
 import axios from "axios";
-import "../css/ProductDetail.css";
-
+import "../css/ProductDetail.css"; 
+import { useNavigate } from "react-router-dom"; // đã import
 export default function ProductDetail() {
     const { id } = useParams();
     const [product, setProduct] = useState(null);
@@ -100,5 +100,6 @@ export default function ProductDetail() {
         </div>
     );
 }
+
 
 
