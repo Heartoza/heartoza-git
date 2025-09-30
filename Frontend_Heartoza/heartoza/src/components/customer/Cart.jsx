@@ -1,12 +1,13 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import { jwtDecode } from "jwt-decode"; // dùng để decode token
+import { jwtDecode } from "jwt-decode";
 import { AuthService } from "../../services/authService";
-
+import { useNavigate } from "react-router-dom";
 import "../css/Cart.css";
 
 export default function Cart() {
   const [cart, setCart] = useState(null);
+  const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
   const [selectedItems, setSelectedItems] = useState([]);
   const [selectAll, setSelectAll] = useState(false);
@@ -200,7 +201,26 @@ export default function Cart() {
       });
 
       alert(`✅ Thanh toán thành công! Mã đơn: ${res.data.orderCode}`);
+
+
+      await Promise.all(
+        selectedItems.map(id =>
+          axios.delete(`https://localhost:7109/api/Cart/RemoveItem/${id}`, {
+            headers: { Authorization: `Bearer ${token}` },
+          })
+        )
+      );
+
+
+      setCart(prev => ({
+        ...prev,
+        cartItems: prev.cartItems.filter(ci => !selectedItems.includes(ci.cartItemId)),
+      }));
+
       setSelectedItems([]);
+
+      navigate("/orders");
+
     } catch (err) {
       console.error("Lỗi thanh toán:", err.response?.data || err.message);
       alert("❌ Vui lòng thử lại!");
@@ -213,7 +233,6 @@ export default function Cart() {
   if (loading) return <p>Đang tải giỏ hàng...</p>;
   if (!cart || !cart.cartItems || cart.cartItems.length === 0) return <p>Giỏ hàng trống</p>;
 
-  // Tổng chỉ tính những item được chọn
   const total = cart.cartItems
     .filter(i => selectedItems.includes(i.cartItemId))
     .reduce((sum, i) => sum + i.lineTotal, 0);

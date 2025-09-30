@@ -68,10 +68,6 @@
     {
       "AbsoluteMoniker": "D:0:0:{9F51160A-07B4-4347-8F06-B7D5DEC004B4}|Heartoza\\Heartoza.csproj|e:\\heartoza-git\\backend_heartoza\\heartoza\\heartoza.csproj||{FA3CD31E-987B-443A-9B81-186104E8DAC1}|",
       "RelativeMoniker": "D:0:0:{9F51160A-07B4-4347-8F06-B7D5DEC004B4}|Heartoza\\Heartoza.csproj|solutionrelative:heartoza\\heartoza.csproj||{FA3CD31E-987B-443A-9B81-186104E8DAC1}|"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{9F51160A-07B4-4347-8F06-B7D5DEC004B4}|Heartoza\\Heartoza.csproj|e:\\heartoza-git\\backend_heartoza\\heartoza\\dbsetup.sql||{CC5D8DF0-88F4-4BB2-9DBB-B48CEE65C30A}|CodeFrame",
-      "RelativeMoniker": "D:0:0:{9F51160A-07B4-4347-8F06-B7D5DEC004B4}|Heartoza\\Heartoza.csproj|solutionrelative:heartoza\\dbsetup.sql||{CC5D8DF0-88F4-4BB2-9DBB-B48CEE65C30A}|CodeFrame"
     }
   ],
   "DocumentGroupContainers": [
@@ -81,7 +77,7 @@
       "DocumentGroups": [
         {
           "DockedWidth": 449,
-          "SelectedChildIndex": 210,
+          "SelectedChildIndex": 209,
           "Children": [
             {
               "$type": "Bookmark",
@@ -849,10 +845,6 @@
             },
             {
               "$type": "Bookmark",
-              "Name": "ST:24:0:{e8034f19-ab72-4f06-83fd-f6832b41aa63}"
-            },
-            {
-              "$type": "Bookmark",
               "Name": "ST:3:0:{57d563b6-44a5-47df-85be-f4199ad6b651}"
             },
             {
@@ -925,8 +917,7 @@
               "RelativeToolTip": "Heartoza\\DTO\\Profile\\ProfileDtos.cs",
               "ViewState": "AgIAABYAAAAAAAAAAAA2wAAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-09-29T14:06:07.437Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-09-29T14:06:07.437Z"
             },
             {
               "$type": "Document",
@@ -938,8 +929,7 @@
               "RelativeToolTip": "Heartoza\\Controllers\\ProfileController.cs",
               "ViewState": "AgIAAAMAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-09-29T14:00:14.685Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-09-29T14:00:14.685Z"
             },
             {
               "$type": "Document",
@@ -949,7 +939,7 @@
               "RelativeDocumentMoniker": "Heartoza\\Controllers\\OrdersController.cs",
               "ToolTip": "E:\\heartoza-git\\Backend_Heartoza\\Heartoza\\Controllers\\OrdersController.cs",
               "RelativeToolTip": "Heartoza\\Controllers\\OrdersController.cs",
-              "ViewState": "AgIAACACAAAAAAAAAAAYwEkCAAAAAAAAAAAAAA==",
+              "ViewState": "AgIAAMgBAAAAAAAAAAAAAEcCAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2025-09-27T15:53:43.864Z",
               "EditorCaption": ""
@@ -981,14 +971,13 @@
             {
               "$type": "Document",
               "DocumentIndex": 2,
-              "Title": "DBSetup.sql ",
+              "Title": "DBSetup.sql",
               "DocumentMoniker": "E:\\heartoza-git\\Backend_Heartoza\\Heartoza\\DBSetup.sql",
               "RelativeDocumentMoniker": "Heartoza\\DBSetup.sql",
               "ToolTip": "E:\\heartoza-git\\Backend_Heartoza\\Heartoza\\DBSetup.sql",
               "RelativeToolTip": "Heartoza\\DBSetup.sql",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000826|",
-              "WhenOpened": "2025-09-27T04:41:44.27Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-09-27T04:41:44.27Z"
             },
             {
               "$type": "Document",
@@ -1311,10 +1300,6 @@
             {
               "$type": "Bookmark",
               "Name": "ST:13:0:{d212f56b-c48a-434c-a121-1c5d80b59b9f}"
-            },
-            {
-              "$type": "Bookmark",
-              "Name": "ST:25:0:{e8034f19-ab72-4f06-83fd-f6832b41aa63}"
             },
             {
               "$type": "Bookmark",
