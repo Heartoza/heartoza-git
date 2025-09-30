@@ -5,25 +5,35 @@
   align-items: center;
   background-color: #fff;
   padding: 10px 40px;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  border-radius: 0 0 12px 12px;
+  position: sticky;
+  top: 0;
+  z-index: 1000;
 }
 
 .header-left {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 12px;
 }
 
 .logo {
   height: 50px;
   width: auto;
+  transition: transform 0.3s;
+}
+
+.logo:hover {
+  transform: scale(1.1);
 }
 
 .site-name {
-  font-size: 1.5rem;
+  font-size: 1.6rem;
   font-weight: bold;
-  color: #ff4081;
+  color: #6db4f7;
   margin: 0;
+  letter-spacing: 1px;
 }
 
 .header-search {
@@ -33,17 +43,20 @@
 
 .header-search input {
   width: 100%;
-  padding: 8px 12px;
+  padding: 10px 15px;
   font-size: 1rem;
   border: 1px solid #ccc;
-  border-radius: 8px;
+  border-radius: 25px;
   outline: none;
+  transition: all 0.3s;
 }
 
 .header-search input:focus {
   border-color: #ff4081;
+  box-shadow: 0 0 8px rgba(255, 64, 129, 0.4);
 }
 
+/* HEADER RIGHT */
 .header-right {
   display: flex;
   align-items: center;
@@ -52,10 +65,10 @@
 
 .header-right a {
   text-decoration: none;
-  font-size: 1rem;
+  font-size: 0.95rem;
   color: #333;
-  padding: 6px 12px;
-  border-radius: 6px;
+  padding: 8px 14px;
+  border-radius: 20px;
   transition: 0.2s ease-in-out;
 }
 
@@ -63,77 +76,103 @@
   background-color: #f5f5f5;
 }
 
+/* USER MENU */
+.user-menu {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.user-name {
+  font-size: 0.95rem;
+  color: #555;
+}
+
+/* PROFILE BUTTON */
+.profile-btn {
+  text-decoration: none;
+  font-size: 0.95rem;
+  color: #333;
+  padding: 6px 14px;
+  border-radius: 20px;
+  transition: 0.2s ease-in-out;
+  border: 1px solid #ccc;
+  background-color: #fff;
+}
+
+.profile-btn:hover {
+  background-color: #f0f0f0;
+  border-color: #bbb;
+}
+
+/* LOGOUT BUTTON */
+.logout-btn {
+  font-size: 0.95rem;
+  color: #fff;
+  background-color: #ff4081;
+  border: none;
+  padding: 6px 14px;
+  border-radius: 20px;
+  cursor: pointer;
+  transition: 0.3s ease-in-out;
+}
+
+.logout-btn:hover {
+  background-color: #e73370;
+}
+
 /* NAV MENU */
 .nav-menu {
   display: flex;
   justify-content: center;
-  gap: 30px;
+  gap: 25px;
   background-color: #fff;
   padding: 12px 0;
-  border-top: 1px solid #ddd;
-  border-bottom: 1px solid #ddd;
+  border-top: 1px solid #eee;
+  border-bottom: 1px solid #eee;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
 }
 
 .nav-menu a {
   text-decoration: none;
   font-size: 1rem;
   color: #333;
-  padding: 6px 12px;
-  transition: 0.2s ease-in-out;
-  border-radius: 8px;
+  padding: 8px 16px;
+  border-radius: 20px;
+  transition: 0.3s ease;
 }
 
 .nav-menu a:hover {
   background-color: #f5f5f5;
 }
 
-/* Khi active (đang ở trang đó) */
 .nav-menu a.active {
   background-color: #ff4081;
   color: white;
   font-weight: bold;
-}
-/* USER MENU TRONG HEADER */
-.user-menu {
-    display: flex;
-    align-items: center;
-    gap: 12px;
+  box-shadow: 0 2px 6px rgba(255,64,129,0.4);
 }
 
-.user-name {
-    font-size: 0.95rem;
-    color: #555;
+/* RESPONSIVE */
+@media (max-width: 1024px) {
+  .header-search {
+    display: none; /* ẩn search trên tablet/mobile */
+  }
 }
 
-/* Nút profile */
-.profile-btn {
-    text-decoration: none;
-    font-size: 0.95rem;
-    color: #333;
-    padding: 6px 12px;
-    border-radius: 6px;
-    transition: 0.2s ease-in-out;
-    border: 1px solid #ccc;
-    background-color: #fff;
+@media (max-width: 768px) {
+  .header {
+    flex-direction: column;
+    padding: 15px 20px;
+    gap: 10px;
+  }
+
+  .header-left {
+    gap: 8px;
+  }
+
+  .nav-menu {
+    flex-wrap: wrap;
+    gap: 15px;
+  }
 }
-
-    .profile-btn:hover {
-        background-color: #f5f5f5;
-        border-color: #bbb;
-    }
-
-/* Nút logout */
-.logout-btn {
-    font-size: 0.95rem;
-    color: #fff;
-    background-color: #ff4081;
-    border: none;
-    padding: 6px 12px;
-    border-radius: 6px;
-    cursor: pointer;
-    transition: 0.2s ease-in-out;
-}
-
-    .logout-btn:hover {
-        background-color: #e73370;
-    }
