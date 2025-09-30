@@ -25,8 +25,8 @@ import Cart from "./components/customer/Cart.jsx";   // ✅ thêm giỏ hàng
 // Admin pages
 import AdminDashboard from "./components/admin/AdminDashboard.jsx";
 import AdminUsers from "./components/admin/AdminUsers.jsx";
-// import UserDetail from "./components/admin/UserDetail.jsx";
 import AdminOrders from "./components/admin/AdminOrders.jsx";
+import AdminOrderDetail from "./components/admin/AdminOrderDetail.jsx";
 import AdminProducts from "./components/admin/AdminProducts.jsx";
 import AdminCategories from "./components/admin/AdminCategories.jsx";
 import AdminSidebar from "./components/admin/AdminSidebar.jsx";
@@ -96,8 +96,8 @@ function App() {
                                         <Routes>
                                             <Route path="dashboard" element={<AdminDashboard />} />
                                             <Route path="users" element={<AdminUsers />} />
-                                            {/* <Route path="users/:id" element={<UserDetail />} /> */}
                                             <Route path="orders" element={<AdminOrders />} />
+                                            <Route path="orders/:id" element={<AdminOrderDetail />} /> {/* ✅ */}
                                             <Route path="products" element={<AdminProducts />} />
                                             <Route path="categories" element={<AdminCategories />} />
                                         </Routes>

@@ -1,10 +1,13 @@
 import React from "react";
 import "../css/Contact.css";
+import Logo from "../../assets/logo/1.png"; // logo hoặc ảnh bìa
 
 export default function Contact() {
   return (
     <div className="contact-container">
       <h1>Liên hệ với Heartoza</h1>
+      <img src={Logo} alt="Heartoza Logo" className="contact-logo" />
+
       <p>
         Nếu bạn có câu hỏi, góp ý hoặc cần hỗ trợ, hãy liên hệ với chúng tôi qua
         các kênh sau:
@@ -36,16 +39,6 @@ export default function Contact() {
             facebook.com/heartoza
           </a>
         </div>
-      </div>
-
-      <div className="contact-form">
-        <h2>Gửi tin nhắn cho chúng tôi</h2>
-        <form>
-          <input type="text" placeholder="Họ tên" required />
-          <input type="email" placeholder="Email" required />
-          <textarea placeholder="Nội dung" required></textarea>
-          <button type="submit">Gửi</button>
-        </form>
       </div>
     </div>
   );

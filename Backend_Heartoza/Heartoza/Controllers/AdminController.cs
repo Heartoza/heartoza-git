@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using Heartoza.Models;
 using Heartoza.DTO.Products;
 using Heartoza.DTO.Categories;
+using Heartoza.DTO.Orders;
 
 namespace Heartoza.Controllers;
 
@@ -362,4 +363,56 @@ public class AdminController : ControllerBase
 
         return Ok(new { Message = $"Đã xóa category {id}" });
     }
+    // GET /api/admin/orders/{id}
+    [HttpGet("orders/{id:int}")]
+    public async Task<IActionResult> GetById(int id, CancellationToken ct)
+    {
+        var order = await _db.Orders
+            .AsNoTracking()
+            .Where(o => o.OrderId == id)
+            .Select(o => new OrderResponse
+            {
+                OrderId = o.OrderId,
+                OrderCode = o.OrderCode ?? string.Empty,
+                UserId = o.UserId,
+                ShippingAddressId = o.ShippingAddressId,
+                Subtotal = o.Subtotal,
+                ShippingFee = o.ShippingFee ?? 0m,
+                GrandTotal = o.GrandTotal,
+                Status = o.Status ?? "Pending",
+                CreatedAt = o.CreatedAt,
+                Items = o.OrderItems.Select(oi => new OrderItemResponse
+                {
+                    OrderItemId = oi.OrderItemId,
+                    ProductId = oi.ProductId,
+                    ProductName = oi.Product != null ? oi.Product.Name : null,
+                    Sku = oi.Product != null ? oi.Product.Sku : null,
+                    Quantity = oi.Quantity,
+                    UnitPrice = oi.UnitPrice,
+                    LineTotal = oi.LineTotal ?? (oi.UnitPrice * oi.Quantity)
+                }).ToList(),
+                Payments = o.Payments.Select(p => new PaymentResponse
+                {
+                    PaymentId = p.PaymentId,
+                    Amount = p.Amount,
+                    Method = p.Method ?? "COD",
+                    Status = p.Status ?? "Pending",
+                    CreatedAt = p.CreatedAt
+                }).ToList(),
+                Shipments = o.Shipments.Select(s => new ShipmentResponse
+                {
+                    ShipmentId = s.ShipmentId,
+                    Carrier = s.Carrier,
+                    TrackingCode = s.TrackingCode,
+                    Status = s.Status ?? "Packing",
+                    CreatedAt = s.CreatedAt
+                }).ToList()
+            })
+            .FirstOrDefaultAsync(ct);
+
+        if (order == null) return NotFound(new { message = "Order not found" });
+        return Ok(order);
+    }
+
+
 }

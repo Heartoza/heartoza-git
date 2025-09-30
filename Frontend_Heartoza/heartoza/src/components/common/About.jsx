@@ -1,8 +1,8 @@
 import React from "react";
 import "../css/About.css";
 import MinhHue from "../../assets/team/MinhHue.jpg";
-// import VietAn from "../../assets/team/VietAn.jpg";
-// import DucVu from "../../assets/team/DucVu.jpg";
+import VietAn from "../../assets/team/VietAn.jpg";
+import DucVu from "../../assets/team/DucVu.png";
 // import ThuThanh from "../../assets/team/ThuThanh.jpg";
 // import DucAnh from "../../assets/team/DucAnh.jpg";
 // import TrungThanh from "../../assets/team/TrungThanh.jpg";
@@ -19,13 +19,13 @@ const team = [
     name: "Lê Phạm Việt An", 
     role: "Fullstack Developer", 
     bio: "Tham gia phát triển cả frontend và backend, đảm bảo tính năng vận hành ổn định.",
-    img: "/assets/team/dev1.jpg"
+    img: VietAn
   },
   { 
     name: "Hà Đức Vũ", 
     role: "Fullstack Developer", 
     bio: "Tham gia phát triển cả frontend và backend, tối ưu hiệu năng và trải nghiệm người dùng.",
-    img: "/assets/team/dev2.jpg"
+    img: DucVu
   },
   { 
     name: "Nguyễn Thu Thanh", 
