@@ -15,17 +15,16 @@ export default function Cart() {
   const [selectedAddress, setSelectedAddress] = useState(null);
 
 
-  //LOAD ĐỊA CHỈ
   useEffect(() => {
     const fetchCartAndAddresses = async () => {
       const token = localStorage.getItem("token");
       if (!token) {
-        alert("Bạn cần đăng nhập để xem giỏ hàng.");
+        navigate("/login?reason=cart");
         return;
       }
 
       try {
-        // 1) Lấy cart
+        // Lấy giỏ hàng
         const cartRes = await axios.get("https://localhost:7109/api/Cart", {
           headers: { Authorization: `Bearer ${token}` },
         });
@@ -41,7 +40,7 @@ export default function Cart() {
         };
         setCart(mappedCart);
 
-        // 2) Lấy profile + địa chỉ
+        // Lấy profile + địa chỉ
         const profile = await AuthService.getProfile();
         setAddresses(profile.addresses || []);
         const defaultAddr = profile.addresses?.find(a => a.isDefault);
@@ -55,44 +54,9 @@ export default function Cart() {
     };
 
     fetchCartAndAddresses();
-  }, []);
+  }, [navigate]);
 
 
-  // 🔹 Load giỏ hàng
-  useEffect(() => {
-    const fetchCart = async () => {
-      try {
-        const token = localStorage.getItem("token");
-        if (!token) {
-          alert("Bạn cần đăng nhập để xem giỏ hàng.");
-          return;
-        }
-
-        const res = await axios.get("https://localhost:7109/api/Cart", {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-
-        const mappedCart = {
-          ...res.data,
-          cartItems: res.data.cartItems.map((ci) => ({
-            ...ci,
-            cartItemId: Number(ci.cartItemId),
-            productName:
-              ci.product?.name || ci.productName || "Sản phẩm không xác định",
-            lineTotal: ci.quantity * ci.unitPrice,
-          })),
-        };
-
-        setCart(mappedCart);
-      } catch (error) {
-        console.error("Lỗi khi lấy giỏ hàng:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchCart();
-  }, []);
 
   // 🔹 Cập nhật số lượng
   const updateQuantity = async (cartItemId, newQuantity) => {
