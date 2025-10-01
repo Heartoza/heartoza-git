@@ -37,7 +37,17 @@ namespace Heartoza
                 c.AddSecurityDefinition("Bearer", scheme);
                 c.AddSecurityRequirement(new OpenApiSecurityRequirement
                 {
-                    { scheme, Array.Empty<string>() }
+                    {
+                        new OpenApiSecurityScheme
+                        {
+                            Reference = new OpenApiReference
+                            {
+                                Type = ReferenceType.SecurityScheme,
+                                Id = "Bearer"
+                            }
+                        },
+                        Array.Empty<string>()
+                    }
                 });
             });
 

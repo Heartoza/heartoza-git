@@ -267,4 +267,32 @@ public class ProductsController : ControllerBase
         });
     }
 
+    [HttpGet("top-selling")]
+    public IActionResult GetTopSellingProducts([FromQuery] int top = 3)
+    {
+        var topProducts = _db.OrderItems
+            .GroupBy(oi => oi.ProductId)
+            .Select(g => new
+            {
+                ProductId = g.Key,
+                TotalSold = g.Sum(x => x.Quantity)
+            })
+            .OrderByDescending(x => x.TotalSold)
+            .Take(top)  // ✅ giới hạn ngay tại đây
+            .Join(_db.Products,
+                  g => g.ProductId,
+                  p => p.ProductId,
+                  (g, p) => new
+                  {
+                      p.ProductId,
+                      p.Sku,
+                      p.Name,
+                      p.Price,
+                      g.TotalSold
+                  })
+            .ToList();
+
+        return Ok(topProducts);
+    }
+
 }

@@ -16,10 +16,13 @@ export const AdminService = {
     deleteUser: (id) =>
         api.delete(`/admin/users/${id}`).then(r => r.data),
     
-    updateOrderStatus: (id, status) =>
-        api.post(`/admin/orders/${id}/status`, JSON.stringify(status), {
-            headers: { "Content-Type": "application/json" },
-        }).then(r => r.data),
+    getOrderById: (id) =>
+    api.get(`/admin/orders/${id}`).then(r => r.data),
+
+  updateOrderStatus: (id, status) =>
+    api.post(`/admin/orders/${id}/status`, JSON.stringify(status), {
+      headers: { "Content-Type": "application/json" },
+    }).then(r => r.data),
 
     getProducts: (page = 1, pageSize = 20, q = "") =>
         api.get(`/admin/products?page=${page}&pageSize=${pageSize}&q=${q}`).then(r => r.data),

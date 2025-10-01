@@ -36,10 +36,6 @@
   letter-spacing: 1px;
 }
 
-.header-search {
-  flex: 1;
-  margin: 0 30px;
-}
 
 .header-search input {
   width: 100%;
@@ -52,8 +48,48 @@
 }
 
 .header-search input:focus {
-  border-color: #ff4081;
-  box-shadow: 0 0 8px rgba(255, 64, 129, 0.4);
+  border-color: #6db4f7;
+  box-shadow: 0 0 8px rgba(109, 180, 247, 0.4);
+}
+
+.header-search {
+  flex: 1;
+  margin: 0 30px;
+  position: relative;  /* ✅ để dropdown định vị theo input */
+}
+
+.search-suggestions {
+  position: absolute;
+  top: 110%; /* ngay dưới input */
+  left: 0;
+  right: 0;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  background: #fff;
+  border: 1px solid #eee;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  max-height: 250px;
+  overflow-y: auto;
+  z-index: 2000; /* cao hơn header */
+}
+
+.search-suggestions li {
+  padding: 10px 14px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background 0.2s;
+  border-bottom: 1px solid #f1f1f1;
+}
+
+.search-suggestions li:last-child {
+  border-bottom: none;
+}
+
+.search-suggestions li:hover {
+  background: #f5f9ff;
+  color: #6db4f7;
 }
 
 /* HEADER RIGHT */
@@ -73,7 +109,7 @@
 }
 
 .header-right a:hover {
-  background-color: #f5f5f5;
+  background-color: #f0f8ff; /* nhạt, cùng tông xanh */
 }
 
 /* USER MENU */
@@ -96,20 +132,20 @@
   padding: 6px 14px;
   border-radius: 20px;
   transition: 0.2s ease-in-out;
-  border: 1px solid #ccc;
+  border: 1px solid #6db4f7;
   background-color: #fff;
 }
 
 .profile-btn:hover {
-  background-color: #f0f0f0;
-  border-color: #bbb;
+  background-color: #e6f2ff;
+  border-color: #6db4f7;
 }
 
 /* LOGOUT BUTTON */
 .logout-btn {
   font-size: 0.95rem;
   color: #fff;
-  background-color: #ff4081;
+  background-color: #6db4f7;
   border: none;
   padding: 6px 14px;
   border-radius: 20px;
@@ -118,7 +154,7 @@
 }
 
 .logout-btn:hover {
-  background-color: #e73370;
+  background-color: #5aa3e0;
 }
 
 /* NAV MENU */
@@ -143,14 +179,14 @@
 }
 
 .nav-menu a:hover {
-  background-color: #f5f5f5;
+  background-color: #f0f8ff;
 }
 
 .nav-menu a.active {
-  background-color: #ff4081;
+  background-color: #6db4f7;
   color: white;
   font-weight: bold;
-  box-shadow: 0 2px 6px rgba(255,64,129,0.4);
+  box-shadow: 0 2px 6px rgba(109,180,247,0.4);
 }
 
 /* RESPONSIVE */
