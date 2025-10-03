@@ -2,7 +2,15 @@
   "routes": [
     {
       "route": "/api/*",
+      "methods": [ "GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS" ],
+      "allowedRoles": [ "anonymous" ],
       "rewrite": "https://heartozaapi-h5dgdne4gph0ebfj.southeastasia-01.azurewebsites.net/api/{*path}"
+    },
+    {
+      "route": "/api/Auth/*",
+      "methods": [ "POST", "OPTIONS" ],
+      "allowedRoles": [ "anonymous" ],
+      "rewrite": "https://heartozaapi-h5dgdne4gph0ebfj.southeastasia-01.azurewebsites.net/api/Auth/{*path}"
     }
   ],
   "navigationFallback": {
