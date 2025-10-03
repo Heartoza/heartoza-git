@@ -105,6 +105,35 @@ namespace Heartoza
 
             // tiện demo: vào root tự chuyển sang swagger
             app.MapGet("/", () => Results.Redirect("/swagger"));
+            // EF đang dùng provider gì và đang trỏ tới đâu?
+            app.MapGet("/diag/ef-conn", (GiftBoxShopContext db) =>
+            {
+                var cx = db.Database.GetDbConnection();
+                return Results.Ok(new
+                {
+                    provider = db.Database.ProviderName,
+                    dataSource = cx.DataSource,
+                    conn = cx.ConnectionString
+                });
+            });
+
+            // Ping DB đơn giản qua ADO.NET (bỏ EF ra khỏi phương trình)
+            app.MapGet("/diag/db-ping", async (IConfiguration cfg) =>
+            {
+                try
+                {
+                    var cs = cfg.GetConnectionString("DefaultConnection");
+                    await using var c = new Microsoft.Data.SqlClient.SqlConnection(cs);
+                    await c.OpenAsync();
+                    await using var cmd = new Microsoft.Data.SqlClient.SqlCommand("SELECT TOP (1) 1", c);
+                    var x = await cmd.ExecuteScalarAsync();
+                    return Results.Ok(new { db = "ok", value = x });
+                }
+                catch (Exception ex)
+                {
+                    return Results.Problem(ex.ToString());
+                }
+            });
 
             app.UseCors("Default");       // proxy SWA không cần, nhưng giữ cho local
 
