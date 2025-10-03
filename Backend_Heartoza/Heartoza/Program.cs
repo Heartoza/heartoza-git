@@ -43,7 +43,7 @@ namespace Heartoza
             // ===== CORS (KHÔNG CẦN nếu FE dùng proxy SWA). Giữ để test local. =====
             builder.Services.AddCors(o =>
                 o.AddPolicy("Default", p => p
-                    .WithOrigins("http://localhost:5173", "http://localhost:3000")
+                    .WithOrigins("http://localhost:5173", "http://localhost:3000", "https://witty-hill-06b27a500.2.azurestaticapps.net")
                     .AllowAnyHeader()
                     .AllowAnyMethod()
                 )
