@@ -13,7 +13,7 @@ export const AuthService = {
         password: string;
         phone?: string;
     }) {
-        const { data } = await http.post("/auth/register", payload);
+        const { data } = await http.post("/Auth/register", payload);
         return data;
     },
     async forgotPassword(email: string) {
@@ -31,7 +31,7 @@ export const AuthService = {
         return data;
     },
     async verifyEmail(token: string) {
-        const { data } = await http.get("/auth/verify-email", {
+        const { data } = await http.get("/Auth/verify-email", {
             params: { token },
         });
         return data;
