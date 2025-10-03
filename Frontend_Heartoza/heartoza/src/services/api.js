@@ -3,7 +3,7 @@ import axios from "axios";
 
 // Mặc định dùng proxy "/api" (SWA sẽ rewrite).
 // Nếu có REACT_APP_API_BASE thì dùng nó (ví dụ khi chạy local).
-const apiBase = (process.env.REACT_APP_API_BASE ?? "/api").replace(/\/+$/, "");
+const apiBase = (process.env.REACT_APP_API_BASE + "/api" ?? "/api").replace(/\/+$/, "");
 
 const http = axios.create({ baseURL: apiBase });
 
