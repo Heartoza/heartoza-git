@@ -1,4 +1,4 @@
-﻿// src/services/authService.ts
+﻿// src/services/authService.js
 import http from "./api";
 
 export const AuthService = {
