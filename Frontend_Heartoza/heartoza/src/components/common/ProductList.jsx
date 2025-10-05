@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import "../css/ProductList.css";
-
+import api from "../services/api";
 export default function ProductList() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
@@ -25,7 +25,7 @@ export default function ProductList() {
   // Load sản phẩm theo category hoặc search
   const fetchProducts = (categoryId = "", search = "") => {
     axios
-      .get("https://localhost:7109/api/Products", {
+      .get(`${api.baseUrl}/Products`, {
         params: {
           ...(categoryId && { categoryId }),
           ...(search && { q: search }),
