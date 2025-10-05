@@ -1,24 +1,27 @@
-﻿// src/services/api.ts
+﻿// src/services/api.js
+// Mặc định dùng proxy "/api" (SWA sẽ rewrite).
+// Nếu có REACT_APP_API_BASE thì dùng nó (ví dụ khi chạy local).
+// src/services/api.js
 import axios from "axios";
 
-const apiBase =
-    process.env.REACT_APP_API_BASE?.replace(/\/+$/, "") ||
-    "https://localhost:7109/api";
+const rawBase = process.env.REACT_APP_API_BASE;
+const apiBase = (rawBase && rawBase.trim())
+    ? `${rawBase.trim().replace(/\/+$/, "")}/api`
+    : "http://localhost:7109"; // mặc định dùng proxy /api
 
 const http = axios.create({ baseURL: apiBase });
 
-// Gắn Bearer token tự động nếu có
+// Gắn Bearer token nếu có
 http.interceptors.request.use((config) => {
     const token = localStorage.getItem("token");
     if (token) config.headers.Authorization = `Bearer ${token}`;
     return config;
 });
 
-// Tự refresh token khi gặp 401
+// Refresh token 401 (giữ nguyên logic cũ nếu anh đã có)
 let isRefreshing = false;
-let queue: any[] = [];
-
-const processQueue = (error: any, token: string | null = null) => {
+let queue = [];
+const processQueue = (error, token = null) => {
     queue.forEach((p) => (error ? p.reject(error) : p.resolve(token)));
     queue = [];
 };
@@ -33,7 +36,7 @@ http.interceptors.response.use(
             if (isRefreshing) {
                 return new Promise((resolve, reject) => {
                     queue.push({
-                        resolve: (token: string) => {
+                        resolve: (token) => {
                             original.headers.Authorization = `Bearer ${token}`;
                             resolve(http(original));
                         },
@@ -50,9 +53,7 @@ http.interceptors.response.use(
             }
 
             try {
-                const { data } = await axios.post(`${apiBase}/auth/refresh`, {
-                    refreshToken: rt,
-                });
+                const { data } = await axios.post(`${apiBase}/auth/refresh`, { refreshToken: rt });
                 const newToken = data.token;
                 localStorage.setItem("token", newToken);
                 processQueue(null, newToken);
@@ -68,7 +69,6 @@ http.interceptors.response.use(
                 isRefreshing = false;
             }
         }
-
         return Promise.reject(error);
     }
 );
