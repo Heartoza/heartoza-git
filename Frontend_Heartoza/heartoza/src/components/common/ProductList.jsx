@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import "../css/ProductList.css";
-import api from "../services/api";
+import api from "../../services/api";
 export default function ProductList() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
