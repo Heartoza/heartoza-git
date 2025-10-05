@@ -1,14 +1,16 @@
 {
   "ExpandedNodes": [
     "",
+    "\\Backend_Heartoza",
+    "\\Backend_Heartoza\\Heartoza",
+    "\\Backend_Heartoza\\Heartoza\\Controllers",
     "\\Frontend_Heartoza",
     "\\Frontend_Heartoza\\heartoza",
     "\\Frontend_Heartoza\\heartoza\\src",
     "\\Frontend_Heartoza\\heartoza\\src\\components",
-    "\\Frontend_Heartoza\\heartoza\\src\\components\\admin",
     "\\Frontend_Heartoza\\heartoza\\src\\components\\customer",
     "\\Frontend_Heartoza\\heartoza\\src\\routes"
   ],
-  "SelectedNode": "\\Frontend_Heartoza\\heartoza\\src\\App.js",
+  "SelectedNode": "\\Frontend_Heartoza\\heartoza\\src\\components\\common\\ProductList.jsx",
   "PreviewInSolutionExplorer": false
 }

@@ -7,7 +7,7 @@ import axios from "axios";
 const rawBase = process.env.REACT_APP_API_BASE;
 const apiBase = (rawBase && rawBase.trim())
     ? `${rawBase.trim().replace(/\/+$/, "")}/api`
-    : "http://localhost:7109"; // mặc định dùng proxy /api
+    : "http://localhost:5109/api"; // mặc định dùng proxy /api
 
 const http = axios.create({ baseURL: apiBase });
 
