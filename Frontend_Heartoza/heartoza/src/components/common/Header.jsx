@@ -1,41 +1,47 @@
-import React, { useContext, useState, useEffect } from "react";
+import React, { useContext, useState, useEffect, useCallback } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
 import logo from "../../assets/logo/1.png";
 import "../css/Header.css";
 import { AuthContext } from "../../context/AuthContext";
-import axios from "axios";
 import debounce from "lodash.debounce";
+import http from "../../services/api"; // ✅ dùng client chung (baseURL + token + refresh)
 
 function Header() {
     const { user, logout } = useContext(AuthContext);
     const [searchText, setSearchText] = useState("");
-    const [results, setResults] = useState([]); // lưu kết quả search
+    const [results, setResults] = useState([]);
     const navigate = useNavigate();
 
-    const handleSearch = debounce(async (text) => {
-        if (!text.trim()) {
-            setResults([]);
-            return;
-        }
-        try {
-            const res = await axios.get("https://localhost:7109/api/Products/search", {
-                params: { q: text },
-            });
-            setResults(res.data.items); // lưu kết quả vào state
-        } catch (err) {
-            console.error(err);
-        }
-    }, 500);
+    // 🔎 Debounce search (dùng useCallback để giữ ổn định reference)
+    const handleSearch = useCallback(
+        debounce(async (text) => {
+            const q = text.trim();
+            if (!q) {
+                setResults([]);
+                return;
+            }
+            try {
+                const res = await http.get("Products/search", {
+                    params: { q },
+                    validateStatus: (s) => (s >= 200 && s < 300) || s === 204,
+                });
+                setResults(res.status === 204 ? [] : res.data?.items || []);
+            } catch (err) {
+                console.error("Search error:", err?.message || err);
+            }
+        }, 500),
+        []
+    );
 
     useEffect(() => {
         handleSearch(searchText);
-        return handleSearch.cancel;
-    }, [searchText]);
+        return () => handleSearch.cancel(); // ✅ cleanup debounce
+    }, [searchText, handleSearch]);
 
     const onSearchChange = (e) => setSearchText(e.target.value);
     const onSearchEnter = (e) => {
         if (e.key === "Enter" && searchText.trim()) {
-            navigate(`/products?search=${encodeURIComponent(searchText)}`);
+            navigate(`/products?search=${encodeURIComponent(searchText.trim())}`);
             setSearchText("");
             setResults([]);
         }
