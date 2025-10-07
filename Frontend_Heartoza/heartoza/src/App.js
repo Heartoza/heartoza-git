@@ -16,6 +16,7 @@ import Register from "./components/customer/Register.jsx";
 import Profile from "./components/customer/Profile.jsx";
 import ChangePassword from "./components/customer/ChangePassword.jsx";
 import ForgotPassword from "./components/customer/ForgotPassword.jsx";
+import ResetPassword from "./components/customer/ResetPassword.jsx";
 import VerifyEmail from "./components/customer/VerifyEmail.jsx";
 import OrderList from "./components/customer/OrderList.jsx";
 import OrderDetail from "./components/customer/OrderDetail.jsx";
@@ -24,8 +25,8 @@ import Cart from "./components/customer/Cart.jsx";   // ✅ thêm giỏ hàng
 // Admin pages
 import AdminDashboard from "./components/admin/AdminDashboard.jsx";
 import AdminUsers from "./components/admin/AdminUsers.jsx";
-// import UserDetail from "./components/admin/UserDetail.jsx";
 import AdminOrders from "./components/admin/AdminOrders.jsx";
+import AdminOrderDetail from "./components/admin/AdminOrderDetail.jsx";
 import AdminProducts from "./components/admin/AdminProducts.jsx";
 import AdminCategories from "./components/admin/AdminCategories.jsx";
 import AdminSidebar from "./components/admin/AdminSidebar.jsx";
@@ -59,6 +60,7 @@ function App() {
                                     <Route path="/login" element={<Login />} />
                                     <Route path="/register" element={<Register />} />
                                     <Route path="/forgot" element={<ForgotPassword />} />
+                                    <Route path="/reset-password" element={<ResetPassword />} />
                                     <Route path="/verify-email" element={<VerifyEmail />} />
                                     {/* Protected (Customer) */}
                                     <Route
@@ -94,8 +96,8 @@ function App() {
                                         <Routes>
                                             <Route path="dashboard" element={<AdminDashboard />} />
                                             <Route path="users" element={<AdminUsers />} />
-                                            {/* <Route path="users/:id" element={<UserDetail />} /> */}
                                             <Route path="orders" element={<AdminOrders />} />
+                                            <Route path="orders/:id" element={<AdminOrderDetail />} /> {/* ✅ */}
                                             <Route path="products" element={<AdminProducts />} />
                                             <Route path="categories" element={<AdminCategories />} />
                                         </Routes>

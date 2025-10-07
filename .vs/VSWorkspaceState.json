@@ -7,10 +7,18 @@
     "\\Frontend_Heartoza\\heartoza\\src",
     "\\Frontend_Heartoza\\heartoza\\src\\assets",
     "\\Frontend_Heartoza\\heartoza\\src\\components",
+<<<<<<< HEAD
+=======
+    "\\Frontend_Heartoza\\heartoza\\src\\components\\customer",
+>>>>>>> dev
     "\\Frontend_Heartoza\\heartoza\\src\\context",
     "\\Frontend_Heartoza\\heartoza\\src\\routes",
     "\\Frontend_Heartoza\\heartoza\\src\\services"
   ],
+<<<<<<< HEAD
   "SelectedNode": "\\Frontend_Heartoza\\heartoza\\src\\routes\\RequireGuest.jsx",
+=======
+  "SelectedNode": "\\Frontend_Heartoza\\heartoza\\src\\components\\customer\\Cart.jsx",
+>>>>>>> dev
   "PreviewInSolutionExplorer": false
 }

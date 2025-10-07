@@ -22,17 +22,18 @@
   background: #fff;
   padding: 20px;
   border-radius: 16px;
-  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.1);
-  transition: transform 0.2s ease;
+  box-shadow: 0 3px 8px rgba(109, 180, 247, 0.3); /* shadow xanh nhạt */
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
 .team-card:hover {
   transform: translateY(-4px);
+  box-shadow: 0 6px 15px rgba(109, 180, 247, 0.4);
 }
 
 .role {
   font-weight: bold;
-  color: #ff4081;
+  color: #6db4f7; /* màu chủ đạo */
   margin: 6px 0;
 }
 
@@ -40,4 +41,19 @@
   font-size: 0.95rem;
   color: #444;
   line-height: 1.4;
+}
+
+.team-card img {
+  width: 100px;
+  height: 100px;
+  object-fit: cover;
+  border-radius: 50%; /* tròn */
+  border: 3px solid #6db4f7; /* viền màu chủ đạo */
+  margin-bottom: 12px;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.team-card img:hover {
+  transform: scale(1.05);
+  box-shadow: 0 4px 10px rgba(109, 180, 247, 0.4); /* shadow xanh nhạt */
 }

@@ -1,6 +1,6 @@
 ﻿using System.Text;
 using Heartoza.Models;
-using Heartoza.Services; // JwtService, DevEmailSender, SmtpEmailSender, AuditService
+using Heartoza.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -14,12 +14,12 @@ namespace Heartoza
         {
             var builder = WebApplication.CreateBuilder(args);
 
-            // ===== App Insights (log/traces trên Azure, vẫn chạy local) =====
-            builder.Services.AddApplicationInsightsTelemetry();
-
             // ===== DB =====
             builder.Services.AddDbContext<GiftBoxShopContext>(opt =>
-                opt.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+                opt.UseSqlServer(
+                    builder.Configuration.GetConnectionString("DefaultConnection"),
+                    sql => sql.EnableRetryOnFailure()
+                ));
 
             // ===== Controllers & Swagger =====
             builder.Services.AddControllers();
@@ -27,8 +27,6 @@ namespace Heartoza
             builder.Services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "Heartoza API", Version = "v1" });
-
-                // Bearer on Swagger
                 var scheme = new OpenApiSecurityScheme
                 {
                     Name = "Authorization",
@@ -42,26 +40,18 @@ namespace Heartoza
                 c.AddSecurityRequirement(new OpenApiSecurityRequirement { { scheme, Array.Empty<string>() } });
             });
 
-            // ===== CORS =====
-            builder.Services.AddCors(options =>
-            {
-                options.AddPolicy("Default", policy =>
-                {
-                    policy
-                        .WithOrigins(
-                            "http://localhost:5173",
-                            "http://localhost:3000",
-                            "https://heartozaapi.azurewebsites.net" // FE/prod nếu có
-                        )
-                        .AllowAnyHeader()
-                        .AllowAnyMethod();
-                    // .AllowCredentials(); // chỉ bật nếu DÙNG cookie; JWT thường không cần
-                });
-            });
+            // ===== CORS (KHÔNG CẦN nếu FE dùng proxy SWA). Giữ để test local. =====
+            builder.Services.AddCors(o =>
+                o.AddPolicy("Default", p => p
+                    .WithOrigins("http://localhost:5173", "http://localhost:3000", "https://witty-hill-06b27a500.2.azurestaticapps.net")
+                    .AllowAnyHeader()
+                    .AllowAnyMethod()
+                )
+            );
 
             // ===== JWT =====
             var jwt = builder.Configuration.GetSection("Jwt");
-            var keyBytes = Encoding.UTF8.GetBytes(jwt["Key"] ?? "changeme_dev_key");
+            var keyBytes = Encoding.UTF8.GetBytes(jwt["Key"]!);
 
             builder.Services.AddAuthentication(o =>
             {
@@ -70,7 +60,7 @@ namespace Heartoza
             })
             .AddJwtBearer(o =>
             {
-                o.RequireHttpsMetadata = !builder.Environment.IsDevelopment(); // Dev cho dễ test
+                o.RequireHttpsMetadata = !builder.Environment.IsDevelopment();
                 o.SaveToken = true;
                 o.TokenValidationParameters = new TokenValidationParameters
                 {
@@ -92,46 +82,67 @@ namespace Heartoza
             builder.Services.AddScoped<IJwtService, JwtService>();
             builder.Services.AddScoped<IAuditService, AuditService>();
 
+            // chọn email sender theo môi trường (tránh đăng ký 2 lần)
             if (builder.Environment.IsDevelopment())
                 builder.Services.AddScoped<IEmailSender, DevEmailSender>();
             else
                 builder.Services.AddScoped<IEmailSender, SmtpEmailSender>();
 
-            // Nếu anh còn dùng TokenService custom
+            // nếu vẫn dùng TokenService custom
             builder.Services.AddSingleton<ITokenService>(
-                new TokenService(jwt["Issuer"] ?? "", jwt["Audience"] ?? "", jwt["Key"] ?? "")
+                new TokenService(jwt["Issuer"]!, jwt["Audience"]!, jwt["Key"]!)
             );
 
             var app = builder.Build();
 
-            // ===== Auto-migrate (bật/tắt qua config: RunMigrationsOnStart=true) =====
-            if (app.Configuration.GetValue<bool>("RunMigrationsOnStart"))
-            {
-                using var scope = app.Services.CreateScope();
-                var db = scope.ServiceProvider.GetRequiredService<GiftBoxShopContext>();
-                db.Database.Migrate();
-            }
-
-            // ===== Middleware =====
-            var enableSwagger = app.Configuration.GetValue<bool>(
-                "EnableSwagger",
-                app.Environment.IsDevelopment()
-            );
+            // ===== Swagger theo cấu hình =====
+            var enableSwagger = app.Configuration.GetValue<bool>("EnableSwagger", app.Environment.IsDevelopment());
             if (enableSwagger)
             {
                 app.UseSwagger();
                 app.UseSwaggerUI();
             }
 
+            // tiện demo: vào root tự chuyển sang swagger
+            app.MapGet("/", () => Results.Redirect("/swagger"));
+            // EF đang dùng provider gì và đang trỏ tới đâu?
+            app.MapGet("/diag/ef-conn", (GiftBoxShopContext db) =>
+            {
+                var cx = db.Database.GetDbConnection();
+                return Results.Ok(new
+                {
+                    provider = db.Database.ProviderName,
+                    dataSource = cx.DataSource,
+                    conn = cx.ConnectionString
+                });
+            });
 
-            app.UseCors("Default");
+            // Ping DB đơn giản qua ADO.NET (bỏ EF ra khỏi phương trình)
+            app.MapGet("/diag/db-ping", async (IConfiguration cfg) =>
+            {
+                try
+                {
+                    var cs = cfg.GetConnectionString("DefaultConnection");
+                    await using var c = new Microsoft.Data.SqlClient.SqlConnection(cs);
+                    await c.OpenAsync();
+                    await using var cmd = new Microsoft.Data.SqlClient.SqlCommand("SELECT TOP (1) 1", c);
+                    var x = await cmd.ExecuteScalarAsync();
+                    return Results.Ok(new { db = "ok", value = x });
+                }
+                catch (Exception ex)
+                {
+                    return Results.Problem(ex.ToString());
+                }
+            });
+
+            app.UseCors("Default");       // proxy SWA không cần, nhưng giữ cho local
+
             app.UseHttpsRedirection();
             app.UseAuthentication();
             app.UseAuthorization();
 
-            app.MapGet("/", () => Results.Redirect("/swagger"));
-
             app.MapControllers();
+
             app.Run();
         }
     }

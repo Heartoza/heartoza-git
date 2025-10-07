@@ -527,3 +527,6 @@ CREATE TABLE CartItems (
     CONSTRAINT FK_CartItem_Cart FOREIGN KEY (CartId) REFERENCES Carts(CartId),
     CONSTRAINT FK_CartItem_Product FOREIGN KEY (ProductId) REFERENCES Products(ProductId)
 );
+
+ALTER TABLE Orders
+ADD Comment NVARCHAR(MAX) NULL;

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
-import axios from "axios";
 import "../css/ProductDetail.css";
+import http from "../../services/api"; // ✅ dùng client chung
 
 export default function ProductDetail() {
     const { id } = useParams();
@@ -10,38 +10,42 @@ export default function ProductDetail() {
     const navigate = useNavigate();
 
     useEffect(() => {
-        axios
-            .get(`https://localhost:7109/api/Products/${id}?includeInactive=false`)
-            .then((res) => setProduct(res.data))
-            .catch((err) => console.error("Lỗi khi load chi tiết sản phẩm:", err))
-            .finally(() => setLoading(false));
+        const load = async () => {
+            try {
+                const res = await http.get(`Products/${id}`, {
+                    params: { includeInactive: false },
+                    validateStatus: (s) => (s >= 200 && s < 300) || s === 204,
+                });
+                if (res.status === 204) {
+                    setProduct(null);
+                } else {
+                    setProduct(res.data);
+                }
+            } catch (err) {
+                console.error("Lỗi khi load chi tiết sản phẩm:", err);
+                setProduct(null);
+            } finally {
+                setLoading(false);
+            }
+        };
+        if (id) load();
     }, [id]);
 
-    // 🟢 Hàm thêm vào giỏ hàng
+    // 🟢 Thêm vào giỏ hàng
     const handleAddToCart = async () => {
+        const token = localStorage.getItem("token");
+        if (!token) {
+            alert("Bạn cần đăng nhập trước khi thêm vào giỏ hàng.");
+            navigate("/login?reason=add-to-cart");
+            return;
+        }
         try {
-            const token = localStorage.getItem("token"); // 👉 lấy JWT từ localStorage sau khi login
-            if (!token) {
-                alert("Bạn cần đăng nhập trước khi thêm vào giỏ hàng.");
-                navigate("/login");
-                return;
-            }
-
-            await axios.post(
-                "https://localhost:7109/api/Cart/AddItem",
-                {
-                    productId: product.productId,
-                    quantity: 1, // mặc định thêm 1 sản phẩm
-                },
-                {
-                    headers: {
-                        Authorization: `Bearer ${token}`,
-                    },
-                }
-            );
-
+            await http.post("Cart/AddItem", {
+                productId: product.productId,
+                quantity: 1,
+            });
             alert("Đã thêm vào giỏ hàng thành công!");
-            navigate("/cart"); // 👉 sau khi thêm xong chuyển sang trang giỏ hàng
+            navigate("/cart");
         } catch (error) {
             console.error("Lỗi khi thêm vào giỏ hàng:", error);
             alert("Thêm vào giỏ hàng thất bại.");
@@ -51,15 +55,19 @@ export default function ProductDetail() {
     if (loading) return <p>Đang tải...</p>;
     if (!product) return <p>Không tìm thấy sản phẩm</p>;
 
+    const outOfStock = Number(product.onHand || 0) <= 0;
+    const inactive = !product.isActive;
+    const disableAdd = outOfStock || inactive;
+
     return (
         <div className="product-detail-container">
             <div className="detail-card">
                 {/* Cột trái: Hình ảnh */}
                 <div className="detail-image">
                     <img
-                        src={
-                            "https://dimensions.edu.vn/public/upload/2025/01/avatar-con-gai-cute-2.webp"
-                        }
+                        src={product.imageUrl && product.imageUrl.trim() !== ""
+                            ? product.imageUrl
+                            : "/img/no-image.png"}
                         alt={product.name}
                     />
                 </div>
@@ -70,7 +78,10 @@ export default function ProductDetail() {
                     <p className="detail-sku">SKU: {product.sku}</p>
                     <p className="detail-category">Danh mục: {product.categoryName}</p>
                     <p className="detail-price">
-                        <span className="price-number">{product.price.toLocaleString()}</span> <span className="currency">đ</span>
+                        <span className="price-number">
+                            {Number(product.price || 0).toLocaleString("vi-VN")}
+                        </span>{" "}
+                        <span className="currency">đ</span>
                     </p>
                     <p>
                         <strong>Tồn kho:</strong> {product.onHand}
@@ -83,16 +94,28 @@ export default function ProductDetail() {
                     </p>
                     <p>
                         <strong>Ngày tạo:</strong>{" "}
-                        {new Date(product.createdAt).toLocaleDateString("vi-VN")}
+                        {product.createdAt
+                            ? new Date(product.createdAt).toLocaleDateString("vi-VN")
+                            : "--"}
                     </p>
 
                     <div className="detail-actions">
                         <Link to="/products" className="btn-back">
                             ⬅ Quay lại
                         </Link>
-                        {/* 🟢 Gọi hàm khi click */}
-                        <button className="btn-add-cart" onClick={handleAddToCart}>
-                            Thêm vào giỏ hàng
+                        <button
+                            className="btn-add-cart"
+                            onClick={handleAddToCart}
+                            disabled={disableAdd}
+                            title={
+                                disableAdd
+                                    ? inactive
+                                        ? "Sản phẩm ngừng bán"
+                                        : "Sản phẩm đã hết hàng"
+                                    : "Thêm vào giỏ hàng"
+                            }
+                        >
+                            {disableAdd ? "Không thể thêm" : "Thêm vào giỏ hàng"}
                         </button>
                     </div>
                 </div>
@@ -100,5 +123,3 @@ export default function ProductDetail() {
         </div>
     );
 }
-
-

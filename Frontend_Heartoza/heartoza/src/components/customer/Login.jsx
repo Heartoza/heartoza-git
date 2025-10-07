@@ -3,11 +3,13 @@ import { Link, useNavigate } from "react-router-dom";
 import { AuthService } from "../../services/authService";
 import { AuthContext } from "../../context/AuthContext";
 import "../css/Auth.css";
-
+import { useLocation } from "react-router-dom";
 export default function Login() {
     const nav = useNavigate();
     const { login, user } = React.useContext(AuthContext);
-
+    const location = useLocation();
+    const params = new URLSearchParams(location.search);
+    const reason = params.get("reason");
     const [form, setForm] = React.useState({ email: "", password: "" });
     const [err, setErr] = React.useState("");
     const [loading, setLoading] = React.useState(false);
@@ -71,7 +73,11 @@ export default function Login() {
     };
 
     return (
+
         <div className="auth-container">
+            {reason === "cart" && (
+                <p className="text-red-500">⚠️ Bạn cần đăng nhập để xem giỏ hàng.</p>
+            )}
             <h2>Đăng nhập</h2>
             <form onSubmit={submit}>
                 <input
