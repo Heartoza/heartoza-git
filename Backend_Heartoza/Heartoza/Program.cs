@@ -27,17 +27,31 @@ namespace Heartoza
             builder.Services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "Heartoza API", Version = "v1" });
-                var scheme = new OpenApiSecurityScheme
+
+                c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
                 {
                     Name = "Authorization",
                     Type = SecuritySchemeType.Http,
-                    Scheme = "bearer",
+                    Scheme = "bearer",              // phải là lowercase theo spec
                     BearerFormat = "JWT",
                     In = ParameterLocation.Header,
-                    Description = "Nhập: Bearer {token}"
-                };
-                c.AddSecurityDefinition("Bearer", scheme);
-                c.AddSecurityRequirement(new OpenApiSecurityRequirement { { scheme, Array.Empty<string>() } });
+                    Description = "Paste **token** (không cần chữ 'Bearer')"
+                });
+
+                c.AddSecurityRequirement(new OpenApiSecurityRequirement
+    {
+        {
+            new OpenApiSecurityScheme
+            {
+                Reference = new OpenApiReference
+                {
+                    Type = ReferenceType.SecurityScheme,
+                    Id   = "Bearer"
+                }
+            },
+            Array.Empty<string>()
+        }
+    });
             });
 
             // ===== CORS (KHÔNG CẦN nếu FE dùng proxy SWA). Giữ để test local. =====
@@ -87,6 +101,10 @@ namespace Heartoza
                 builder.Services.AddScoped<IEmailSender, DevEmailSender>();
             else
                 builder.Services.AddScoped<IEmailSender, SmtpEmailSender>();
+
+            builder.Services.Configure<AzureStorageOptions>(
+            builder.Configuration.GetSection("AzureStorage"));
+            builder.Services.AddSingleton<IAvatarStorage, BlobAvatarStorage>();
 
             // nếu vẫn dùng TokenService custom
             builder.Services.AddSingleton<ITokenService>(
@@ -139,6 +157,7 @@ namespace Heartoza
 
             app.UseHttpsRedirection();
             app.UseAuthentication();
+            app.UseStaticFiles();
             app.UseAuthorization();
 
             app.MapControllers();

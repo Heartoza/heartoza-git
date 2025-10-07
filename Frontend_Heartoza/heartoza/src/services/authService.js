@@ -45,7 +45,6 @@ export const AuthService = {
     async updateProfile(payload: {
         fullName?: string;
         phone?: string;
-        avatarUrl?: string;
     }) {
         const { data } = await http.put("/profile/me", payload);
         return data;
@@ -113,4 +112,28 @@ export const AuthService = {
         const { data } = await http.post("/auth/logout-all");
         return data;
     },
+    // ===== Avatar / Media =====
+    async addExternalAvatar(url) {
+        const { data } = await http.post("/profile/avatar/external", {
+            url,
+            asPrimary: true,
+        });
+        return data;
+    },
+    // ===== Avatar / Media =====
+    async addExternalAvatar(url) {
+        const { data } = await http.post("/profile/avatar/external", {
+            url,
+            asPrimary: true,
+        });
+        return data;
+    },
+
+    async uploadAvatar(formData) {
+        const { data } = await http.post("/profile/avatar/upload", formData, {
+            headers: { "Content-Type": "multipart/form-data" },
+        });
+        return data;
+    },
+
 };
