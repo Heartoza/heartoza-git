@@ -88,6 +88,10 @@ export default function OrderDetail() {
                     )}
                 </ul>
             </div>
+            <div className="section">
+                <h3>Ghi chú đơn hàng</h3>
+                <p>{order.comment ? order.comment : "Không có ghi chú nào."}</p>
+            </div>
 
             <div className="section">
                 <h3>Giao hàng</h3>

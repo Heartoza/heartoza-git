@@ -9,6 +9,7 @@ export default function Cart() {
     const [cart, setCart] = useState(null);
     const navigate = useNavigate();
     const [loading, setLoading] = useState(true);
+    const [comment, setComment] = useState("");
     const [selectedItems, setSelectedItems] = useState([]);
     const [selectAll, setSelectAll] = useState(false);
     const [addresses, setAddresses] = useState([]);
@@ -143,6 +144,7 @@ export default function Cart() {
                 shippingAddressId: selectedAddress,
                 shippingFee: 0,
                 method: "COD",
+                comment,
                 items: selectedItems.map((id) => {
                     const item = cart.cartItems.find((ci) => ci.cartItemId === id);
                     return {
@@ -172,9 +174,20 @@ export default function Cart() {
             setSelectedItems([]);
             navigate("/orders");
         } catch (err) {
-            console.error("Lỗi thanh toán:", err?.response?.data || err.message);
-            alert("❌ Vui lòng thử lại!");
+            console.error("Lỗi thanh toán chi tiết:", err.response || err.message);
+
+            if (err.response && err.response.data) {
+                const serverMessage =
+                    err.response.data.message ||
+                    err.response.data.title || 
+                    err.response.data ||
+                    "Có lỗi xảy ra khi tạo đơn hàng.";
+                alert(`❌ ${serverMessage}`);
+            } else {
+                alert("❌ Không thể kết nối đến máy chủ. Vui lòng thử lại!");
+            }
         }
+
     };
 
     // 🔹 Render UI
@@ -242,6 +255,17 @@ export default function Cart() {
                     Tổng cộng: <span className="text-red-600 font-bold">{total.toLocaleString()} đ</span>
                 </h3>
             )}
+            <div className="comment-section my-4">
+                <h3>💬 Ghi chú cho đơn hàng</h3>
+                <textarea
+                    value={comment}
+                    onChange={(e) => setComment(e.target.value)}
+                    placeholder="Nhập ghi chú của bạn (tùy chọn)..."
+                    rows={3}
+                    style={{ width: "100%", padding: "8px" }}
+                />
+            </div>
+
             <button
                 className="checkout-btn"
                 onClick={handleCheckout}

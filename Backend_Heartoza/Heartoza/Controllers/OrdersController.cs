@@ -23,6 +23,9 @@ public class OrdersController : ControllerBase
         if (req?.Items == null || req.Items.Count == 0)
             return BadRequest("Thiếu danh sách sản phẩm.");
 
+        if (string.IsNullOrWhiteSpace(req.Comment))
+            return BadRequest("Vui lòng nhập ghi chú (comment) cho đơn hàng.");
+
         var userIdStr = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
         if (string.IsNullOrEmpty(userIdStr))
             return Unauthorized("Không tìm thấy thông tin user trong token.");
@@ -100,7 +103,8 @@ public class OrdersController : ControllerBase
                     ShippingFee = req.ShippingFee,
                     GrandTotal = grand,
                     Status = "Pending",
-                    CreatedAt = nowUtc
+                    CreatedAt = nowUtc,
+                    Comment = req.Comment.Trim()
                 };
                 _db.Orders.Add(order);
                 await _db.SaveChangesAsync(ct);
@@ -241,6 +245,7 @@ public class OrdersController : ControllerBase
                 GrandTotal = o.GrandTotal,
                 Status = o.Status ?? "Pending",
                 CreatedAt = o.CreatedAt,
+                Comment = o.Comment,
                 Items = o.OrderItems.Select(oi => new OrderItemResponse
                 {
                     OrderItemId = oi.OrderItemId,

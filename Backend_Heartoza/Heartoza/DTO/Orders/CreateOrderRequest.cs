@@ -6,6 +6,7 @@
         public int ShippingAddressId { get; set; }
         public decimal ShippingFee { get; set; } = 0;
         public string? Method { get; set; }
+        public string? Comment { get; set; }
         public List<OrderLine> Items { get; set; } = new();
     }
 

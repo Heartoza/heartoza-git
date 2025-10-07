@@ -11,6 +11,7 @@
         public decimal GrandTotal { get; set; }
         public string Status { get; set; } = default!;
         public DateTime? CreatedAt { get; set; }
+        public string? Comment { get; set; }
         public List<OrderItemResponse> Items { get; set; } = new();
         public List<PaymentResponse> Payments { get; set; } = new();
         public List<ShipmentResponse> Shipments { get; set; } = new();
