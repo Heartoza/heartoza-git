@@ -22,159 +22,143 @@ public class OrdersController : ControllerBase
     {
         if (req?.Items == null || req.Items.Count == 0)
             return BadRequest("Thiếu danh sách sản phẩm.");
+
         var userIdStr = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
         if (string.IsNullOrEmpty(userIdStr))
             return Unauthorized("Không tìm thấy thông tin user trong token.");
 
-        int userId = int.Parse(userIdStr);
         if (req.Items.Any(i => i.ProductId <= 0 || i.Quantity <= 0))
             return BadRequest("Mỗi item phải có ProductId hợp lệ và Quantity > 0.");
         if (req.ShippingFee < 0)
             return BadRequest("ShippingFee không được âm.");
 
+        int userId = int.Parse(userIdStr);
+
         // 1) Lấy CategoryId "Hộp quà"
-        var giftBoxCatId = await _db.Categories
-            .AsNoTracking()
+        var giftBoxCatId = await _db.Categories.AsNoTracking()
             .Where(c => c.Name == "Hộp quà")
             .Select(c => c.CategoryId)
             .FirstOrDefaultAsync(ct);
         if (giftBoxCatId == 0)
             return BadRequest("Thiếu danh mục 'Hộp quà'.");
 
-        // 2) Gom items theo ProductId
+        // 2) Gom items
         var itemGroups = req.Items
             .GroupBy(i => i.ProductId)
             .Select(g => new { ProductId = g.Key, Quantity = g.Sum(x => x.Quantity) })
             .ToList();
-
         var pids = itemGroups.Select(x => x.ProductId).ToList();
 
-        // 3) Lấy products active
-        var products = await _db.Products
-            .AsNoTracking()
+        // 3) Products (active)
+        var products = await _db.Products.AsNoTracking()
             .Where(p => p.IsActive == true && pids.Contains(p.ProductId))
-            .Select(p => new
-            {
-                p.ProductId,
-                p.CategoryId,
-                Price = (decimal?)p.Price
-            })
+            .Select(p => new { p.ProductId, p.CategoryId, Price = (decimal?)p.Price })
             .ToListAsync(ct);
         if (products.Count != pids.Count)
             return BadRequest("Có sản phẩm không tồn tại hoặc không hoạt động.");
 
-        // 4) Rule: phải có ít nhất 1 sản phẩm thuộc 'Hộp quà'
+        // 4) Rule hộp quà
         if (!products.Any(p => p.CategoryId == giftBoxCatId))
             return BadRequest("Đơn hàng phải có ít nhất 1 sản phẩm thuộc danh mục 'Hộp quà'.");
 
-        // (Tuỳ chọn) Ràng buộc địa chỉ thuộc user
-        // var okAddr = await _db.Addresses.AnyAsync(a => a.AddressId == req.ShippingAddressId && a.UserId == req.UserId, ct);
-        // if (!okAddr) return BadRequest("Địa chỉ không thuộc user.");
-
-        // 5) Kiểm tra tồn kho
-        var invRows = await _db.Inventories
-            .Where(i => pids.Contains(i.ProductId))
-            .ToListAsync(ct);
+        // 5) Kiểm tồn kho (đọc trước khi vào tx)
+        var invRows = await _db.Inventories.Where(i => pids.Contains(i.ProductId)).ToListAsync(ct);
         var invMap = invRows.ToDictionary(i => i.ProductId, i => i);
-
         foreach (var g in itemGroups)
         {
             if (!invMap.TryGetValue(g.ProductId, out var invRow))
                 return BadRequest($"Sản phẩm {g.ProductId} chưa có dòng tồn kho.");
-            var onHand = (int?)invRow.Quantity;
-            if (onHand.GetValueOrDefault() < g.Quantity)
-                return BadRequest($"Sản phẩm {g.ProductId} không đủ hàng (tồn: {onHand.GetValueOrDefault()}, cần: {g.Quantity}).");
+
+            var onHand = (int)invRow.Quantity; // Quantity là int (không null)
+            if (onHand < g.Quantity)
+                return BadRequest($"Sản phẩm {g.ProductId} không đủ hàng (tồn: {onHand}, cần: {g.Quantity}).");
         }
 
         // 6) Tính tiền
         decimal subtotal = 0m;
         foreach (var g in itemGroups)
         {
-            var price = products.First(p => p.ProductId == g.ProductId).Price.GetValueOrDefault(0m);
+            var price = products.First(p => p.ProductId == g.ProductId).Price ?? 0m;
             subtotal += price * g.Quantity;
         }
         decimal grand = subtotal + req.ShippingFee;
 
-        // 7) Giao dịch
-        await using var tx = await _db.Database.BeginTransactionAsync(ct);
-        try
+        // 7) Thực thi có retry + transaction
+        var strategy = _db.Database.CreateExecutionStrategy();
+        return await strategy.ExecuteAsync<IActionResult>(async () =>
         {
-            var nowUtc = DateTime.UtcNow;
-
-            var order = new Order
+            await using var tx = await _db.Database.BeginTransactionAsync(ct);
+            try
             {
-                OrderCode = $"GBX-{nowUtc:yyyyMMddHHmmssfff}",
-                UserId = userId,
-                ShippingAddressId = req.ShippingAddressId,
-                Subtotal = subtotal,
-                ShippingFee = req.ShippingFee,
-                GrandTotal = grand,
-                Status = "Pending",
-                CreatedAt = nowUtc
-            };
-            _db.Orders.Add(order);
-            await _db.SaveChangesAsync(ct);
+                var nowUtc = DateTime.UtcNow;
+                var order = new Order
+                {
+                    OrderCode = $"GBX-{nowUtc:yyyyMMddHHmmssfff}",
+                    UserId = userId,
+                    ShippingAddressId = req.ShippingAddressId,
+                    Subtotal = subtotal,
+                    ShippingFee = req.ShippingFee,
+                    GrandTotal = grand,
+                    Status = "Pending",
+                    CreatedAt = nowUtc
+                };
+                _db.Orders.Add(order);
+                await _db.SaveChangesAsync(ct);
 
-            foreach (var g in itemGroups)
-            {
-                var prod = products.First(p => p.ProductId == g.ProductId);
-                var unit = prod.Price.GetValueOrDefault(0m);
+                foreach (var g in itemGroups)
+                {
+                    var prod = products.First(p => p.ProductId == g.ProductId);
+                    var unit = prod.Price ?? 0m;
 
-                _db.OrderItems.Add(new OrderItem
+                    _db.OrderItems.Add(new OrderItem
+                    {
+                        OrderId = order.OrderId,
+                        ProductId = prod.ProductId,
+                        Quantity = g.Quantity,
+                        UnitPrice = unit
+                    });
+
+                    // Trừ tồn (Quantity là int non-null)
+                    var invRow = invMap[g.ProductId];
+                    invRow.Quantity = invRow.Quantity - g.Quantity;
+                    if (invRow.Quantity < 0)
+                        throw new InvalidOperationException($"Sản phẩm {g.ProductId} bị âm tồn sau khi trừ.");
+                }
+
+                _db.Payments.Add(new Payment
                 {
                     OrderId = order.OrderId,
-                    ProductId = prod.ProductId,
-                    Quantity = g.Quantity,
-                    UnitPrice = unit
+                    Amount = grand,
+                    Method = string.IsNullOrWhiteSpace(req.Method) ? "COD" : req.Method!,
+                    Status = "Pending",
+                    CreatedAt = nowUtc
                 });
 
-                var invRow = invMap[g.ProductId];
-                if (invRow.GetType().GetProperty("Quantity")!.PropertyType == typeof(int?))
+                _db.Shipments.Add(new Shipment
                 {
-                    var q = (int?)invRow.Quantity;
-                    invRow.Quantity = q.GetValueOrDefault() - g.Quantity;
-                }
-                else
-                {
-                    invRow.Quantity -= g.Quantity;
-                }
+                    OrderId = order.OrderId,
+                    Carrier = null,
+                    TrackingCode = null,
+                    Status = "Packing",
+                    CreatedAt = nowUtc
+                });
 
-                var remain = (int?)invRow.Quantity;
-                if (remain.GetValueOrDefault() < 0)
-                    return BadRequest($"Sản phẩm {g.ProductId} bị âm tồn sau khi trừ.");
+                await _db.SaveChangesAsync(ct);
+                await tx.CommitAsync(ct);
+
+                return CreatedAtAction(nameof(GetById),
+                    new { id = order.OrderId },
+                    new { order.OrderId, order.OrderCode, order.GrandTotal });
             }
-
-            _db.Payments.Add(new Payment
+            catch
             {
-                OrderId = order.OrderId,
-                Amount = grand,
-                Method = string.IsNullOrWhiteSpace(req.Method) ? "COD" : req.Method!,
-                Status = "Pending",
-                CreatedAt = nowUtc
-            });
-
-            _db.Shipments.Add(new Shipment
-            {
-                OrderId = order.OrderId,
-                Carrier = null,
-                TrackingCode = null,
-                Status = "Packing",
-                CreatedAt = nowUtc
-            });
-
-            await _db.SaveChangesAsync(ct);
-            await tx.CommitAsync(ct);
-
-            return CreatedAtAction(nameof(GetById),
-                new { id = order.OrderId },
-                new { order.OrderId, order.OrderCode, order.GrandTotal });
-        }
-        catch
-        {
-            await tx.RollbackAsync(ct);
-            throw;
-        }
+                await tx.RollbackAsync(ct);
+                throw;
+            }
+        });
     }
+
+
 
     // GET /api/orders (list + filter/paging/sort)
     [HttpGet]
@@ -294,59 +278,71 @@ public class OrdersController : ControllerBase
     [HttpPatch("{id:int}/cancel")]
     public async Task<IActionResult> Cancel(int id, [FromBody] CancelOrderRequest req, CancellationToken ct = default)
     {
-        await using var tx = await _db.Database.BeginTransactionAsync(ct);
-
-        var order = await _db.Orders
-            .Include(o => o.OrderItems)
-            .FirstOrDefaultAsync(o => o.OrderId == id, ct);
-
-        if (order == null) return NotFound();
-        if (order.Status is not ("Pending" or "Packing"))
-            return BadRequest("Trạng thái hiện tại không cho phép hủy.");
-
-        // Restock
-        var pids = order.OrderItems.Select(i => i.ProductId).Distinct().ToList();
-        var invRows = await _db.Inventories.Where(i => pids.Contains(i.ProductId)).ToListAsync(ct);
-        var invMap = invRows.ToDictionary(i => i.ProductId, i => i);
-
-        foreach (var oi in order.OrderItems)
+        var strategy = _db.Database.CreateExecutionStrategy();
+        return await strategy.ExecuteAsync<IActionResult>(async () =>
         {
-            if (invMap.TryGetValue(oi.ProductId, out var inv))
-                inv.Quantity = (int?)inv.Quantity is int q ? q + oi.Quantity : oi.Quantity;
-        }
+            // Tải đơn trước khi mở tx để sớm bắt NotFound
+            var order = await _db.Orders
+                .Include(o => o.OrderItems)
+                .FirstOrDefaultAsync(o => o.OrderId == id, ct);
 
-        order.Status = "Cancelled";
-        await _db.SaveChangesAsync(ct);
-        await tx.CommitAsync(ct);
+            if (order == null) return NotFound();
+            if (order.Status is not ("Pending" or "Packing"))
+                return BadRequest("Trạng thái hiện tại không cho phép hủy.");
 
-        return Ok(new { message = "Đã hủy đơn và trả tồn kho.", orderId = order.OrderId, reason = req?.Reason });
+            await using var tx = await _db.Database.BeginTransactionAsync(ct);
+
+            var pids = order.OrderItems.Select(i => i.ProductId).Distinct().ToList();
+            var invRows = await _db.Inventories.Where(i => pids.Contains(i.ProductId)).ToListAsync(ct);
+            var invMap = invRows.ToDictionary(i => i.ProductId, i => i);
+
+            foreach (var oi in order.OrderItems)
+            {
+                if (invMap.TryGetValue(oi.ProductId, out var inv))
+                    inv.Quantity = inv.Quantity + oi.Quantity; // int non-null
+            }
+
+            order.Status = "Cancelled";
+            await _db.SaveChangesAsync(ct);
+            await tx.CommitAsync(ct);
+
+            return Ok(new { message = "Đã hủy đơn và trả tồn kho.", orderId = order.OrderId, reason = req?.Reason });
+        });
     }
+
+
 
     // POST /api/orders/{id}/payments/confirm
     [HttpPost("{id:int}/payments/confirm")]
     public async Task<IActionResult> ConfirmPayment(int id, [FromBody] ConfirmPaymentRequest req, CancellationToken ct = default)
     {
-        await using var tx = await _db.Database.BeginTransactionAsync(ct);
-
-        var order = await _db.Orders
-            .Include(o => o.Payments)
-            .FirstOrDefaultAsync(o => o.OrderId == id, ct);
-
-        if (order == null) return NotFound();
-
-        foreach (var p in order.Payments)
+        var strategy = _db.Database.CreateExecutionStrategy();
+        return await strategy.ExecuteAsync<IActionResult>(async () =>
         {
-            p.Status = "Success";
-            p.Method = string.IsNullOrWhiteSpace(req?.Method) ? (p.Method ?? "COD") : req!.Method!;
-            p.CreatedAt ??= DateTime.UtcNow;
-        }
+            // Tải đơn trước khi mở tx để sớm bắt NotFound
+            var order = await _db.Orders
+                .Include(o => o.Payments)
+                .FirstOrDefaultAsync(o => o.OrderId == id, ct);
 
-        order.Status = "Paid";
-        await _db.SaveChangesAsync(ct);
-        await tx.CommitAsync(ct);
+            if (order == null) return NotFound();
 
-        return Ok(new { message = "Đã xác nhận thanh toán.", orderId = order.OrderId });
+            await using var tx = await _db.Database.BeginTransactionAsync(ct);
+
+            foreach (var p in order.Payments)
+            {
+                p.Status = "Success";
+                p.Method = string.IsNullOrWhiteSpace(req?.Method) ? (p.Method ?? "COD") : req!.Method!;
+                p.CreatedAt ??= DateTime.UtcNow;
+            }
+
+            order.Status = "Paid";
+            await _db.SaveChangesAsync(ct);
+            await tx.CommitAsync(ct);
+
+            return Ok(new { message = "Đã xác nhận thanh toán.", orderId = order.OrderId });
+        });
     }
+
 
     // POST /api/orders/{id}/shipments/update
     [HttpPost("{id:int}/shipments/update")]
