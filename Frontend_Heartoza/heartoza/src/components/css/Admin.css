@@ -204,3 +204,42 @@
     background: #757575;
 }
 
+.status-badge {
+  display: inline-block;
+  padding: 5px 12px;
+  border-radius: 10px;
+  font-weight: 600;
+  text-transform: capitalize;
+  font-size: 0.95rem;
+}
+
+/* màu riêng cho từng trạng thái */
+.status-badge.pending {
+  background-color: #fff6cc;
+  color: #b37400;
+}
+
+.status-badge.paid {
+  background-color: #e6f7ff;
+  color: #0077b6;
+}
+
+.status-badge.packing {
+  background-color: #f0f0f0;
+  color: #555;
+}
+
+.status-badge.shipped {
+  background-color: #eaf7e9;
+  color: #2a8c37;
+}
+
+.status-badge.delivered {
+  background-color: #d1ffd6;
+  color: #107c10;
+}
+
+.status-badge.cancelled {
+  background-color: #ffeaea;
+  color: #c62828;
+}

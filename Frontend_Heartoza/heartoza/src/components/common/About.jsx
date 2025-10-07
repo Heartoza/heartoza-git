@@ -3,9 +3,9 @@ import "../css/About.css";
 import MinhHue from "../../assets/team/MinhHue.jpg";
 import VietAn from "../../assets/team/VietAn.jpg";
 import DucVu from "../../assets/team/DucVu.png";
-// import ThuThanh from "../../assets/team/ThuThanh.jpg";
-// import DucAnh from "../../assets/team/DucAnh.jpg";
-// import TrungThanh from "../../assets/team/TrungThanh.jpg";
+import ThuThanh from "../../assets/team/ThuThanh.jpg";
+import DucAnh from "../../assets/team/DucAnh.jpg";
+import TrungThanh from "../../assets/team/TrungThanh.jpg";
 
 // Team data
 const team = [
@@ -17,13 +17,13 @@ const team = [
   },
   { 
     name: "Lê Phạm Việt An", 
-    role: "Fullstack Developer", 
+    role: "Developer", 
     bio: "Tham gia phát triển cả frontend và backend, đảm bảo tính năng vận hành ổn định.",
     img: VietAn
   },
   { 
     name: "Hà Đức Vũ", 
-    role: "Fullstack Developer", 
+    role: "Developer", 
     bio: "Tham gia phát triển cả frontend và backend, tối ưu hiệu năng và trải nghiệm người dùng.",
     img: DucVu
   },
@@ -31,19 +31,19 @@ const team = [
     name: "Nguyễn Thu Thanh", 
     role: "Marketing", 
     bio: "Chịu trách nhiệm quảng bá sản phẩm, chăm sóc khách hàng và tăng độ nhận diện thương hiệu.",
-    img: "/assets/team/mkt1.jpg"
+    img: ThuThanh
   },
   { 
     name: "Trần Trung Thành", 
     role: "Marketing", 
     bio: "Chịu trách nhiệm quảng bá sản phẩm, chăm sóc khách hàng và tăng doanh số.",
-    img: "/assets/team/mkt2.jpg"
+    img: TrungThanh
   },
   { 
     name: "Nguyễn Đức Anh", 
     role: "Marketing", 
     bio: "Chịu trách nhiệm quảng bá sản phẩm, quản lý các chiến dịch marketing hiệu quả.",
-    img: "/assets/team/mkt3.jpg"
+    img: DucAnh
   }
 ];
 

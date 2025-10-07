@@ -41,35 +41,47 @@ export default function OrderList() {
         <div className="order-list-container">
             <h2 className="order-list-title">Đơn hàng của tôi</h2>
             {orders.length === 0 ? (
-                <p>Chưa có đơn hàng nào.</p>
-            ) : (
-                <table className="order-table">
-                    <thead>
-                        <tr>
-                            <th>Mã đơn</th>
-                            <th>Trạng thái</th>
-                            <th>Tổng tiền</th>
-                            <th>Ngày tạo</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {orders.map((o) => (
-                            <tr key={o.orderId}>
-                                <td>
-                                    <Link to={`/orders/${o.orderId}`} className="order-link">
-                                        {o.orderCode}
-                                    </Link>
-                                </td>
-                                <td>
-                                    <span className={`status ${o.status?.toLowerCase()}`}>{o.status}</span>
-                                </td>
-                                <td>{Number(o.grandTotal || 0).toLocaleString("vi-VN")} đ</td>
-                                <td>{o.createdAt ? new Date(o.createdAt).toLocaleString("vi-VN") : "--"}</td>
-                            </tr>
-                        ))}
-                    </tbody>
-                </table>
-            )}
+  <p>Chưa có đơn hàng nào.</p>
+) : (
+  <>
+    {["Pending", "Paid", "Packing", "Shipped", "Delivered", "Cancelled"].map((status) => {
+      const filtered = orders.filter((o) => o.status === status);
+      if (filtered.length === 0) return null;
+
+      return (
+        <div key={status} className="order-group">
+          <h3 className="status-header">{status}</h3>
+          <table className="order-table">
+            <thead>
+              <tr>
+                <th>Mã đơn</th>
+                <th>Trạng thái</th>
+                <th>Tổng tiền</th>
+                <th>Ngày tạo</th>
+              </tr>
+            </thead>
+            <tbody>
+              {filtered.map((o) => (
+                <tr key={o.orderId}>
+                  <td>
+                    <Link to={`/orders/${o.orderId}`} className="order-link">
+                      {o.orderCode}
+                    </Link>
+                  </td>
+                  <td>
+                    <span className={`status ${o.status?.toLowerCase()}`}>{o.status}</span>
+                  </td>
+                  <td>{Number(o.grandTotal || 0).toLocaleString("vi-VN")} đ</td>
+                  <td>{o.createdAt ? new Date(o.createdAt).toLocaleString("vi-VN") : "--"}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      );
+    })}
+  </>
+)}
         </div>
     );
 }
