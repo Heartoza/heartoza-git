@@ -17,7 +17,7 @@ export default function Contact() {
         <div className="contact-card">
           <i className="bi bi-envelope"></i>
           <h3>Email</h3>
-          <p>weelearn10@gmail.com</p>
+          <a href="mailto:weelearn10@gmail.com">Email</a>
         </div>
 
         <div className="contact-card">
@@ -35,9 +35,7 @@ export default function Contact() {
         <div className="contact-card">
           <i className="bi bi-facebook"></i>
           <h3>Facebook</h3>
-          <a href="https://facebook.com/heartoza" target="_blank" rel="noreferrer">
-            facebook.com/heartoza
-          </a>
+          <a href="https://www.facebook.com/profile.php?id=61581715259294" target="_blank" rel="noreferrer">Heartoza</a>
         </div>
       </div>
     </div>

@@ -48,23 +48,41 @@
 }
 
 .status {
-  font-weight: 500;
-  padding: 4px 8px;
-  border-radius: 6px;
   display: inline-block;
+  padding: 4px 10px;
+  border-radius: 8px;
+  font-weight: 600;
+  text-transform: capitalize;
+  font-size: 0.9rem;
 }
 
+/* từng trạng thái một */
 .status.pending {
-  background: #fef3c7; /* yellow-100 */
-  color: #92400e;     /* yellow-800 */
+  background-color: #fff6cc;
+  color: #b37400;
 }
 
-.status.completed {
-  background: #d1fae5; /* green-100 */
-  color: #065f46;     /* green-800 */
+.status.paid {
+  background-color: #e6f7ff;
+  color: #0077b6;
 }
 
-.status.canceled {
-  background: #fee2e2; /* red-100 */
-  color: #991b1b;     /* red-800 */
+.status.packing {
+  background-color: #f0f0f0;
+  color: #555;
+}
+
+.status.shipped {
+  background-color: #eaf7e9;
+  color: #2a8c37;
+}
+
+.status.delivered {
+  background-color: #d1ffd6;
+  color: #107c10;
+}
+
+.status.cancelled {
+  background-color: #ffeaea;
+  color: #c62828;
 }

@@ -1,16 +1,16 @@
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import "../css/Home.css";
+import api from "../../services/api";
 
 export default function Home() {
   const [featured, setFeatured] = useState([]);
 
   useEffect(() => {
-    fetch("https://localhost:7109/api/products/top-selling")
-      .then((res) => res.json())
-      .then((data) => {
+    api.get("/products/top-selling")
+      .then((res) => {
         // sort giảm dần theo totalSold rồi lấy top 3
-        const top3 = data
+        const top3 = res.data
           .sort((a, b) => b.totalSold - a.totalSold)
           .slice(0, 3);
         setFeatured(top3);

@@ -7,8 +7,7 @@ export default function Footer() {
         <p>© 2025 Heartoza. All rights reserved.</p>
         <div className="footer-links">
           <a href="mailto:weelearn10@gmail.com">Email</a>
-          <a href="https://facebook.com/heartoza" target="_blank" rel="noreferrer">Facebook</a>
-          <a href="https://instagram.com/heartoza" target="_blank" rel="noreferrer">Instagram</a>
+          <a href="https://www.facebook.com/profile.php?id=61581715259294" target="_blank" rel="noreferrer">Facebook</a>
         </div>
       </div>
     </footer>

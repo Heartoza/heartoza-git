@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { AdminService } from "../../services/adminService";
-import "../css/OrderDetail.css";
+import "../css/Admin.css";
+import http from "../../services/api"; // ✅ dùng client baseURL + token + refresh
 
 export default function AdminOrderDetail() {
   const { id } = useParams();
@@ -13,22 +14,33 @@ export default function AdminOrderDetail() {
   const statusList = ["Pending", "Paid", "Packing", "Shipped", "Delivered", "Cancelled"];
 
   useEffect(() => {
-    if (!id) return;
+  if (!id) return;
 
-    const fetchOrder = async () => {
-      try {
-        const data = await AdminService.getOrderById(id);
-        setOrder(data);
-        setNewStatus(data.status);
-      } catch (err) {
-        setError(err.message || "Không tải được chi tiết đơn hàng");
-      } finally {
-        setLoading(false);
+  const fetchOrder = async () => {
+    try {
+      const data = await AdminService.getOrderById(id);
+
+      // 🔹 Gọi thêm API địa chỉ
+      let address = null;
+      if (data.shippingAddressId) {
+        const resAddr = await http.get(
+          `orders/address/${data.shippingAddressId}`,
+          { validateStatus: (s) => (s >= 200 && s < 300) || s === 204 }
+        );
+        address = resAddr.status === 204 ? null : resAddr.data ?? null;
       }
-    };
 
-    fetchOrder();
-  }, [id]);
+      setOrder({ ...data, shippingAddress: address });
+      setNewStatus(data.status);
+    } catch (err) {
+      setError(err.message || "Không tải được chi tiết đơn hàng");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  fetchOrder();
+}, [id]);
 
   const handleUpdateStatus = async () => {
     try {
@@ -117,22 +129,24 @@ export default function AdminOrderDetail() {
 
       {/* Địa chỉ */}
       <div className="section">
-        <h3>Địa chỉ nhận hàng</h3>
-        {order.shippingAddress ? (
-          <div className="shipping-address">
-            <p><strong>{order.shippingAddress.fullName}</strong></p>
-            <p>{order.shippingAddress.line1}</p>
-            <p>{order.shippingAddress.district}, {order.shippingAddress.city}</p>
-            <p>
-              {order.shippingAddress.country}
-              {order.shippingAddress.postalCode ? ` • ${order.shippingAddress.postalCode}` : ""}
-            </p>
-            <p>📞 {order.shippingAddress.phone}</p>
-          </div>
-        ) : (
-          <p>Chưa có địa chỉ.</p>
-        )}
-      </div>
+                <h3>Địa chỉ nhận hàng</h3>
+                {order.shippingAddress ? (
+                    <div className="shipping-address">
+                        <p><strong>{order.shippingAddress.fullName}</strong></p>
+                        <p>{order.shippingAddress.line1}</p>
+                        <p>
+                            {order.shippingAddress.district}, {order.shippingAddress.city}
+                        </p>
+                        <p>
+                            {order.shippingAddress.country}
+                            {order.shippingAddress.postalCode ? ` • ${order.shippingAddress.postalCode}` : ""}
+                        </p>
+                        <p>📞 {order.shippingAddress.phone}</p>
+                    </div>
+                ) : (
+                    <p>Chưa có địa chỉ.</p>
+                )}
+            </div>
     </div>
   );
 }
