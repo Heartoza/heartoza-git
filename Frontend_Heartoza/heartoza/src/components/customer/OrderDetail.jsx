@@ -56,7 +56,13 @@ export default function OrderDetail() {
                     </span>
                 </p>
                 <p>Tổng tiền: {Number(order.grandTotal || 0).toLocaleString("vi-VN")} đ</p>
-                <p>Ngày tạo: {order.createdAt ? new Date(order.createdAt).toLocaleString("vi-VN") : "--"}</p>
+                <p>
+                    Ngày tạo:{" "}
+                    {order.createdAt
+                        ? new Date(new Date(order.createdAt).getTime() + 7 * 60 * 60 * 1000).toLocaleString("vi-VN")
+                        : "--"}
+                </p>
+
             </div>
 
             <div className="section">
