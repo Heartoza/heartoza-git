@@ -110,6 +110,11 @@ export default function AdminOrderDetail() {
           )}
         </ul>
       </div>
+      {/* Ghi chú đơn hàng */}
+<div className="section">
+  <h3>Ghi chú đơn hàng</h3>
+  <p>{order.comment ? order.comment : "Không có ghi chú nào."}</p>
+</div>
 
       {/* Giao hàng */}
       <div className="section">
