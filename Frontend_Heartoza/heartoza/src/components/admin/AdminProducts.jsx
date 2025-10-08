@@ -117,7 +117,7 @@ export default function AdminProducts() {
                                     <button className="btn ghost" onClick={() => setShowImagesFor(p)}>Xem ảnh</button>
                                     <Link to={`/admin/products/${p.productId}`} className="btn primary">Sửa</Link>
                                     {/* ✅ NÚT XÓA SẢN PHẨM */}
-                                    <button className="btn danger" onClick={() => handleDelete(p.productId, p.name)}>Xóa</button>
+                                    {/* <button className="btn danger" onClick={() => handleDelete(p.productId, p.name)}>Xóa</button> */}
                                 </td>
                             </tr>
                         ))

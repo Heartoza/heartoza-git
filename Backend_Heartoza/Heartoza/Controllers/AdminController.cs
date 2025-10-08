@@ -217,29 +217,60 @@ public class AdminController : ControllerBase
 
     // Sửa sản phẩm (input ProductDto)
     [HttpPut("products/{id:int}")]
-    public async Task<IActionResult> UpdateProduct(int id, [FromBody] ProductCreateDto req)
+    public async Task<IActionResult> UpdateProduct(int id, [FromBody] ProductUpdateDto req, CancellationToken ct = default)
     {
-        var prod = await _db.Products.FindAsync(id);
-        if (prod == null) return NotFound();
-
-        prod.Name = req.Name;
-        prod.Sku = req.Sku;
-        prod.Price = req.Price;
-        prod.CategoryId = req.CategoryId;
-
-        await _db.SaveChangesAsync();
-
-        return Ok(new
+        // 1. Tìm sản phẩm trong database
+        var prod = await _db.Products.FindAsync(new object[] { id }, ct);
+        if (prod == null)
         {
-            prod.ProductId,
-            prod.Name,
-            prod.Sku,
-            prod.Price,
-            prod.CategoryId,
-            prod.IsActive
-        });
-    }
+            return NotFound();
+        }
 
+        // 2. Kiểm tra và chỉ cập nhật những trường có giá trị
+
+        // Cập nhật Name nếu req.Name không phải là null
+        if (req.Name != null)
+        {
+            prod.Name = req.Name.Trim();
+        }
+
+        // Cập nhật Sku nếu req.Sku không phải là null
+        if (req.Sku != null)
+        {
+            var sku = req.Sku.Trim();
+            // Kiểm tra xem SKU mới có bị trùng với sản phẩm khác không
+            if (await _db.Products.AnyAsync(p => p.Sku == sku && p.ProductId != id, ct))
+            {
+                return BadRequest("SKU này đã tồn tại.");
+            }
+            prod.Sku = sku;
+        }
+
+        // Cập nhật Price nếu req.Price có giá trị
+        if (req.Price.HasValue)
+        {
+            if (req.Price.Value <= 0) return BadRequest("Giá phải lớn hơn 0.");
+            prod.Price = req.Price.Value;
+        }
+
+        // Cập nhật CategoryId nếu req.CategoryId có giá trị
+        if (req.CategoryId.HasValue)
+        {
+            prod.CategoryId = req.CategoryId.Value;
+        }
+
+        // Cập nhật IsActive nếu req.IsActive có giá trị
+        if (req.IsActive.HasValue)
+        {
+            prod.IsActive = req.IsActive.Value;
+        }
+
+        // 3. Lưu thay đổi vào database
+        await _db.SaveChangesAsync(ct);
+
+        // 4. Trả về toàn bộ thông tin sản phẩm đã được cập nhật
+        return Ok(prod);
+    }
 
     [HttpDelete("products/{id:int}")]
     public async Task<IActionResult> DeleteProduct(int id)

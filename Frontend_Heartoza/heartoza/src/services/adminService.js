@@ -27,6 +27,9 @@ export const AdminService = {
     getProducts: (page = 1, pageSize = 20, q = "") =>
         api.get(`/admin/products?page=${page}&pageSize=${pageSize}&q=${q}`).then(r => r.data),
 
+    getProductById: (id) =>
+        api.get(`/admin/products/${id}`).then(r => r.data),
+
     createProduct: (p) =>
         api.post(`/admin/products`, p).then(r => r.data),
 

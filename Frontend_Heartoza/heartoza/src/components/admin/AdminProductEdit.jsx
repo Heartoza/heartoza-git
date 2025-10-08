@@ -18,8 +18,6 @@ export default function AdminProductEdit() {
     const [loading, setLoading] = useState(!isNew);
     const [error, setError] = useState('');
     const [saving, setSaving] = useState(false);
-    
-    // ✅ STATE MỚI ĐỂ HIỂN THỊ ẢNH
     const [productImages, setProductImages] = useState([]);
     const [showImagesModal, setShowImagesModal] = useState(false);
 
@@ -39,8 +37,6 @@ export default function AdminProductEdit() {
                     isActive: productDetail.isActive,
                     description: productDetail.description || ''
                 });
-
-                // ✅ TẢI DANH SÁCH ẢNH CỦA SẢN PHẨM
                 const images = await AdminService.getProductImages(id);
                 setProductImages(images || []);
             }
@@ -65,7 +61,6 @@ export default function AdminProductEdit() {
         e.preventDefault();
         setError('');
         setSaving(true);
-        
         try {
             const payload = { ...formData, price: Number(formData.price) };
             if (isNew) {
@@ -83,11 +78,9 @@ export default function AdminProductEdit() {
         }
     };
     
-    // ✅ Hàm để tải lại ảnh sau khi modal quản lý ảnh đóng lại
     const handleImageModalClose = () => {
         setShowImagesModal(false);
         if (!isNew) {
-            // Tải lại danh sách ảnh để cập nhật thay đổi
             AdminService.getProductImages(id).then(setProductImages);
         }
     };
@@ -102,15 +95,57 @@ export default function AdminProductEdit() {
             </div>
             
             <form onSubmit={handleSubmit} className="admin-form-layout">
+                {/* ✅ BỎ COMMENT VÀ HIỂN THỊ CỘT TRÁI */}
                 <div className="form-main-column">
-                    {/* ... Các card thông tin cơ bản, giá & phân loại giữ nguyên ... */}
+                    <div className="form-card">
+                        <h3>Thông tin cơ bản</h3>
+                        <div className="form-group">
+                            <label>Tên sản phẩm</label>
+                            <input name="name" value={formData.name} onChange={handleChange} required />
+                        </div>
+                        <div className="form-group">
+                            <label>Mô tả</label>
+                            <textarea name="description" value={formData.description} onChange={handleChange} rows="5" />
+                        </div>
+                    </div>
+                    <div className="form-card">
+                        <h3>Giá & Phân loại</h3>
+                        <div className="form-row">
+                            <div className="form-group">
+                                <label>SKU</label>
+                                <input name="sku" value={formData.sku} onChange={handleChange} />
+                            </div>
+                            <div className="form-group">
+                                <label>Giá (VNĐ)</label>
+                                <input name="price" type="number" value={formData.price} onChange={handleChange} required />
+                            </div>
+                        </div>
+                        <div className="form-group">
+                            <label>Danh mục</label>
+                            <select name="categoryId" value={formData.categoryId || ''} onChange={handleChange}>
+                                <option value="">-- Chọn danh mục --</option>
+                                {categories.map(cat => (
+                                    <option key={cat.categoryId} value={cat.categoryId}>{cat.name}</option>
+                                ))}
+                            </select>
+                        </div>
+                    </div>
                 </div>
+
+                {/* ✅ BỎ COMMENT VÀ HIỂN THỊ CỘT PHẢI */}
                 <div className="form-side-column">
                     <div className="form-card">
-                        {/* ... Card Trạng thái giữ nguyên ... */}
+                        <h3>Trạng thái</h3>
+                        <div className="form-group toggle-switch">
+                            <label htmlFor="isActive">
+                                {formData.isActive ? '✅ Đang hoạt động' : '⛔ Đã ẩn'}
+                            </label>
+                            <input type="checkbox" id="isActive" name="isActive" checked={formData.isActive} onChange={handleChange} className="switch" />
+                        </div>
+                        <p className="form-hint">
+                            Khi sản phẩm bị ẩn, nó sẽ không hiển thị trên trang bán hàng.
+                        </p>
                     </div>
-
-                    {/* ✅ MỤC HIỂN THỊ VÀ QUẢN LÝ ẢNH */}
                     {!isNew && (
                         <div className="form-card">
                             <h3>Hình ảnh sản phẩm</h3>

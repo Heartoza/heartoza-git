@@ -35,6 +35,7 @@ export default function ProductList() {
         try {
             const res = await http.get("Products", {
                 params: {
+                    isActive: true,
                     ...(categoryId && { categoryId }),
                     ...(search && { q: search }),
                 },
