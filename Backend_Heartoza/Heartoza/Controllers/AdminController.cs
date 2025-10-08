@@ -1,10 +1,13 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using Heartoza.DTO.Categories;
+using Heartoza.DTO.Orders;
+using Heartoza.DTO.Products;
+using Heartoza.Models;
+using Heartoza.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Heartoza.Models;
-using Heartoza.DTO.Products;
-using Heartoza.DTO.Categories;
-using Heartoza.DTO.Orders;
+using Microsoft.Extensions.Options;
+using Microsoft.Identity.Client.Extensions.Msal;
 
 namespace Heartoza.Controllers;
 
@@ -13,9 +16,15 @@ namespace Heartoza.Controllers;
 [Authorize(Roles = "Admin")] // chỉ Admin
 public class AdminController : ControllerBase
 {
+    private readonly IAvatarStorage _storage;               // tái dùng dịch vụ blob đã làm
+    private readonly AzureStorageOptions _az;
     private readonly GiftBoxShopContext _db;
-    public AdminController(GiftBoxShopContext db) => _db = db;
-
+    public AdminController(GiftBoxShopContext db, IAvatarStorage storage, IOptions<AzureStorageOptions> az)
+    {
+        _db = db;
+        _storage = storage;
+        _az = az.Value;
+    }
     // ========================== USER MANAGEMENT ==========================
 
     [HttpGet("users")]
@@ -414,5 +423,163 @@ public class AdminController : ControllerBase
         return Ok(order);
     }
 
+    [HttpGet("products/{id:int}/images")]
+    public async Task<IActionResult> GetProductImages(int id, CancellationToken ct)
+    {
+        var images = await _db.ProductMedia
+            .AsNoTracking()
+            .Where(pm => pm.ProductId == id)
+            .OrderByDescending(pm => pm.IsPrimary)
+            .ThenBy(pm => pm.SortOrder)
+            .Select(pm => new {
+                pm.ProductMediaId,
+                pm.MediaId,
+                pm.IsPrimary,
+                pm.SortOrder,
+                BlobPath = pm.Media.BlobPath
+            })
+            .ToListAsync(ct);
 
+        // cấp SAS 10'
+        var result = images.Select(x =>
+        {
+            string url;
+            try
+            {
+                if (_storage is BlobAvatarStorage blobSvc && !string.IsNullOrWhiteSpace(x.BlobPath))
+                    url = blobSvc.GenerateReadSasUrl(x.BlobPath, 10);
+                else
+                    url = $"{(_az.BaseUrl ?? "").TrimEnd('/')}/{x.BlobPath}";
+            }
+            catch
+            {
+                url = $"{(_az.BaseUrl ?? "").TrimEnd('/')}/{x.BlobPath}";
+            }
+            return new { x.ProductMediaId, x.MediaId, x.IsPrimary, x.SortOrder, Url = url };
+        });
+
+        return Ok(result);
+    }
+    [HttpPost("products/{id:int}/images")]
+    [Consumes("multipart/form-data")]
+    [RequestSizeLimit(10_000_000)]
+    public async Task<IActionResult> UploadProductImage(int id, [FromForm] ProductImageUploadRequest req, CancellationToken ct)
+    {
+        var prod = await _db.Products.FindAsync(new object[] { id }, ct);
+        if (prod == null) return NotFound("Product not found");
+
+        if (req.file == null || req.file.Length == 0) return BadRequest("Không có file.");
+        var allowed = new[] { "image/png", "image/jpeg", "image/webp" };
+        var mime = (req.file.ContentType ?? "").ToLowerInvariant();
+        if (!allowed.Contains(mime)) return BadRequest("Định dạng ảnh không hỗ trợ.");
+
+        await using var s = req.file.OpenReadStream();
+        var uploadedUrl = await _storage.UploadAsync(s, mime, req.file.FileName, ct);
+        var blobName = Path.GetFileName(new Uri(uploadedUrl).AbsolutePath);
+
+        var media = new Medium
+        {
+            Container = _az.Container ?? "avatars", // hoặc product-images nếu anh tách
+            BlobPath = blobName,
+            FileName = req.file.FileName,
+            ContentType = mime,
+            ByteSize = req.file.Length,
+            SourceType = "blob",
+            ExternalUrl = null,
+            Status = "imported",
+            CreatedAt = DateTime.UtcNow
+        };
+        _db.Media.Add(media);
+        await _db.SaveChangesAsync(ct);
+
+        if (req.AsPrimary)
+        {
+            var all = _db.ProductMedia.Where(pm => pm.ProductId == id);
+            await all.ForEachAsync(pm => pm.IsPrimary = false, ct);
+        }
+
+        var link = new ProductMedium
+        {
+            ProductId = id,
+            MediaId = media.MediaId,
+            IsPrimary = req.AsPrimary,
+            SortOrder = 0,
+            CreatedAt = DateTime.UtcNow
+        };
+        _db.ProductMedia.Add(link);
+        await _db.SaveChangesAsync(ct);
+
+        // trả SAS 10'
+        string url;
+        try
+        {
+            if (_storage is BlobAvatarStorage blobSvc)
+                url = blobSvc.GenerateReadSasUrl(media.BlobPath, 10);
+            else
+                url = $"{(_az.BaseUrl ?? "").TrimEnd('/')}/{media.BlobPath}";
+        }
+        catch
+        {
+            url = $"{(_az.BaseUrl ?? "").TrimEnd('/')}/{media.BlobPath}";
+        }
+
+        return Ok(new { message = "Đã thêm ảnh sản phẩm.", productMediaId = link.ProductMediaId, mediaId = media.MediaId, url });
+    }
+
+    [HttpPost("products/{id:int}/images/set-primary")]
+    public async Task<IActionResult> SetPrimaryProductImage(int id, [FromBody] ProductSetPrimaryReq req, CancellationToken ct)
+    {
+        var link = await _db.ProductMedia.FirstOrDefaultAsync(pm => pm.ProductId == id && pm.ProductMediaId == req.ProductMediaId, ct);
+        if (link == null) return NotFound("Ảnh không thuộc sản phẩm này.");
+
+        var all = _db.ProductMedia.Where(pm => pm.ProductId == id);
+        await all.ForEachAsync(pm => pm.IsPrimary = false, ct);
+
+        link.IsPrimary = true;
+        await _db.SaveChangesAsync(ct);
+
+        return Ok(new { message = "Đã đặt ảnh chính." });
+    }
+
+    [HttpDelete("products/{id:int}/images/{productMediaId:long}")]
+    public async Task<IActionResult> DeleteProductImage(int id, long productMediaId, CancellationToken ct)
+    {
+        var link = await _db.ProductMedia.FirstOrDefaultAsync(pm => pm.ProductId == id && pm.ProductMediaId == productMediaId, ct);
+        if (link == null) return NotFound();
+
+        var mediaId = link.MediaId;
+
+        _db.ProductMedia.Remove(link);
+        await _db.SaveChangesAsync(ct);
+
+        var stillUsed = await _db.ProductMedia.AnyAsync(pm => pm.MediaId == mediaId, ct);
+        if (!stillUsed)
+        {
+            var m = await _db.Media.FirstOrDefaultAsync(x => x.MediaId == mediaId, ct);
+            if (m != null)
+            {
+                try { await _storage.DeleteAsync(m.BlobPath, ct); } catch { /* ignore */ }
+                _db.Attach(m);
+                _db.Media.Remove(m);
+                await _db.SaveChangesAsync(ct);
+            }
+        }
+
+        return Ok(new { message = "Đã xoá ảnh." });
+    }
+
+    [HttpPatch("products/{id:int}/images/reorder")]
+    public async Task<IActionResult> ReorderImages(int id, [FromBody] ReorderRequest req, CancellationToken ct)
+    {
+        var ids = req.Items.Select(x => x.ProductMediaId).ToHashSet();
+        var links = await _db.ProductMedia.Where(pm => pm.ProductId == id && ids.Contains(pm.ProductMediaId)).ToListAsync(ct);
+        if (links.Count != ids.Count) return BadRequest("Danh sách không hợp lệ.");
+
+        foreach (var l in links)
+        {
+            l.SortOrder = req.Items.First(x => x.ProductMediaId == l.ProductMediaId).SortOrder;
+        }
+        await _db.SaveChangesAsync(ct);
+        return Ok(new { message = "Đã sắp xếp lại thứ tự ảnh." });
+    }
 }

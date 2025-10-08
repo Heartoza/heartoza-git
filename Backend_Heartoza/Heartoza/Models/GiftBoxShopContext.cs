@@ -6,10 +6,6 @@ namespace Heartoza.Models;
 
 public partial class GiftBoxShopContext : DbContext
 {
-    public GiftBoxShopContext()
-    {
-    }
-
     public GiftBoxShopContext(DbContextOptions<GiftBoxShopContext> options)
         : base(options)
     {
@@ -31,6 +27,8 @@ public partial class GiftBoxShopContext : DbContext
 
     public virtual DbSet<LoginAttempt> LoginAttempts { get; set; }
 
+    public virtual DbSet<Medium> Media { get; set; }
+
     public virtual DbSet<Order> Orders { get; set; }
 
     public virtual DbSet<OrderItem> OrderItems { get; set; }
@@ -41,19 +39,21 @@ public partial class GiftBoxShopContext : DbContext
 
     public virtual DbSet<Product> Products { get; set; }
 
+    public virtual DbSet<ProductMedium> ProductMedia { get; set; }
+
     public virtual DbSet<RefreshToken> RefreshTokens { get; set; }
 
     public virtual DbSet<Shipment> Shipments { get; set; }
 
     public virtual DbSet<User> Users { get; set; }
 
-    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-    { }
+    public virtual DbSet<UserMedium> UserMedia { get; set; }
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<Address>(entity =>
         {
-            entity.HasKey(e => e.AddressId).HasName("PK__Addresse__091C2AFBF898B1D4");
+            entity.HasKey(e => e.AddressId).HasName("PK__Addresse__091C2AFB411F48D2");
 
             entity.HasIndex(e => e.UserId, "IX_Address_UserId");
 
@@ -76,7 +76,7 @@ public partial class GiftBoxShopContext : DbContext
 
         modelBuilder.Entity<AuditLog>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__AuditLog__3214EC07CAA6B983");
+            entity.HasKey(e => e.Id).HasName("PK__AuditLog__3214EC073A2CE4F6");
 
             entity.HasIndex(e => new { e.UserId, e.CreatedAt }, "IX_AuditLogs_UserTime");
 
@@ -92,7 +92,7 @@ public partial class GiftBoxShopContext : DbContext
 
         modelBuilder.Entity<Cart>(entity =>
         {
-            entity.HasKey(e => e.CartId).HasName("PK__Carts__51BCD7B77FD6532E");
+            entity.HasKey(e => e.CartId).HasName("PK__Carts__51BCD7B7624448C0");
 
             entity.Property(e => e.CreatedAt).HasDefaultValueSql("(sysutcdatetime())");
 
@@ -103,7 +103,7 @@ public partial class GiftBoxShopContext : DbContext
 
         modelBuilder.Entity<CartItem>(entity =>
         {
-            entity.HasKey(e => e.CartItemId).HasName("PK__CartItem__488B0B0A2C983F5A");
+            entity.HasKey(e => e.CartItemId).HasName("PK__CartItem__488B0B0A370566FF");
 
             entity.Property(e => e.LineTotal)
                 .HasComputedColumnSql("([Quantity]*[UnitPrice])", true)
@@ -123,7 +123,7 @@ public partial class GiftBoxShopContext : DbContext
 
         modelBuilder.Entity<Category>(entity =>
         {
-            entity.HasKey(e => e.CategoryId).HasName("PK__Categori__19093A0B0F082D9B");
+            entity.HasKey(e => e.CategoryId).HasName("PK__Categori__19093A0BF7600954");
 
             entity.Property(e => e.Name).HasMaxLength(200);
 
@@ -134,9 +134,9 @@ public partial class GiftBoxShopContext : DbContext
 
         modelBuilder.Entity<EmailVerification>(entity =>
         {
-            entity.HasKey(e => e.EmailVerificationId).HasName("PK__EmailVer__C899D2532D0CFB20");
+            entity.HasKey(e => e.EmailVerificationId).HasName("PK__EmailVer__C899D253807EA443");
 
-            entity.HasIndex(e => e.Token, "UQ_EmailVerifications_Token").IsUnique();
+            entity.HasIndex(e => e.Token, "UQ__EmailVer__1EB4F81734520B15").IsUnique();
 
             entity.Property(e => e.CreatedAt).HasDefaultValueSql("(sysutcdatetime())");
             entity.Property(e => e.Token)
@@ -150,7 +150,7 @@ public partial class GiftBoxShopContext : DbContext
 
         modelBuilder.Entity<Inventory>(entity =>
         {
-            entity.HasKey(e => e.ProductId).HasName("PK__Inventor__B40CC6CD0D9C0FCC");
+            entity.HasKey(e => e.ProductId).HasName("PK__Inventor__B40CC6CD9AC8D7F9");
 
             entity.ToTable("Inventory");
 
@@ -164,7 +164,7 @@ public partial class GiftBoxShopContext : DbContext
 
         modelBuilder.Entity<LoginAttempt>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__LoginAtt__3214EC073E12A69C");
+            entity.HasKey(e => e.Id).HasName("PK__LoginAtt__3214EC07CFF0FFC5");
 
             entity.HasIndex(e => new { e.Email, e.CreatedAt }, "IX_LoginAttempts_EmailTime");
 
@@ -177,26 +177,47 @@ public partial class GiftBoxShopContext : DbContext
             entity.Property(e => e.Ip).HasMaxLength(64);
         });
 
+        modelBuilder.Entity<Medium>(entity =>
+        {
+            entity.HasKey(e => e.MediaId).HasName("PK__Media__B2C2B5CF7DF159AB");
+
+            entity.HasIndex(e => new { e.Container, e.BlobPath }, "IX_Media_ContainerPath");
+
+            entity.Property(e => e.BlobPath).HasMaxLength(512);
+            entity.Property(e => e.Container).HasMaxLength(100);
+            entity.Property(e => e.ContentType).HasMaxLength(100);
+            entity.Property(e => e.CreatedAt)
+                .HasPrecision(3)
+                .HasDefaultValueSql("(sysutcdatetime())");
+            entity.Property(e => e.ExternalUrl).HasMaxLength(1000);
+            entity.Property(e => e.FileName).HasMaxLength(255);
+            entity.Property(e => e.SourceType)
+                .HasMaxLength(20)
+                .HasDefaultValue("blob");
+            entity.Property(e => e.Status)
+                .HasMaxLength(20)
+                .HasDefaultValue("imported");
+            entity.Property(e => e.StorageAccount)
+                .HasMaxLength(100)
+                .HasDefaultValue("");
+        });
+
         modelBuilder.Entity<Order>(entity =>
         {
-            entity.HasKey(e => e.OrderId).HasName("PK__Orders__C3905BCFE4B1BB21");
+            entity.HasKey(e => e.OrderId).HasName("PK__Orders__C3905BCFA0059193");
 
             entity.HasIndex(e => e.ShippingAddressId, "IX_Order_ShippingAddrId");
 
             entity.HasIndex(e => e.UserId, "IX_Order_UserId");
 
-            entity.HasIndex(e => e.OrderCode, "UQ_Orders_OrderCode").IsUnique();
-
-            entity.HasIndex(e => e.OrderCode, "UQ__Orders__999B5229CC12D0D6").IsUnique();
+            entity.HasIndex(e => e.OrderCode, "UQ__Orders__999B522923652D7E").IsUnique();
 
             entity.Property(e => e.CreatedAt).HasDefaultValueSql("(sysutcdatetime())");
             entity.Property(e => e.GrandTotal).HasColumnType("decimal(18, 2)");
             entity.Property(e => e.OrderCode)
                 .HasMaxLength(32)
                 .IsUnicode(false);
-            entity.Property(e => e.ShippingFee)
-                .HasDefaultValue(0m)
-                .HasColumnType("decimal(18, 2)");
+            entity.Property(e => e.ShippingFee).HasColumnType("decimal(18, 2)");
             entity.Property(e => e.Status)
                 .HasMaxLength(30)
                 .IsUnicode(false)
@@ -216,7 +237,7 @@ public partial class GiftBoxShopContext : DbContext
 
         modelBuilder.Entity<OrderItem>(entity =>
         {
-            entity.HasKey(e => e.OrderItemId).HasName("PK__OrderIte__57ED0681F051B5D4");
+            entity.HasKey(e => e.OrderItemId).HasName("PK__OrderIte__57ED0681E387504B");
 
             entity.HasIndex(e => e.OrderId, "IX_OrderItem_OrderId");
 
@@ -240,11 +261,11 @@ public partial class GiftBoxShopContext : DbContext
 
         modelBuilder.Entity<PasswordReset>(entity =>
         {
-            entity.HasKey(e => e.ResetId).HasName("PK__Password__783CF04DF6B68D07");
+            entity.HasKey(e => e.ResetId).HasName("PK__Password__783CF04D0D5B7549");
 
             entity.HasIndex(e => e.Token, "IX_PasswordResets_Token");
 
-            entity.HasIndex(e => e.Token, "UQ__Password__1EB4F817D7DE7B09").IsUnique();
+            entity.HasIndex(e => e.Token, "UQ__Password__1EB4F81727991CE7").IsUnique();
 
             entity.Property(e => e.CreatedAt).HasDefaultValueSql("(sysutcdatetime())");
             entity.Property(e => e.Token)
@@ -258,7 +279,7 @@ public partial class GiftBoxShopContext : DbContext
 
         modelBuilder.Entity<Payment>(entity =>
         {
-            entity.HasKey(e => e.PaymentId).HasName("PK__Payments__9B556A3880DDDC44");
+            entity.HasKey(e => e.PaymentId).HasName("PK__Payments__9B556A3844CC07A8");
 
             entity.Property(e => e.Amount).HasColumnType("decimal(18, 2)");
             entity.Property(e => e.CreatedAt).HasDefaultValueSql("(sysutcdatetime())");
@@ -278,11 +299,11 @@ public partial class GiftBoxShopContext : DbContext
 
         modelBuilder.Entity<Product>(entity =>
         {
-            entity.HasKey(e => e.ProductId).HasName("PK__Products__B40CC6CDE1B808C1");
+            entity.HasKey(e => e.ProductId).HasName("PK__Products__B40CC6CD0F394B00");
 
             entity.HasIndex(e => e.CategoryId, "IX_Product_CategoryId");
 
-            entity.HasIndex(e => e.Sku, "UQ__Products__CA1ECF0DF34DCC3F").IsUnique();
+            entity.HasIndex(e => e.Sku, "UQ__Products__CA1ECF0D7D1F6DFF").IsUnique();
 
             entity.Property(e => e.CreatedAt).HasDefaultValueSql("(sysutcdatetime())");
             entity.Property(e => e.IsActive).HasDefaultValue(true);
@@ -299,13 +320,34 @@ public partial class GiftBoxShopContext : DbContext
                 .HasConstraintName("FK_Product_Category");
         });
 
+        modelBuilder.Entity<ProductMedium>(entity =>
+        {
+            entity.HasKey(e => e.ProductMediaId).HasName("PK__ProductM__B583D85326303865");
+
+            entity.HasIndex(e => new { e.ProductId, e.IsPrimary, e.SortOrder }, "IX_ProductMedia_Product");
+
+            entity.HasIndex(e => new { e.ProductId, e.MediaId }, "UQ_ProductMedia_Unique").IsUnique();
+
+            entity.Property(e => e.CreatedAt)
+                .HasPrecision(3)
+                .HasDefaultValueSql("(sysutcdatetime())");
+
+            entity.HasOne(d => d.Media).WithMany(p => p.ProductMedia)
+                .HasForeignKey(d => d.MediaId)
+                .HasConstraintName("FK_ProductMedia_Media");
+
+            entity.HasOne(d => d.Product).WithMany(p => p.ProductMedia)
+                .HasForeignKey(d => d.ProductId)
+                .HasConstraintName("FK_ProductMedia_Product");
+        });
+
         modelBuilder.Entity<RefreshToken>(entity =>
         {
-            entity.HasKey(e => e.RefreshTokenId).HasName("PK__RefreshT__F5845E39CD854B10");
+            entity.HasKey(e => e.RefreshTokenId).HasName("PK__RefreshT__F5845E39B50C9723");
 
             entity.HasIndex(e => new { e.UserId, e.RevokedAt }, "IX_RefreshTokens_User_Active").HasFilter("([RevokedAt] IS NULL)");
 
-            entity.HasIndex(e => e.Token, "UQ_RefreshTokens_Token").IsUnique();
+            entity.HasIndex(e => e.Token, "UQ__RefreshT__1EB4F817F853C7B2").IsUnique();
 
             entity.Property(e => e.CreatedAt).HasDefaultValueSql("(sysutcdatetime())");
             entity.Property(e => e.Ip).HasMaxLength(64);
@@ -321,7 +363,7 @@ public partial class GiftBoxShopContext : DbContext
 
         modelBuilder.Entity<Shipment>(entity =>
         {
-            entity.HasKey(e => e.ShipmentId).HasName("PK__Shipment__5CAD37EDC3FF6B15");
+            entity.HasKey(e => e.ShipmentId).HasName("PK__Shipment__5CAD37EDB1AF919E");
 
             entity.Property(e => e.Carrier)
                 .HasMaxLength(50)
@@ -343,11 +385,10 @@ public partial class GiftBoxShopContext : DbContext
 
         modelBuilder.Entity<User>(entity =>
         {
-            entity.HasKey(e => e.UserId).HasName("PK__Users__1788CC4C1F9765D3");
+            entity.HasKey(e => e.UserId).HasName("PK__Users__1788CC4C58FA5C37");
 
-            entity.HasIndex(e => e.Email, "UQ__Users__A9D1053442213D44").IsUnique();
+            entity.HasIndex(e => e.Email, "UQ__Users__A9D1053475C9AF02").IsUnique();
 
-            entity.Property(e => e.AvatarUrl).HasMaxLength(500);
             entity.Property(e => e.CreatedAt).HasDefaultValueSql("(sysutcdatetime())");
             entity.Property(e => e.Email)
                 .HasMaxLength(255)
@@ -364,6 +405,27 @@ public partial class GiftBoxShopContext : DbContext
                 .HasMaxLength(30)
                 .IsUnicode(false)
                 .HasDefaultValue("Customer");
+        });
+
+        modelBuilder.Entity<UserMedium>(entity =>
+        {
+            entity.HasKey(e => e.UserMediaId).HasName("PK__UserMedi__9525267884F322D9");
+
+            entity.HasIndex(e => new { e.UserId, e.IsPrimary, e.SortOrder }, "IX_UserMedia_User");
+
+            entity.HasIndex(e => new { e.UserId, e.MediaId }, "UQ_UserMedia_Unique").IsUnique();
+
+            entity.Property(e => e.CreatedAt)
+                .HasPrecision(3)
+                .HasDefaultValueSql("(sysutcdatetime())");
+
+            entity.HasOne(d => d.Media).WithMany(p => p.UserMedia)
+                .HasForeignKey(d => d.MediaId)
+                .HasConstraintName("FK_UserMedia_Media");
+
+            entity.HasOne(d => d.User).WithMany(p => p.UserMedia)
+                .HasForeignKey(d => d.UserId)
+                .HasConstraintName("FK_UserMedia_User");
         });
 
         OnModelCreatingPartial(modelBuilder);

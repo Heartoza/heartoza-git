@@ -116,7 +116,13 @@ export default function ProductList() {
                             style={{ cursor: "pointer" }}
                         >
                             <img
-                                src={p.imageUrl && p.imageUrl.trim() !== "" ? p.imageUrl : "/img/no-image.png"}
+                                src={
+                                    (p.thumbnailUrl && p.thumbnailUrl.trim() !== "")
+                                        ? p.thumbnailUrl
+                                        : (p.imageUrl && p.imageUrl.trim() !== "")
+                                            ? p.imageUrl
+                                            : "/img/no-image.png"
+                                }
                                 alt={p.name}
                                 className="product-img"
                             />

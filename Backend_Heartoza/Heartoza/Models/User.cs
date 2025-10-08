@@ -21,8 +21,6 @@ public partial class User
 
     public DateTime? CreatedAt { get; set; }
 
-    public string? AvatarUrl { get; set; }
-
     public DateTime? LastLoginAt { get; set; }
 
     public virtual ICollection<Address> Addresses { get; set; } = new List<Address>();
@@ -38,4 +36,6 @@ public partial class User
     public virtual ICollection<PasswordReset> PasswordResets { get; set; } = new List<PasswordReset>();
 
     public virtual ICollection<RefreshToken> RefreshTokens { get; set; } = new List<RefreshToken>();
+
+    public virtual ICollection<UserMedium> UserMedia { get; set; } = new List<UserMedium>();
 }

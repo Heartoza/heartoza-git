@@ -1,21 +1,48 @@
-﻿using System;
+﻿using Heartoza.DTO.Products;
+using Heartoza.Models;
+using Heartoza.Services;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
+using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Collections.Generic;
-using Heartoza.Models;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using Heartoza.DTO.Products;
 
 [ApiController]
 [Route("api/[controller]")]
 public class ProductsController : ControllerBase
 {
+    private readonly IAvatarStorage _storage;
+    private readonly AzureStorageOptions _az;
     private readonly GiftBoxShopContext _db;
-    public ProductsController(GiftBoxShopContext db) => _db = db;
+    public ProductsController(GiftBoxShopContext db, IAvatarStorage storage, IOptions<AzureStorageOptions> az)
+    {
+        _db = db;
+        _storage = storage;
+        _az = az.Value;
+    }
 
-    // GET /api/products?categoryId=1&categoryIds=2&categoryIds=3&q=tra&minPrice=10000&maxPrice=90000&active=true&page=1&pageSize=20&sort=name
+    private string BuildImageUrl(string? blobPath, int minutes = 10)
+    {
+        if (string.IsNullOrWhiteSpace(blobPath))
+            return string.Empty;
+
+        try
+        {
+            if (_storage is BlobAvatarStorage blobSvc)
+                return blobSvc.GenerateReadSasUrl(blobPath, minutes);
+        }
+        catch
+        {
+            // ignore
+        }
+        // fallback khi container public hoặc không tạo được SAS
+        return $"{(_az.BaseUrl ?? "").TrimEnd('/')}/{blobPath}".Replace("//", "/");
+    }
+
+    // GET /api/products ...
     [HttpGet]
     public async Task<IActionResult> Get(
         [FromQuery] int? categoryId,
@@ -34,18 +61,14 @@ public class ProductsController : ControllerBase
 
         var query = _db.Products.AsNoTracking().AsQueryable();
 
-        // trạng thái
-        query = active is null
-            ? query.Where(p => p.IsActive == true)
-            : query.Where(p => p.IsActive == active.Value);
+        query = active is null ? query.Where(p => p.IsActive == true)
+                               : query.Where(p => p.IsActive == active.Value);
 
-        // category
         if (categoryId.HasValue)
             query = query.Where(p => p.CategoryId == categoryId.Value);
         if (categoryIds is { Count: > 0 })
             query = query.Where(p => categoryIds.Contains(p.CategoryId));
 
-        // keyword
         if (!string.IsNullOrWhiteSpace(q))
         {
             var pattern = $"%{q.Trim()}%";
@@ -53,11 +76,9 @@ public class ProductsController : ControllerBase
                                      EF.Functions.Like(p.Sku, pattern));
         }
 
-        // price range
         if (minPrice.HasValue) query = query.Where(p => p.Price >= minPrice.Value);
         if (maxPrice.HasValue) query = query.Where(p => p.Price <= maxPrice.Value);
 
-        // sort
         query = sort?.ToLowerInvariant() switch
         {
             "price" => query.OrderBy(p => p.Price).ThenBy(p => p.Name),
@@ -73,51 +94,118 @@ public class ProductsController : ControllerBase
         var total = await query.CountAsync(ct);
         var totalPages = (int)Math.Ceiling(total / (double)pageSize);
 
-        var items = await query
+        // Lấy thêm primaryBlobPath để build URL bên ngoài DB
+        var rows = await query
             .Skip((page - 1) * pageSize)
             .Take(pageSize)
-            .Select(p => new ProductDto
+            .Select(p => new
             {
-                ProductId = p.ProductId,
-                Name = p.Name,
-                Sku = p.Sku,
-                Price = p.Price,
-                CategoryId = p.CategoryId,
-                IsActive = p.IsActive,
-                CreatedAt = p.CreatedAt
+                p.ProductId,
+                p.Name,
+                p.Sku,
+                p.Price,
+                p.CategoryId,
+                p.IsActive,
+                p.CreatedAt,
+                PrimaryBlobPath = _db.ProductMedia
+                    .Where(pm => pm.ProductId == p.ProductId)
+                    .OrderByDescending(pm => pm.IsPrimary)
+                    .ThenBy(pm => pm.SortOrder)
+                    .Select(pm => pm.Media.BlobPath)
+                    .FirstOrDefault()
             })
             .ToListAsync(ct);
+
+        var items = rows.Select(r => new ProductDto
+        {
+            ProductId = r.ProductId,
+            Name = r.Name,
+            Sku = r.Sku,
+            Price = r.Price,
+            CategoryId = r.CategoryId,
+            IsActive = r.IsActive,
+            CreatedAt = r.CreatedAt,
+            // cần property mới trong DTO:
+            ThumbnailUrl = BuildImageUrl(r.PrimaryBlobPath, 10)
+        }).ToList();
 
         return Ok(new { page, pageSize, total, totalPages, items });
     }
 
-    // GET /api/products/{id}?includeInactive=false
+
+    // GET /api/products/{id}
     [HttpGet("{id:int}")]
     public async Task<IActionResult> GetById(int id, [FromQuery] bool includeInactive = false, CancellationToken ct = default)
     {
-        var product = await _db.Products
+        // lấy info cơ bản
+        var core = await _db.Products
             .AsNoTracking()
             .Where(x => x.ProductId == id && (includeInactive || x.IsActive == true))
-            .Select(x => new ProductDetailResponse
+            .Select(x => new
             {
-                ProductId = x.ProductId,
-                Name = x.Name,
-                Sku = x.Sku,
-                Price = x.Price,
-                CategoryId = x.CategoryId,
-                CategoryName = _db.Categories.Where(c => c.CategoryId == x.CategoryId)
-                                             .Select(c => c.Name)
-                                             .FirstOrDefault()!,
-                IsActive = x.IsActive,
-                CreatedAt = x.CreatedAt,
-                OnHand = _db.Inventories.Where(i => i.ProductId == x.ProductId)
-                                              .Select(i => (int?)i.Quantity)
-                                              .FirstOrDefault() ?? 0
+                x.ProductId,
+                x.Name,
+                x.Sku,
+                x.Price,
+                x.CategoryId,
+                CategoryName = _db.Categories.Where(c => c.CategoryId == x.CategoryId).Select(c => c.Name).FirstOrDefault()!,
+                x.IsActive,
+                x.CreatedAt,
+                OnHand = _db.Inventories.Where(i => i.ProductId == x.ProductId).Select(i => (int?)i.Quantity).FirstOrDefault() ?? 0,
+                PrimaryBlobPath = _db.ProductMedia
+                    .Where(pm => pm.ProductId == x.ProductId)
+                    .OrderByDescending(pm => pm.IsPrimary)
+                    .ThenBy(pm => pm.SortOrder)
+                    .Select(pm => pm.Media.BlobPath)
+                    .FirstOrDefault()
             })
             .FirstOrDefaultAsync(ct);
 
-        return product == null ? NotFound() : Ok(product);
+        if (core == null) return NotFound();
+
+        // lấy list ảnh
+        var imgs = await _db.ProductMedia
+            .AsNoTracking()
+            .Where(pm => pm.ProductId == id)
+            .OrderByDescending(pm => pm.IsPrimary)
+            .ThenBy(pm => pm.SortOrder)
+            .Select(pm => new
+            {
+                pm.ProductMediaId,
+                pm.MediaId,
+                pm.IsPrimary,
+                pm.SortOrder,
+                BlobPath = pm.Media.BlobPath
+            })
+            .ToListAsync(ct);
+
+        var dto = new ProductDetailResponse
+        {
+            ProductId = core.ProductId,
+            Name = core.Name,
+            Sku = core.Sku,
+            Price = core.Price,
+            CategoryId = core.CategoryId,
+            CategoryName = core.CategoryName,
+            IsActive = core.IsActive,
+            CreatedAt = core.CreatedAt,
+            OnHand = core.OnHand,
+
+            // thêm 2 field mới:
+            PrimaryImageUrl = BuildImageUrl(core.PrimaryBlobPath, 10),
+            Images = imgs.Select(i => new ProductImageItem
+            {
+                ProductMediaId = i.ProductMediaId,
+                MediaId = i.MediaId,
+                IsPrimary = i.IsPrimary,
+                SortOrder = i.SortOrder,
+                Url = BuildImageUrl(i.BlobPath, 10)
+            }).ToList()
+        };
+
+        return Ok(dto);
     }
+
 
     // POST /api/products  (Create) — dùng DTO gọn cho Swagger
     [HttpPost]

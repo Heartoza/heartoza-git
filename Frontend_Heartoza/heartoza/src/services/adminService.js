@@ -47,4 +47,25 @@ export const AdminService = {
 
     deleteCategory: (id) =>
         api.delete(`/admin/categories/${id}`).then(r => r.data),
+    // Images of product
+    getProductImages: (productId) =>
+        api.get(`/admin/products/${productId}/images`).then(r => r.data),
+
+    uploadProductImage: (productId, file, asPrimary = true) => {
+        const fd = new FormData();
+        fd.append("file", file);
+        fd.append("AsPrimary", String(asPrimary));
+        return api.post(`/admin/products/${productId}/images`, fd, {
+            headers: { "Content-Type": "multipart/form-data" }
+        }).then(r => r.data);
+    },
+
+    setPrimaryProductImage: (productId, productMediaId) =>
+        api.post(`/admin/products/${productId}/images/set-primary`, { productMediaId })
+            .then(r => r.data),
+
+    deleteProductImage: (productId, productMediaId) =>
+        api.delete(`/admin/products/${productId}/images/${productMediaId}`)
+            .then(r => r.data),
+
 };
