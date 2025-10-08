@@ -390,6 +390,7 @@ public class AdminController : ControllerBase
                 GrandTotal = o.GrandTotal,
                 Status = o.Status ?? "Pending",
                 CreatedAt = o.CreatedAt,
+                Comment = o.Comment,
                 Items = o.OrderItems.Select(oi => new OrderItemResponse
                 {
                     OrderItemId = oi.OrderItemId,

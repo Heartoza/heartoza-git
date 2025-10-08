@@ -61,21 +61,25 @@
         background: #fdf2f2;
     }
 
+.admin-layout {
+  display: flex; /* Dùng Flexbox để chia layout */
+  min-height: 100vh; /* Cao bằng màn hình */
+}
+
 .admin-sidebar {
-    position: fixed;
-    top: 0;
-    left: 0;
-    height: 100vh;
-    width: 240px;
-    background: linear-gradient(180deg, #ffffff 0%, #fff8f7 100%);
-    border-right: 1px solid #eee;
-    box-shadow: 2px 0 10px rgba(0,0,0,0.04);
-    padding: 30px 20px;
-    display: flex;
-    flex-direction: column;
-    justify-content: flex-start;
-    align-items: flex-start;
-    gap: 20px;
+  width: 240px; /* Chiều rộng của sidebar */
+  flex-shrink: 0; /* Không cho sidebar bị co lại */
+  background: linear-gradient(180deg, #ffffff 0%, #fff8f7 100%);
+  border-right: 1px solid #eee;
+  box-shadow: 2px 0 10px rgba(0,0,0,0.04);
+  padding: 30px 20px;
+  /* Các thuộc tính khác bạn có thể giữ nguyên nếu muốn */
+}
+
+.admin-content {
+  flex-grow: 1; /* Để phần nội dung chiếm hết không gian còn lại */
+  padding: 30px; /* Thêm padding cho đẹp */
+  background-color: #f9fafb; /* Thêm màu nền nhạt cho phần content */
 }
 
 
@@ -354,4 +358,63 @@
     align-items: center;
     justify-content: flex-end;
     margin-top: 10px;
+}
+
+/* /css/Admin.css */
+
+/* Nút Xóa (trong bảng) */
+.btn.danger {
+    background-color: #ffeaea;
+    color: #c62828;
+    border: 1px solid #c62828;
+}
+.btn.danger:hover {
+    background-color: #c62828;
+    color: white;
+}
+
+/* Hiển thị ảnh preview trên trang Edit */
+.image-preview-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+    gap: 10px;
+    margin-bottom: 15px;
+}
+
+.preview-card {
+    position: relative;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    overflow: hidden;
+}
+.preview-card.primary {
+    border: 2px solid #ff6f61;
+}
+.preview-card img {
+    width: 100%;
+    height: 100%;
+    aspect-ratio: 1 / 1;
+    object-fit: cover;
+    display: block;
+}
+.primary-badge {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    background: rgba(255, 111, 97, 0.9);
+    color: white;
+    padding: 2px 6px;
+    font-size: 0.7rem;
+    border-radius: 4px;
+    font-weight: bold;
+}
+.btn.full-width {
+    width: 100%;
+    justify-content: center;
+}
+.loading-text {
+    text-align: center;
+    padding: 40px;
+    font-size: 1.2rem;
+    color: #555;
 }

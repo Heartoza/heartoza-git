@@ -28,6 +28,7 @@ import AdminUsers from "./components/admin/AdminUsers.jsx";
 import AdminOrders from "./components/admin/AdminOrders.jsx";
 import AdminOrderDetail from "./components/admin/AdminOrderDetail.jsx";
 import AdminProducts from "./components/admin/AdminProducts.jsx";
+import AdminProductEdit from "./components/admin/AdminProductEdit";
 import AdminCategories from "./components/admin/AdminCategories.jsx";
 import AdminSidebar from "./components/admin/AdminSidebar.jsx";
 
@@ -85,27 +86,39 @@ function App() {
                         }
                     />
 
-                    {/* ================= Admin layout ================= */}
-                    <Route
-                        path="/admin/*"
-                        element={
-                            <ProtectedRoute role="Admin">
-                                <div className="admin-layout">
-                                    <AdminSidebar />
-                                    <div className="admin-content">
-                                        <Routes>
-                                            <Route path="dashboard" element={<AdminDashboard />} />
-                                            <Route path="users" element={<AdminUsers />} />
-                                            <Route path="orders" element={<AdminOrders />} />
-                                            <Route path="orders/:id" element={<AdminOrderDetail />} /> {/* ✅ */}
-                                            <Route path="products" element={<AdminProducts />} />
-                                            <Route path="categories" element={<AdminCategories />} />
-                                        </Routes>
-                                    </div>
-                                </div>
-                            </ProtectedRoute>
-                        }
-                    />
+                    // Trong file App.js
+
+{/* ================= Admin layout ================= */}
+<Route
+    path="/admin/*"
+    element={
+        <ProtectedRoute role="Admin">
+            {/* ✅ Dùng div với className="admin-layout" */}
+            <div className="admin-layout"> 
+                
+                {/* Sidebar nằm đây, nó đã có sẵn class từ file component */}
+                <AdminSidebar />
+                
+                {/* ✅ Bọc các Routes trong div với className="admin-content" */}
+                <div className="admin-content"> 
+                    <Routes>
+                        {/* Route mặc định cho /admin, trỏ về Dashboard */}
+                        <Route path="/" element={<AdminDashboard />} /> 
+                        
+                        <Route path="dashboard" element={<AdminDashboard />} />
+                        <Route path="users" element={<AdminUsers />} />
+                        <Route path="orders" element={<AdminOrders />} />
+                        <Route path="orders/:id" element={<AdminOrderDetail />} />
+                        <Route path="products" element={<AdminProducts />} />
+                        <Route path="products/new" element={<AdminProductEdit />} />
+                        <Route path="products/:id" element={<AdminProductEdit />} />
+                        <Route path="categories" element={<AdminCategories />} />
+                    </Routes>
+                </div>
+            </div>
+        </ProtectedRoute>
+    }
+/>
                 </Routes>
             </BrowserRouter>
         </AuthProvider>
