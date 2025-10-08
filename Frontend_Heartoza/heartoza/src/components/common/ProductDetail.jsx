@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import "../css/ProductDetail.css";
-import http from "../../services/api"; // ✅ dùng client chung
+import http from "../../services/api";
 
 export default function ProductDetail() {
     const { id } = useParams();
     const [product, setProduct] = useState(null);
+    const [mainImg, setMainImg] = useState("");
     const [loading, setLoading] = useState(true);
     const navigate = useNavigate();
 
@@ -18,12 +19,21 @@ export default function ProductDetail() {
                 });
                 if (res.status === 204) {
                     setProduct(null);
+                    setMainImg("");
                 } else {
-                    setProduct(res.data);
+                    const p = res.data || null;
+                    setProduct(p);
+                    // ưu tiên ảnh chính, sau đó ảnh đầu tiên, cuối cùng là placeholder
+                    const url =
+                        p?.primaryImageUrl?.trim() ||
+                        (p?.images?.length ? p.images[0].url : "") ||
+                        "";
+                    setMainImg(url);
                 }
             } catch (err) {
                 console.error("Lỗi khi load chi tiết sản phẩm:", err);
                 setProduct(null);
+                setMainImg("");
             } finally {
                 setLoading(false);
             }
@@ -31,7 +41,6 @@ export default function ProductDetail() {
         if (id) load();
     }, [id]);
 
-    // 🟢 Thêm vào giỏ hàng
     const handleAddToCart = async () => {
         const token = localStorage.getItem("token");
         if (!token) {
@@ -59,17 +68,29 @@ export default function ProductDetail() {
     const inactive = !product.isActive;
     const disableAdd = outOfStock || inactive;
 
+    const fallback = "/img/no-image.png";
+    const mainSrc = mainImg && mainImg.trim() !== "" ? mainImg : fallback;
+
     return (
         <div className="product-detail-container">
             <div className="detail-card">
                 {/* Cột trái: Hình ảnh */}
                 <div className="detail-image">
-                    <img
-                        src={product.imageUrl && product.imageUrl.trim() !== ""
-                            ? product.imageUrl
-                            : "/img/no-image.png"}
-                        alt={product.name}
-                    />
+                    <img src={mainSrc} alt={product.name} />
+                    {/* thumbnails nếu có nhiều ảnh */}
+                    {product.images?.length > 1 && (
+                        <div className="thumb-row">
+                            {product.images.map((im) => (
+                                <button
+                                    key={im.productMediaId || im.mediaId}
+                                    className={`thumb ${im.url === mainImg ? "active" : ""}`}
+                                    onClick={() => setMainImg(im.url)}
+                                >
+                                    <img src={im.url} alt="" />
+                                </button>
+                            ))}
+                        </div>
+                    )}
                 </div>
 
                 {/* Cột phải: Thông tin */}
