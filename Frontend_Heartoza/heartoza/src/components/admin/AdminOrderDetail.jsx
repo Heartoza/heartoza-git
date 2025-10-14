@@ -241,7 +241,8 @@ export default function AdminOrderDetail() {
                 borderRadius: '8px', 
                 fontSize: '14px', 
                 color: '#92400e',
-                borderLeft: '4px solid #f59e0b'
+                borderLeft: '4px solid #f59e0b',
+                whiteSpace: 'pre-line' 
               }}>
                 {order.comment}
               </p>

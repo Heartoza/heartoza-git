@@ -3,13 +3,16 @@ import { jwtDecode } from "jwt-decode";
 import { AuthService } from "../../services/authService";
 import { useNavigate } from "react-router-dom";
 import "../css/Cart.css";
-import http from "../../services/api"; // ✅ dùng API base
+import http from "../../services/api";
 
 export default function Cart() {
     const [cart, setCart] = useState(null);
     const navigate = useNavigate();
     const [loading, setLoading] = useState(true);
-    const [comment, setComment] = useState("");
+    const [accessory, setAccessory] = useState("");
+    const [led, setLed] = useState("Không");
+    const [wish, setWish] = useState("");
+    const [cardMessage, setCardMessage] = useState("");
     const [selectedItems, setSelectedItems] = useState([]);
     const [selectAll, setSelectAll] = useState(false);
     const [addresses, setAddresses] = useState([]);
@@ -24,22 +27,19 @@ export default function Cart() {
             }
 
             try {
-                // 🔹 Lấy giỏ hàng
-                const cartRes = await http.get("Cart"); // ✅ /api/Cart
+                const cartRes = await http.get("Cart");
                 const mappedCart = {
                     ...cartRes.data,
                     cartItems: cartRes.data.cartItems.map((ci) => ({
                         ...ci,
                         cartItemId: Number(ci.cartItemId),
-                        productName:
-                            ci.product?.name || ci.productName || "Sản phẩm không xác định",
+                        productName: ci.product?.name || ci.productName || "Sản phẩm không xác định",
                         lineTotal: ci.quantity * ci.unitPrice,
                     })),
                 };
                 setCart(mappedCart);
 
-                // 🔹 Lấy profile + địa chỉ
-                const profile = await AuthService.getProfile(); // ✅ dùng http bên trong AuthService
+                const profile = await AuthService.getProfile();
                 setAddresses(profile.addresses || []);
                 const defaultAddr = profile.addresses?.find((a) => a.isDefault);
                 if (defaultAddr) setSelectedAddress(defaultAddr.addressId);
@@ -53,7 +53,6 @@ export default function Cart() {
         fetchCartAndAddresses();
     }, [navigate]);
 
-    // 🔹 Cập nhật số lượng
     const updateQuantity = async (cartItemId, newQuantity) => {
         try {
             const token = localStorage.getItem("token");
@@ -62,7 +61,7 @@ export default function Cart() {
             await http.post("Cart/UpdateQuantity", {
                 cartItemId,
                 quantity: newQuantity,
-            }); // ✅ /api/Cart/UpdateQuantity
+            });
 
             setCart((prev) => {
                 const updatedItems = prev.cartItems
@@ -83,7 +82,6 @@ export default function Cart() {
         }
     };
 
-    // 🔹 Xóa sản phẩm
     const removeItem = async (cartItemId, productName) => {
         if (!window.confirm(`Bạn có chắc muốn xóa "${productName}" khỏi giỏ hàng?`)) return;
 
@@ -91,7 +89,7 @@ export default function Cart() {
             const token = localStorage.getItem("token");
             if (!token) return;
 
-            await http.delete(`Cart/RemoveItem/${cartItemId}`); // ✅ /api/Cart/RemoveItem/:id
+            await http.delete(`Cart/RemoveItem/${cartItemId}`);
 
             setCart((prev) => ({
                 ...prev,
@@ -104,7 +102,6 @@ export default function Cart() {
         }
     };
 
-    // 🔹 Chọn / Bỏ chọn 1 item
     const toggleSelectItem = (cartItemId) => {
         setSelectedItems((prev) =>
             prev.includes(cartItemId)
@@ -113,7 +110,6 @@ export default function Cart() {
         );
     };
 
-    // 🔹 Chọn tất cả
     const toggleSelectAll = () => {
         if (!cart) return;
 
@@ -125,7 +121,6 @@ export default function Cart() {
         setSelectAll(!selectAll);
     };
 
-    // 🔹 Thanh toán
     const handleCheckout = async () => {
         if (selectedItems.length === 0) {
             alert("Vui lòng chọn ít nhất một sản phẩm để thanh toán.");
@@ -133,6 +128,10 @@ export default function Cart() {
         }
         if (!selectedAddress) {
             alert("Vui lòng chọn địa chỉ giao hàng.");
+            return;
+        }
+        if (!accessory.trim() || !led.trim() || !cardMessage.trim() || !wish.trim()) {
+            alert("⚠️ Vui lòng điền đầy đủ tất cả các trường trong phần ghi chú (Phụ kiện, LED, Lời nhắn, Mong muốn).");
             return;
         }
 
@@ -144,7 +143,7 @@ export default function Cart() {
                 shippingAddressId: selectedAddress,
                 shippingFee: 0,
                 method: "COD",
-                comment,
+                comment: `🎁 Phụ kiện kèm theo: ${accessory}\n💡 LED: ${led}\n✉️ Lời nhắn trong thiệp: ${cardMessage}\n💭 Mong muốn: ${wish}`,
                 items: selectedItems.map((id) => {
                     const item = cart.cartItems.find((ci) => ci.cartItemId === id);
                     return {
@@ -154,12 +153,9 @@ export default function Cart() {
                 }),
             };
 
-            // ✅ /api/orders (ASP.NET không phân biệt hoa thường, dùng "orders" như code cũ)
             const res = await http.post("orders", payload);
-
             alert(`✅ Thanh toán thành công! Mã đơn: ${res.data.orderCode}`);
 
-            // Xóa các item đã mua khỏi giỏ
             await Promise.all(
                 selectedItems.map((id) => http.delete(`Cart/RemoveItem/${id}`))
             );
@@ -179,7 +175,7 @@ export default function Cart() {
             if (err.response && err.response.data) {
                 const serverMessage =
                     err.response.data.message ||
-                    err.response.data.title || 
+                    err.response.data.title ||
                     err.response.data ||
                     "Có lỗi xảy ra khi tạo đơn hàng.";
                 alert(`❌ ${serverMessage}`);
@@ -187,121 +183,246 @@ export default function Cart() {
                 alert("❌ Không thể kết nối đến máy chủ. Vui lòng thử lại!");
             }
         }
-
     };
 
-    // 🔹 Render UI
-    if (loading) return <p>Đang tải giỏ hàng...</p>;
-    if (!cart || !cart.cartItems || cart.cartItems.length === 0)
-        return <p>Giỏ hàng trống</p>;
+    if (loading) {
+        return (
+            <div className="cart-container">
+                <div className="loading-state">
+                    <div className="loading-spinner"></div>
+                    <p>Đang tải giỏ hàng...</p>
+                </div>
+            </div>
+        );
+    }
+
+    if (!cart || !cart.cartItems || cart.cartItems.length === 0) {
+        return (
+            <div className="cart-container">
+                <div className="empty-cart">
+                    <div className="empty-cart-icon">🛒</div>
+                    <p>Giỏ hàng của bạn đang trống</p>
+                </div>
+            </div>
+        );
+    }
 
     const total = cart.cartItems
         .filter((i) => selectedItems.includes(i.cartItemId))
         .reduce((sum, i) => sum + i.lineTotal, 0);
 
+    const selectedCount = selectedItems.length;
+
     return (
         <div className="cart-container">
-            <h2>🛒 Giỏ hàng của bạn</h2>
-            <table className="cart-table">
-                <thead>
-                    <tr>
-                        <th>
-                            <input type="checkbox" checked={selectAll} onChange={toggleSelectAll} />
-                        </th>
-                        <th>Sản phẩm</th>
-                        <th>Số lượng</th>
-                        <th>Giá</th>
-                        <th>Tổng</th>
-                        <th>Hành động</th>
-                    </tr>
-                </thead>
-                <tbody>
+            <h2>Giỏ hàng của bạn</h2>
+
+            <div className="cart-layout">
+                {/* Main Cart Section */}
+                <div className="cart-main">
+                    {/* Select All Bar */}
+                    <div className="select-all-bar">
+                        <label>
+                            <input
+                                type="checkbox"
+                                checked={selectAll}
+                                onChange={toggleSelectAll}
+                            />
+                            Chọn tất cả ({cart.cartItems.length} sản phẩm)
+                        </label>
+                    </div>
+
+                    {/* Cart Items */}
                     {cart.cartItems.map((item) => (
-                        <tr key={item.cartItemId}>
-                            <td>
+                        <div
+                            key={item.cartItemId}
+                            className={`cart-item-card ${selectedItems.includes(item.cartItemId) ? 'selected' : ''}`}
+                        >
+                            <div className="item-checkbox">
                                 <input
                                     type="checkbox"
                                     checked={selectedItems.includes(item.cartItemId)}
                                     onChange={() => toggleSelectItem(item.cartItemId)}
                                 />
-                            </td>
-                            <td>{item.productName}</td>
-                            <td>
+                            </div>
+
+                            <div className="item-info">
+                                <h3 className="item-name">{item.productName}</h3>
+                                {/* Bạn có thể thêm ảnh sản phẩm ở đây nếu muốn */}
+                            </div>
+
+                            <div className="item-quantity">
+                                <div className="quantity-control">
+                                    <button
+                                        className="quantity-btn"
+                                        onClick={() => updateQuantity(item.cartItemId, item.quantity - 1)}
+                                        disabled={item.quantity <= 1}
+                                    >
+                                        −
+                                    </button>
+                                    <span className="quantity-value">{item.quantity}</span>
+                                    <button
+                                        className="quantity-btn"
+                                        onClick={() => updateQuantity(item.cartItemId, item.quantity + 1)}
+                                    >
+                                        +
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div className="item-total">
+                                <span>{item.lineTotal.toLocaleString()} đ</span>
+                            </div>
+
+                            <div className="item-remove">
                                 <button
-                                    onClick={() => updateQuantity(item.cartItemId, item.quantity - 1)}
-                                    disabled={item.quantity <= 1}
+                                    className="remove-btn"
+                                    onClick={() => removeItem(item.cartItemId, item.productName)}
+                                    title="Xóa sản phẩm"
                                 >
-                                    -
+                                    🗑️
                                 </button>
-                                {item.quantity}
-                                <button onClick={() => updateQuantity(item.cartItemId, item.quantity + 1)}>
-                                    +
-                                </button>
-                            </td>
-                            <td>{item.unitPrice.toLocaleString()} đ</td>
-                            <td>{item.lineTotal.toLocaleString()} đ</td>
-                            <td>
-                                <button onClick={() => removeItem(item.cartItemId, item.productName)}>
-                                    🗑 Xóa
-                                </button>
-                            </td>
-                        </tr>
+                            </div>
+                        </div>
                     ))}
-                </tbody>
-            </table>
 
-            {selectedItems.length > 0 && (
-                <h3>
-                    Tổng cộng: <span className="text-red-600 font-bold">{total.toLocaleString()} đ</span>
-                </h3>
-            )}
-            <div className="comment-section my-4">
-                <h3>💬 Ghi chú cho đơn hàng</h3>
-                <textarea
-                    value={comment}
-                    onChange={(e) => setComment(e.target.value)}
-                    placeholder="Nhập ghi chú của bạn (tùy chọn)..."
-                    rows={3}
-                    style={{ width: "100%", padding: "8px" }}
-                />
-            </div>
+                    {/* Comment Section */}
+                    <div className="comment-section">
+                        <h3>💬 Ghi chú cho đơn hàng</h3>
 
-            <button
-                className="checkout-btn"
-                onClick={handleCheckout}
-                disabled={selectedItems.length === 0 || !selectedAddress}
-            >
-                ✅ Thanh toán
-            </button>
+                        <div className="comment-field">
+                            <label>🎁 Phụ kiện kèm theo</label>
+                            <input
+                                type="text"
+                                value={accessory}
+                                onChange={(e) => setAccessory(e.target.value)}
+                                placeholder="Ví dụ: Gấu bông nhỏ, hoa khô..."
+                            />
+                        </div>
 
-            <div className="address-section my-4">
-                <h3>🏠 Chọn địa chỉ giao hàng</h3>
-                {addresses.length === 0 ? (
-                    <div>
-                        <p>Chưa có địa chỉ nào.</p>
-                        <a href="/profile" className="text-blue-600 underline">
-                            Thêm địa chỉ
-                        </a>
+                        <div className="comment-field">
+                            <label>💡 LED trang trí</label>
+                            <select
+                                value={led}
+                                onChange={(e) => setLed(e.target.value)}
+                            >
+                                <option value="Không">Không</option>
+                                <option value="Có">Có</option>
+                            </select>
+                        </div>
+
+                        <div className="comment-field">
+                            <label>✉️ Lời nhắn trong thiệp</label>
+                            <textarea
+                                value={cardMessage}
+                                onChange={(e) => setCardMessage(e.target.value)}
+                                placeholder="Nhập lời nhắn bạn muốn ghi trong thiệp..."
+                                rows={3}
+                            />
+                        </div>
+                        <div className="comment-field">
+                            <label>💭 Mong muốn của bạn</label>
+                            <textarea
+                                value={wish}
+                                onChange={(e) => setWish(e.target.value)}
+                                placeholder="Ví dụ: Giao hàng sớm trước ngày lễ, gói quà thật đẹp..."
+                                rows={3}
+                            />
+                        </div>
+
                     </div>
-                ) : (
-                    <ul>
-                        {addresses.map((addr) => (
-                            <li key={addr.addressId}>
-                                <label>
-                                    <input
-                                        type="radio"
-                                        name="shippingAddress"
-                                        value={addr.addressId}
-                                        checked={selectedAddress === addr.addressId}
-                                        onChange={() => setSelectedAddress(addr.addressId)}
-                                    />
-                                    {addr.fullName}, {addr.line1}, {addr.district}, {addr.city}
-                                    {addr.isDefault && <span className="default-badge">Mặc định</span>}
-                                </label>
-                            </li>
-                        ))}
-                    </ul>
-                )}
+
+                    {/* Address Section */}
+                    <div className="address-section">
+                        <h3>🏠 Địa chỉ giao hàng</h3>
+                        {addresses.length === 0 ? (
+                            <div style={{ textAlign: 'center', padding: '20px' }}>
+                                <p style={{ color: '#718096', marginBottom: '12px' }}>
+                                    Chưa có địa chỉ giao hàng nào.
+                                </p>
+                                <a
+                                    href="/profile"
+                                    style={{
+                                        color: '#667eea',
+                                        textDecoration: 'none',
+                                        fontWeight: 600
+                                    }}
+                                >
+                                    + Thêm địa chỉ mới
+                                </a>
+                            </div>
+                        ) : (
+                            <ul>
+                                {addresses.map((addr) => (
+                                    <li
+                                        key={addr.addressId}
+                                        className={`address-item ${selectedAddress === addr.addressId ? 'selected' : ''}`}
+                                    >
+                                        <label>
+                                            <input
+                                                type="radio"
+                                                name="shippingAddress"
+                                                value={addr.addressId}
+                                                checked={selectedAddress === addr.addressId}
+                                                onChange={() => setSelectedAddress(addr.addressId)}
+                                            />
+                                            <div className="address-content">
+                                                <div className="address-name">
+                                                    {addr.fullName}
+                                                    {addr.isDefault && (
+                                                        <span className="default-badge">Mặc định</span>
+                                                    )}
+                                                </div>
+                                                <div className="address-details">
+                                                    {addr.line1}, {addr.district}, {addr.city}
+                                                </div>
+                                            </div>
+                                        </label>
+                                    </li>
+                                ))}
+                            </ul>
+                        )}
+                    </div>
+                </div>
+
+                {/* Sidebar Summary */}
+                <div className="cart-sidebar">
+                    <div className="summary-card">
+                        <h3>📋 Tóm tắt đơn hàng</h3>
+
+                        <div className="summary-row">
+                            <span className="summary-label">Sản phẩm đã chọn</span>
+                            <span className="summary-value">{selectedCount} sản phẩm</span>
+                        </div>
+
+                        <div className="summary-row">
+                            <span className="summary-label">Tạm tính</span>
+                            <span className="summary-value">{total.toLocaleString()} đ</span>
+                        </div>
+
+                        <div className="summary-row">
+                            <span className="summary-label">Thanh toán</span>
+                            <span className="summary-value" style={{ color: '#48bb78' }}>Khi nhận hàng</span>
+                        </div>
+
+                        <div className="summary-total">
+                            <span className="label">Tổng cộng</span>
+                            <span className="value">{total.toLocaleString()} đ</span>
+                        </div>
+
+                        <button
+                            className="checkout-btn"
+                            onClick={handleCheckout}
+                            disabled={selectedItems.length === 0 || !selectedAddress}
+                        >
+                            {selectedItems.length === 0
+                                ? '⚠️ Chọn sản phẩm'
+                                : !selectedAddress
+                                    ? '⚠️ Chọn địa chỉ'
+                                    : '✅ Thanh toán ngay'}
+                        </button>
+                    </div>
+                </div>
             </div>
         </div>
     );
