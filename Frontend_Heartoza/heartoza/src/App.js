@@ -28,6 +28,7 @@ import AdminUsers from "./components/admin/AdminUsers.jsx";
 import AdminOrders from "./components/admin/AdminOrders.jsx";
 import AdminOrderDetail from "./components/admin/AdminOrderDetail.jsx";
 import AdminProducts from "./components/admin/AdminProducts.jsx";
+import AdminProductAdd from "./components/admin/AdminProductAdd.jsx";
 import AdminProductEdit from "./components/admin/AdminProductEdit";
 import AdminCategories from "./components/admin/AdminCategories.jsx";
 import AdminSidebar from "./components/admin/AdminSidebar.jsx";
@@ -110,7 +111,7 @@ function App() {
                         <Route path="orders" element={<AdminOrders />} />
                         <Route path="orders/:id" element={<AdminOrderDetail />} />
                         <Route path="products" element={<AdminProducts />} />
-                        <Route path="products/new" element={<AdminProductEdit />} />
+                        <Route path="products/new" element={<AdminProductAdd />} />
                         <Route path="products/:id" element={<AdminProductEdit />} />
                         <Route path="categories" element={<AdminCategories />} />
                     </Routes>

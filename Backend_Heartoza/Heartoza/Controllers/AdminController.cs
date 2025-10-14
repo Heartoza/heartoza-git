@@ -148,7 +148,8 @@ public class AdminController : ControllerBase
                 Price = p.Price,
                 CategoryId = p.CategoryId,
                 IsActive = p.IsActive,
-                CreatedAt = p.CreatedAt
+                CreatedAt = p.CreatedAt,
+                OnHand = _db.Inventories.Where(i => i.ProductId == p.ProductId).Select(i => (int?)i.Quantity).FirstOrDefault() ?? 0
             })
             .ToListAsync();
 
@@ -188,6 +189,8 @@ public class AdminController : ControllerBase
             return BadRequest("Tên sản phẩm không được để trống.");
         if (req.Price <= 0)
             return BadRequest("Giá sản phẩm phải > 0.");
+        if (req.Quantity < 0)
+            return BadRequest("Số lượng không được âm.");
 
         var prod = new Product
         {
@@ -202,12 +205,22 @@ public class AdminController : ControllerBase
         _db.Products.Add(prod);
         await _db.SaveChangesAsync();
 
+        // Create Inventory record
+        var inventory = new Inventory
+        {
+            ProductId = prod.ProductId,
+            Quantity = req.Quantity
+        };
+        _db.Inventories.Add(inventory);
+        await _db.SaveChangesAsync();
+
         return CreatedAtAction(nameof(GetProducts), new { id = prod.ProductId }, new
         {
             prod.ProductId,
             prod.Name,
             prod.Sku,
             prod.Price,
+            OnHand = req.Quantity,
             prod.CategoryId,
             prod.IsActive,
             prod.CreatedAt
@@ -253,6 +266,27 @@ public class AdminController : ControllerBase
             prod.Price = req.Price.Value;
         }
 
+        // Cập nhật Quantity nếu req.Quantity có giá trị
+        if (req.Quantity.HasValue)
+        {
+            if (req.Quantity.Value < 0) return BadRequest("Số lượng không được âm.");
+            
+            // Update or create Inventory
+            var inventory = await _db.Inventories.FirstOrDefaultAsync(i => i.ProductId == id, ct);
+            if (inventory != null)
+            {
+                inventory.Quantity = req.Quantity.Value;
+            }
+            else
+            {
+                _db.Inventories.Add(new Inventory
+                {
+                    ProductId = id,
+                    Quantity = req.Quantity.Value
+                });
+            }
+        }
+
         // Cập nhật CategoryId nếu req.CategoryId có giá trị
         if (req.CategoryId.HasValue)
         {
@@ -268,8 +302,23 @@ public class AdminController : ControllerBase
         // 3. Lưu thay đổi vào database
         await _db.SaveChangesAsync(ct);
 
-        // 4. Trả về toàn bộ thông tin sản phẩm đã được cập nhật
-        return Ok(prod);
+        // 4. Trả về DTO thay vì Entity để tránh circular reference
+        var onHand = await _db.Inventories
+            .Where(i => i.ProductId == id)
+            .Select(i => (int?)i.Quantity)
+            .FirstOrDefaultAsync(ct) ?? 0;
+
+        return Ok(new ProductDto
+        {
+            ProductId = prod.ProductId,
+            Name = prod.Name,
+            Sku = prod.Sku,
+            Price = prod.Price,
+            CategoryId = prod.CategoryId,
+            IsActive = prod.IsActive,
+            CreatedAt = prod.CreatedAt,
+            OnHand = onHand
+        });
     }
 
     [HttpDelete("products/{id:int}")]
