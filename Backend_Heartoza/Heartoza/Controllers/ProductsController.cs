@@ -356,7 +356,7 @@ public class ProductsController : ControllerBase
     }
 
     [HttpGet("top-selling")]
-    public IActionResult GetTopSellingProducts([FromQuery] int top = 3)
+    public IActionResult GetTopSellingProducts([FromQuery] int top = 5)
     {
         var topProducts = _db.OrderItems
             .GroupBy(oi => oi.ProductId)
