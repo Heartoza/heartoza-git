@@ -107,6 +107,7 @@ public class ProductsController : ControllerBase
                 p.CategoryId,
                 p.IsActive,
                 p.CreatedAt,
+                OnHand = _db.Inventories.Where(i => i.ProductId == p.ProductId).Select(i => (int?)i.Quantity).FirstOrDefault() ?? 0,
                 PrimaryBlobPath = _db.ProductMedia
                     .Where(pm => pm.ProductId == p.ProductId)
                     .OrderByDescending(pm => pm.IsPrimary)
@@ -122,6 +123,7 @@ public class ProductsController : ControllerBase
             Name = r.Name,
             Sku = r.Sku,
             Price = r.Price,
+            OnHand = r.OnHand,
             CategoryId = r.CategoryId,
             IsActive = r.IsActive,
             CreatedAt = r.CreatedAt,
@@ -214,6 +216,7 @@ public class ProductsController : ControllerBase
         if (string.IsNullOrWhiteSpace(req.Name)) return BadRequest("Tên sản phẩm không được để trống.");
         if (string.IsNullOrWhiteSpace(req.Sku)) return BadRequest("SKU không được để trống.");
         if (req.Price <= 0) return BadRequest("Giá phải > 0.");
+        if (req.Quantity < 0) return BadRequest("Số lượng không được âm.");
 
         var sku = req.Sku.Trim();
         if (await _db.Products.AnyAsync(p => p.Sku == sku, ct))
@@ -232,12 +235,22 @@ public class ProductsController : ControllerBase
         _db.Products.Add(entity);
         await _db.SaveChangesAsync(ct);
 
+        // Create Inventory record
+        var inventory = new Inventory
+        {
+            ProductId = entity.ProductId,
+            Quantity = req.Quantity
+        };
+        _db.Inventories.Add(inventory);
+        await _db.SaveChangesAsync(ct);
+
         var dto = new ProductDto
         {
             ProductId = entity.ProductId,
             Name = entity.Name,
             Sku = entity.Sku,
             Price = entity.Price,
+            OnHand = req.Quantity,
             CategoryId = entity.CategoryId,
             IsActive = entity.IsActive,
             CreatedAt = entity.CreatedAt
@@ -275,6 +288,26 @@ public class ProductsController : ControllerBase
             p.Price = req.Price.Value;
         }
 
+        if (req.Quantity.HasValue)
+        {
+            if (req.Quantity.Value < 0) return BadRequest("Số lượng không được âm.");
+            
+            // Update or create Inventory
+            var inventory = await _db.Inventories.FirstOrDefaultAsync(i => i.ProductId == id, ct);
+            if (inventory != null)
+            {
+                inventory.Quantity = req.Quantity.Value;
+            }
+            else
+            {
+                _db.Inventories.Add(new Inventory
+                {
+                    ProductId = id,
+                    Quantity = req.Quantity.Value
+                });
+            }
+        }
+
         if (req.CategoryId.HasValue)
             p.CategoryId = req.CategoryId.Value;
 
@@ -283,12 +316,18 @@ public class ProductsController : ControllerBase
 
         await _db.SaveChangesAsync(ct);
 
+        var onHand = await _db.Inventories
+            .Where(i => i.ProductId == id)
+            .Select(i => (int?)i.Quantity)
+            .FirstOrDefaultAsync(ct) ?? 0;
+
         var dto = new ProductDto
         {
             ProductId = p.ProductId,
             Name = p.Name,
             Sku = p.Sku,
             Price = p.Price,
+            OnHand = onHand,
             CategoryId = p.CategoryId,
             IsActive = p.IsActive,
             CreatedAt = p.CreatedAt

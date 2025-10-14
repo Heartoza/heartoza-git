@@ -12,6 +12,7 @@ export default function AdminProductAdd() {
         name: '',
         sku: '',
         price: 0,
+        quantity: 0,
         categoryId: '',
         isActive: true
     });
@@ -21,9 +22,6 @@ export default function AdminProductAdd() {
     const [error, setError] = useState('');
     const [saving, setSaving] = useState(false);
     const [validationErrors, setValidationErrors] = useState({});
-    const [selectedImages, setSelectedImages] = useState([]);
-    const [previewUrls, setPreviewUrls] = useState([]);
-    const [primaryImageIndex, setPrimaryImageIndex] = useState(0);
 
     useEffect(() => {
         loadCategories();
@@ -54,6 +52,10 @@ export default function AdminProductAdd() {
 
         if (formData.price <= 0) {
             errors.price = 'Giá sản phẩm phải lớn hơn 0';
+        }
+
+        if (formData.quantity < 0) {
+            errors.quantity = 'Số lượng không được âm';
         }
 
         if (!formData.categoryId) {
@@ -95,36 +97,19 @@ export default function AdminProductAdd() {
                 name: formData.name.trim(),
                 sku: formData.sku.trim() || null,
                 price: Number(formData.price),
+                quantity: Number(formData.quantity),
                 categoryId: Number(formData.categoryId),
                 isActive: formData.isActive
             };
 
-            // Create product first
+            // Create product
             const newProduct = await AdminService.createProduct(payload);
-            const productId = newProduct.productId;
-            
-            // Upload images if any
-            if (selectedImages.length > 0) {
-                try {
-                    // Upload images one by one
-                    for (let i = 0; i < selectedImages.length; i++) {
-                        const formData = new FormData();
-                        formData.append('file', selectedImages[i]);
-                        formData.append('isPrimary', i === primaryImageIndex);
-
-                        await AdminService.uploadProductImage(productId, formData);
-                    }
-                } catch (imgErr) {
-                    console.error('Error uploading images:', imgErr);
-                    alert('⚠️ Sản phẩm đã tạo nhưng có lỗi khi upload ảnh. Bạn có thể thêm ảnh sau.');
-                }
-            }
             
             // Success notification
-            alert('✅ Thêm sản phẩm thành công!');
+            alert('✅ Thêm sản phẩm thành công! Bạn có thể thêm ảnh ở trang tiếp theo.');
             
-            // Navigate to edit page
-            navigate(`/admin/products/${productId}`);
+            // Navigate to edit page to add images
+            navigate(`/admin/products/${newProduct.productId}`);
         } catch (err) {
             console.error('Error creating product:', err);
             setError(err?.response?.data?.message || 'Có lỗi xảy ra khi thêm sản phẩm. Vui lòng thử lại.');
@@ -138,60 +123,12 @@ export default function AdminProductAdd() {
             name: '',
             sku: '',
             price: 0,
+            quantity: 0,
             categoryId: '',
             isActive: true
         });
         setValidationErrors({});
         setError('');
-        setSelectedImages([]);
-        setPreviewUrls([]);
-        setPrimaryImageIndex(0);
-    };
-
-    const handleImageSelect = (e) => {
-        const files = Array.from(e.target.files);
-        if (files.length === 0) return;
-
-        // Validate file types
-        const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
-        const invalidFiles = files.filter(f => !validTypes.includes(f.type));
-        
-        if (invalidFiles.length > 0) {
-            alert('⚠️ Chỉ chấp nhận file ảnh (JPG, PNG, WEBP)');
-            return;
-        }
-
-        // Limit total images
-        const currentTotal = selectedImages.length + files.length;
-        if (currentTotal > 5) {
-            alert('⚠️ Tối đa 5 ảnh cho mỗi sản phẩm');
-            return;
-        }
-
-        // Create preview URLs
-        const newPreviewUrls = files.map(file => URL.createObjectURL(file));
-        
-        setSelectedImages(prev => [...prev, ...files]);
-        setPreviewUrls(prev => [...prev, ...newPreviewUrls]);
-    };
-
-    const handleRemoveImage = (index) => {
-        // Revoke URL to prevent memory leak
-        URL.revokeObjectURL(previewUrls[index]);
-        
-        setSelectedImages(prev => prev.filter((_, i) => i !== index));
-        setPreviewUrls(prev => prev.filter((_, i) => i !== index));
-        
-        // Adjust primary index if needed
-        if (primaryImageIndex === index) {
-            setPrimaryImageIndex(0);
-        } else if (primaryImageIndex > index) {
-            setPrimaryImageIndex(prev => prev - 1);
-        }
-    };
-
-    const handleSetPrimary = (index) => {
-        setPrimaryImageIndex(index);
     };
 
     if (loading) {
@@ -318,46 +255,47 @@ export default function AdminProductAdd() {
                             )}
                         </div>
 
-                        {/* SKU & Price Row */}
+                        {/* SKU */}
+                        <div style={{ marginBottom: '20px' }}>
+                            <label style={{
+                                display: 'block',
+                                fontSize: '14px',
+                                fontWeight: '500',
+                                color: '#374151',
+                                marginBottom: '8px'
+                            }}>
+                                Mã SKU
+                            </label>
+                            <input
+                                name="sku"
+                                value={formData.sku}
+                                onChange={handleChange}
+                                placeholder="VD: PROD-001"
+                                style={{
+                                    width: '100%',
+                                    padding: '12px 16px',
+                                    fontSize: '14px',
+                                    border: '1px solid #d1d5db',
+                                    borderRadius: '8px',
+                                    outline: 'none',
+                                    transition: 'all 0.2s',
+                                    boxSizing: 'border-box'
+                                }}
+                                onFocus={(e) => e.target.style.borderColor = '#6366f1'}
+                                onBlur={(e) => e.target.style.borderColor = '#d1d5db'}
+                            />
+                            <p style={{ fontSize: '12px', color: '#9ca3af', marginTop: '4px', marginBottom: 0 }}>
+                                Để trống nếu không có
+                            </p>
+                        </div>
+
+                        {/* Price & Quantity Row */}
                         <div style={{
                             display: 'grid',
                             gridTemplateColumns: '1fr 1fr',
                             gap: '16px',
                             marginBottom: '20px'
                         }}>
-                            <div>
-                                <label style={{
-                                    display: 'block',
-                                    fontSize: '14px',
-                                    fontWeight: '500',
-                                    color: '#374151',
-                                    marginBottom: '8px'
-                                }}>
-                                    Mã SKU
-                                </label>
-                                <input
-                                    name="sku"
-                                    value={formData.sku}
-                                    onChange={handleChange}
-                                    placeholder="VD: PROD-001"
-                                    style={{
-                                        width: '100%',
-                                        padding: '12px 16px',
-                                        fontSize: '14px',
-                                        border: '1px solid #d1d5db',
-                                        borderRadius: '8px',
-                                        outline: 'none',
-                                        transition: 'all 0.2s',
-                                        boxSizing: 'border-box'
-                                    }}
-                                    onFocus={(e) => e.target.style.borderColor = '#6366f1'}
-                                    onBlur={(e) => e.target.style.borderColor = '#d1d5db'}
-                                />
-                                <p style={{ fontSize: '12px', color: '#9ca3af', marginTop: '4px', marginBottom: 0 }}>
-                                    Để trống nếu không có
-                                </p>
-                            </div>
-
                             <div>
                                 <label style={{
                                     display: 'block',
@@ -407,6 +345,45 @@ export default function AdminProductAdd() {
                                 {validationErrors.price && (
                                     <p style={{ fontSize: '13px', color: '#ef4444', marginTop: '6px', marginBottom: 0 }}>
                                         ⚠️ {validationErrors.price}
+                                    </p>
+                                )}
+                            </div>
+
+                            <div>
+                                <label style={{
+                                    display: 'block',
+                                    fontSize: '14px',
+                                    fontWeight: '500',
+                                    color: '#374151',
+                                    marginBottom: '8px'
+                                }}>
+                                    Số lượng <span style={{ color: '#ef4444' }}>*</span>
+                                </label>
+                                <input
+                                    name="quantity"
+                                    type="number"
+                                    value={formData.quantity}
+                                    onChange={handleChange}
+                                    placeholder="0"
+                                    min="0"
+                                    step="1"
+                                    required
+                                    style={{
+                                        width: '100%',
+                                        padding: '12px 16px',
+                                        fontSize: '14px',
+                                        border: validationErrors.quantity ? '2px solid #ef4444' : '1px solid #d1d5db',
+                                        borderRadius: '8px',
+                                        outline: 'none',
+                                        transition: 'all 0.2s',
+                                        boxSizing: 'border-box'
+                                    }}
+                                    onFocus={(e) => !validationErrors.quantity && (e.target.style.borderColor = '#6366f1')}
+                                    onBlur={(e) => !validationErrors.quantity && (e.target.style.borderColor = '#d1d5db')}
+                                />
+                                {validationErrors.quantity && (
+                                    <p style={{ fontSize: '13px', color: '#ef4444', marginTop: '6px', marginBottom: 0 }}>
+                                        ⚠️ {validationErrors.quantity}
                                     </p>
                                 )}
                             </div>
@@ -530,7 +507,7 @@ export default function AdminProductAdd() {
                         </p>
                     </div>
 
-                    {/* Images Card */}
+                    {/* Images Info Card */}
                     <div style={{
                         background: 'white',
                         borderRadius: '12px',
@@ -550,171 +527,36 @@ export default function AdminProductAdd() {
                             🖼️ Hình ảnh sản phẩm
                         </h3>
 
-                        {/* Image Previews */}
-                        {previewUrls.length > 0 ? (
-                            <div style={{
-                                display: 'grid',
-                                gridTemplateColumns: 'repeat(2, 1fr)',
-                                gap: '12px',
-                                marginBottom: '16px'
-                            }}>
-                                {previewUrls.map((url, index) => (
-                                    <div
-                                        key={index}
-                                        style={{
-                                            position: 'relative',
-                                            borderRadius: '8px',
-                                            overflow: 'hidden',
-                                            border: primaryImageIndex === index ? '3px solid #fbbf24' : '1px solid #e5e7eb',
-                                            boxShadow: primaryImageIndex === index ? '0 4px 6px rgba(251, 191, 36, 0.3)' : 'none'
-                                        }}
-                                    >
-                                        <img
-                                            src={url}
-                                            alt={`Preview ${index + 1}`}
-                                            style={{
-                                                width: '100%',
-                                                height: '120px',
-                                                objectFit: 'cover',
-                                                display: 'block'
-                                            }}
-                                        />
-                                        
-                                        {/* Primary Badge */}
-                                        {primaryImageIndex === index && (
-                                            <span style={{
-                                                position: 'absolute',
-                                                top: '8px',
-                                                left: '8px',
-                                                background: '#fbbf24',
-                                                color: '#78350f',
-                                                padding: '4px 8px',
-                                                borderRadius: '4px',
-                                                fontSize: '11px',
-                                                fontWeight: '600'
-                                            }}>
-                                                ⭐ Chính
-                                            </span>
-                                        )}
-
-                                        {/* Action Buttons */}
-                                        <div style={{
-                                            position: 'absolute',
-                                            top: '8px',
-                                            right: '8px',
-                                            display: 'flex',
-                                            gap: '4px'
-                                        }}>
-                                            {primaryImageIndex !== index && (
-                                                <button
-                                                    type="button"
-                                                    onClick={() => handleSetPrimary(index)}
-                                                    title="Đặt làm ảnh chính"
-                                                    style={{
-                                                        padding: '4px 8px',
-                                                        background: 'rgba(255, 255, 255, 0.9)',
-                                                        border: 'none',
-                                                        borderRadius: '4px',
-                                                        cursor: 'pointer',
-                                                        fontSize: '12px',
-                                                        fontWeight: '600',
-                                                        color: '#374151'
-                                                    }}
-                                                >
-                                                    ⭐
-                                                </button>
-                                            )}
-                                            <button
-                                                type="button"
-                                                onClick={() => handleRemoveImage(index)}
-                                                title="Xóa ảnh"
-                                                style={{
-                                                    padding: '4px 8px',
-                                                    background: 'rgba(239, 68, 68, 0.9)',
-                                                    border: 'none',
-                                                    borderRadius: '4px',
-                                                    cursor: 'pointer',
-                                                    fontSize: '12px',
-                                                    color: 'white'
-                                                }}
-                                            >
-                                                ✖
-                                            </button>
-                                        </div>
-                                    </div>
-                                ))}
-                            </div>
-                        ) : (
-                            <div style={{
-                                padding: '40px 20px',
-                                textAlign: 'center',
-                                background: '#fafafa',
-                                borderRadius: '8px',
-                                border: '2px dashed #d1d5db',
-                                marginBottom: '16px'
-                            }}>
-                                <p style={{
-                                    fontSize: '48px',
-                                    margin: '0 0 12px 0',
-                                    filter: 'grayscale(1)',
-                                    opacity: '0.5'
-                                }}>📷</p>
-                                <p style={{
-                                    margin: '0',
-                                    fontSize: '14px',
-                                    color: '#9ca3af'
-                                }}>
-                                    Chưa có ảnh nào
-                                </p>
-                            </div>
-                        )}
-
-                        {/* Upload Button */}
-                        <input
-                            type="file"
-                            id="imageUpload"
-                            multiple
-                            accept="image/jpeg,image/jpg,image/png,image/webp"
-                            onChange={handleImageSelect}
-                            style={{ display: 'none' }}
-                        />
-                        <label
-                            htmlFor="imageUpload"
-                            style={{
-                                display: 'block',
-                                width: '100%',
-                                padding: '12px',
-                                fontSize: '14px',
-                                fontWeight: '500',
-                                border: '1px solid #d1d5db',
-                                borderRadius: '8px',
-                                background: 'white',
-                                color: '#374151',
-                                cursor: 'pointer',
-                                transition: 'all 0.2s',
-                                textAlign: 'center'
-                            }}
-                            onMouseEnter={(e) => {
-                                e.target.style.background = '#f9fafb';
-                                e.target.style.borderColor = '#6366f1';
-                            }}
-                            onMouseLeave={(e) => {
-                                e.target.style.background = 'white';
-                                e.target.style.borderColor = '#d1d5db';
-                            }}
-                        >
-                            ➕ Thêm ảnh ({previewUrls.length}/5)
-                        </label>
-                        
-                        <p style={{
-                            fontSize: '12px',
-                            color: '#9ca3af',
-                            marginTop: '8px',
-                            marginBottom: 0,
-                            textAlign: 'center'
+                        <div style={{
+                            padding: '40px 20px',
+                            textAlign: 'center',
+                            background: '#fafafa',
+                            borderRadius: '8px',
+                            border: '2px dashed #d1d5db'
                         }}>
-                            JPG, PNG, WEBP • Tối đa 5 ảnh
-                        </p>
+                            <p style={{
+                                fontSize: '48px',
+                                margin: '0 0 12px 0',
+                                filter: 'grayscale(1)',
+                                opacity: '0.5'
+                            }}>📷</p>
+                            <p style={{
+                                margin: '0 0 8px 0',
+                                fontSize: '14px',
+                                color: '#6b7280',
+                                fontWeight: '500'
+                            }}>
+                                Thêm ảnh sau khi tạo sản phẩm
+                            </p>
+                            <p style={{
+                                margin: '0',
+                                fontSize: '12px',
+                                color: '#9ca3af',
+                                lineHeight: '1.5'
+                            }}>
+                                Sau khi tạo sản phẩm, bạn sẽ được<br/>chuyển đến trang chỉnh sửa để thêm ảnh
+                            </p>
+                        </div>
                     </div>
 
                     {/* Tips Card */}
@@ -741,9 +583,9 @@ export default function AdminProductAdd() {
                         }}>
                             <li>Tên sản phẩm nên rõ ràng, dễ hiểu</li>
                             <li>Giá bán nên là số tròn nghìn</li>
-                            <li>Ảnh đầu tiên sẽ là ảnh chính</li>
-                            <li>Nên upload ít nhất 2-3 ảnh</li>
-                            <li>Ảnh nên rõ nét, kích thước phù hợp</li>
+                            <li>Điền đầy đủ thông tin bắt buộc (*)</li>
+                            <li>Ảnh sẽ được thêm ở bước tiếp theo</li>
+                            <li>Có thể chỉnh sửa sau khi tạo</li>
                         </ul>
                     </div>
                 </div>

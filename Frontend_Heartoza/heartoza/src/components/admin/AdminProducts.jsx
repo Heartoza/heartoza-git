@@ -98,6 +98,7 @@ export default function AdminProducts() {
                         <th>Tên</th>
                         <th>SKU</th>
                         <th>Giá</th>
+                        <th>Số lượng</th>
                         <th>Danh mục</th>
                         <th>Trạng thái</th>
                         <th style={{ width: 220 }}>Thao tác</th>
@@ -111,6 +112,12 @@ export default function AdminProducts() {
                                 <td>{p.name}</td>
                                 <td>{p.sku || "-"}</td>
                                 <td>{Number(p.price).toLocaleString()} đ</td>
+                                <td style={{ 
+                                    color: p.onHand === 0 ? '#f44336' : p.onHand < 20 ? '#ff9800' : '#4caf50',
+                                    fontWeight: '600'
+                                }}>
+                                    {p.onHand || 0}
+                                </td>
                                 <td>{catName(p.categoryId)}</td>
                                 <td>{p.isActive ? "✅ Hoạt động" : "⛔ Ẩn"}</td>
                                 <td className="row-actions">
@@ -122,7 +129,7 @@ export default function AdminProducts() {
                             </tr>
                         ))
                     ) : (
-                        <tr><td colSpan="7" className="empty">Không có sản phẩm nào.</td></tr>
+                        <tr><td colSpan="8" className="empty">Không có sản phẩm nào.</td></tr>
                     )}
                 </tbody>
             </table>

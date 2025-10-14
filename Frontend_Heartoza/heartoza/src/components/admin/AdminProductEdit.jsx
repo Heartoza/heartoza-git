@@ -12,7 +12,7 @@ export default function AdminProductEdit() {
     const isNew = id === 'new';
 
     const [formData, setFormData] = useState({
-        name: '', sku: '', price: 0, categoryId: null, isActive: true
+        name: '', sku: '', price: 0, quantity: 0, categoryId: null, isActive: true
     });
     const [categories, setCategories] = useState([]);
     const [loading, setLoading] = useState(!isNew);
@@ -33,6 +33,7 @@ export default function AdminProductEdit() {
                     name: productDetail.name || '',
                     sku: productDetail.sku || '',
                     price: productDetail.price || 0,
+                    quantity: productDetail.onHand || 0,
                     categoryId: productDetail.categoryId,
                     isActive: productDetail.isActive
                 });
@@ -61,7 +62,11 @@ export default function AdminProductEdit() {
         setError('');
         setSaving(true);
         try {
-            const payload = { ...formData, price: Number(formData.price) };
+            const payload = { 
+                ...formData, 
+                price: Number(formData.price),
+                quantity: Number(formData.quantity)
+            };
             if (isNew) {
                 const newProduct = await AdminService.createProduct(payload);
                 alert('Thêm sản phẩm thành công!');
@@ -151,6 +156,36 @@ export default function AdminProductEdit() {
                             />
                         </div>
 
+                        <div className="form-group" style={{ marginBottom: '20px' }}>
+                            <label style={{
+                                display: 'block',
+                                fontSize: '14px',
+                                fontWeight: '500',
+                                color: '#374151',
+                                marginBottom: '8px'
+                            }}>
+                                SKU
+                            </label>
+                            <input 
+                                name="sku" 
+                                value={formData.sku} 
+                                onChange={handleChange} 
+                                placeholder="Mã sản phẩm"
+                                style={{
+                                    width: '100%',
+                                    padding: '10px 14px',
+                                    fontSize: '14px',
+                                    border: '1px solid #d1d5db',
+                                    borderRadius: '8px',
+                                    outline: 'none',
+                                    transition: 'all 0.2s',
+                                    boxSizing: 'border-box'
+                                }}
+                                onFocus={(e) => e.target.style.borderColor = '#6366f1'}
+                                onBlur={(e) => e.target.style.borderColor = '#d1d5db'}
+                            />
+                        </div>
+
                         <div className="form-row" style={{
                             display: 'grid',
                             gridTemplateColumns: '1fr 1fr',
@@ -165,13 +200,16 @@ export default function AdminProductEdit() {
                                     color: '#374151',
                                     marginBottom: '8px'
                                 }}>
-                                    SKU
+                                    Giá (VNĐ) <span style={{ color: '#ef4444' }}>*</span>
                                 </label>
                                 <input 
-                                    name="sku" 
-                                    value={formData.sku} 
+                                    name="price" 
+                                    type="number" 
+                                    value={formData.price} 
                                     onChange={handleChange} 
-                                    placeholder="Mã sản phẩm"
+                                    placeholder="0" 
+                                    min="0"
+                                    required
                                     style={{
                                         width: '100%',
                                         padding: '10px 14px',
@@ -194,12 +232,12 @@ export default function AdminProductEdit() {
                                     color: '#374151',
                                     marginBottom: '8px'
                                 }}>
-                                    Giá (VNĐ) <span style={{ color: '#ef4444' }}>*</span>
+                                    Số lượng <span style={{ color: '#ef4444' }}>*</span>
                                 </label>
                                 <input 
-                                    name="price" 
+                                    name="quantity" 
                                     type="number" 
-                                    value={formData.price} 
+                                    value={formData.quantity} 
                                     onChange={handleChange} 
                                     placeholder="0" 
                                     min="0"
