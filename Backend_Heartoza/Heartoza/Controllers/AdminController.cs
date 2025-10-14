@@ -1,6 +1,7 @@
 ﻿using Heartoza.DTO.Categories;
 using Heartoza.DTO.Orders;
 using Heartoza.DTO.Products;
+using Heartoza.DTO.Users;
 using Heartoza.Models;
 using Heartoza.Services;
 using Microsoft.AspNetCore.Authorization;
@@ -28,31 +29,57 @@ public class AdminController : ControllerBase
     // ========================== USER MANAGEMENT ==========================
 
     [HttpGet("users")]
-    public async Task<IActionResult> GetUsers([FromQuery] int page = 1, [FromQuery] int pageSize = 20)
+    public async Task<IActionResult> GetUsers(
+    [FromQuery] string? q,
+    [FromQuery] string? role,
+    [FromQuery] bool? active,
+    [FromQuery] int page = 1,
+    [FromQuery] int pageSize = 20,
+    [FromQuery] string sort = "createdAt_desc")
     {
-        if (page <= 0) page = 1;
-        if (pageSize <= 0 || pageSize > 100) pageSize = 20;
+        page = Math.Max(1, page);
+        pageSize = Math.Clamp(pageSize, 1, 100);
 
-        var query = _db.Users.AsNoTracking().OrderBy(u => u.UserId);
+        var query = _db.Users.AsNoTracking().AsQueryable();
+
+        if (!string.IsNullOrWhiteSpace(q))
+        {
+            var like = q.Trim().ToLower();
+            query = query.Where(u => (u.FullName ?? "").ToLower().Contains(like)
+                                  || u.Email.ToLower().Contains(like));
+        }
+        if (!string.IsNullOrWhiteSpace(role))
+            query = query.Where(u => u.Role == role);
+        if (active.HasValue)
+            query = query.Where(u => u.IsActive == active.Value);
+
+        query = sort switch
+        {
+            "name_asc" => query.OrderBy(u => u.FullName).ThenBy(u => u.UserId),
+            "name_desc" => query.OrderByDescending(u => u.FullName).ThenByDescending(u => u.UserId),
+            "email_asc" => query.OrderBy(u => u.Email),
+            "email_desc" => query.OrderByDescending(u => u.Email),
+            "createdAt_asc" => query.OrderBy(u => u.CreatedAt),
+            _ => query.OrderByDescending(u => u.CreatedAt)
+        };
 
         var total = await query.CountAsync();
-        var items = await query
-            .Skip((page - 1) * pageSize)
-            .Take(pageSize)
-            .Select(u => new
-            {
+        var items = await query.Skip((page - 1) * pageSize).Take(pageSize)
+            .Select(u => new {
                 u.UserId,
                 u.FullName,
                 u.Email,
                 u.Role,
                 u.Phone,
                 u.CreatedAt,
-                u.IsActive
+                u.IsActive,
+                u.LastLoginAt
             })
             .ToListAsync();
 
         return Ok(new { page, pageSize, total, items });
     }
+
 
     [HttpPost("users/{id:int}/toggle")]
     public async Task<IActionResult> ToggleUser(int id)
@@ -60,10 +87,51 @@ public class AdminController : ControllerBase
         var user = await _db.Users.FindAsync(id);
         if (user == null) return NotFound();
 
-        user.IsActive = !(user.IsActive ?? true);
+        user.IsActive = !user.IsActive; // ✅ đơn giản, đúng schema
         await _db.SaveChangesAsync();
 
         return Ok(new { user.UserId, user.Email, user.IsActive });
+    }
+
+    [HttpPut("users/{id:int}")]
+    public async Task<IActionResult> UpdateUser(int id, [FromBody] AdminUpdateUserDto input)
+    {
+        var user = await _db.Users.FirstOrDefaultAsync(u => u.UserId == id);
+        if (user == null) return NotFound();
+
+        // Chặn self-lock/self-demote (tránh khoá mất admin cuối)
+        var currentIdStr = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+        int.TryParse(currentIdStr, out var currentUserId);
+        var isSelf = currentUserId != 0 && currentUserId == id;
+
+        if (isSelf && input.IsActive == false)
+            return BadRequest("Bạn không thể tự vô hiệu hoá tài khoản của chính mình.");
+        if (!string.IsNullOrWhiteSpace(input.Role))
+        {
+            if (isSelf && !string.Equals(user.Role, input.Role, StringComparison.Ordinal))
+                return BadRequest("Bạn không thể tự thay đổi role của chính mình.");
+            if (input.Role is not ("Admin" or "Staff" or "Customer"))
+                return BadRequest("Role không hợp lệ.");
+            user.Role = input.Role;
+        }
+
+        if (input.FullName != null) user.FullName = input.FullName.Trim();
+        if (input.Phone != null) user.Phone = input.Phone.Trim();
+        if (input.IsActive.HasValue) user.IsActive = input.IsActive.Value;
+
+        await _db.SaveChangesAsync();
+
+        return Ok(new
+        {
+            user.UserId,
+            user.Email,
+            user.FullName,
+            user.Phone,
+            user.Role,
+            user.IsActive,
+            user.LastLoginAt,
+            user.CreatedAt
+        });
     }
 
     // ========================== ORDER MANAGEMENT ==========================

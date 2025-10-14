@@ -418,3 +418,123 @@
     font-size: 1.2rem;
     color: #555;
 }
+/* === BỔ SUNG CHO AdminUsers.jsx (không đổi code cũ) === */
+
+/* Thanh lọc/sort */
+.filters-row {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin: 12px 0;
+}
+
+    .filters-row input,
+    .filters-row select {
+        padding: 8px 10px;
+        border: 1px solid #e5e7eb;
+        border-radius: 8px;
+        background: #fff;
+    }
+
+/* Badge role */
+.badge {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 999px;
+    font-size: 12px;
+    border: 1px solid #eee;
+}
+
+.badge-admin {
+    background: #eef2ff;
+}
+/* tím nhạt */
+.badge-staff {
+    background: #ecfeff;
+}
+/* xanh lơ nhạt */
+.badge-customer {
+    background: #f0fdf4;
+}
+/* xanh lá nhạt */
+
+/* Modal chỉnh sửa user */
+.modal-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,.2);
+    display: grid;
+    place-items: center;
+    z-index: 1000;
+}
+
+.modal {
+    width: 420px;
+    max-width: 92vw;
+    background: #fff;
+    border-radius: 16px;
+    padding: 16px;
+    box-shadow: 0 10px 30px rgba(0,0,0,.15);
+}
+
+    .modal h3 {
+        margin: 0 0 12px;
+    }
+
+.form {
+    display: grid;
+    gap: 8px;
+}
+
+    .form input, .form select {
+        padding: 10px 12px;
+        border-radius: 10px;
+        border: 1px solid #e5e7eb;
+        background: #fff;
+    }
+
+.switch {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 4px;
+}
+
+.actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+    margin-top: 14px;
+}
+
+/* Nút cơ bản dùng trong dialog (bổ sung base + variants) */
+.btn {
+    padding: 8px 12px;
+    border-radius: 10px;
+    border: 1px solid #e5e7eb;
+    background: #007ace;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+    .btn:hover {
+        background: #f8fafc;
+    }
+
+    .btn.primary {
+        background: #111827;
+        color: #fff;
+        border-color: #111827;
+    }
+
+    .btn.ghost {
+        background: #fff;
+        color: #111827;
+    }
+
+/* Hỗ trợ canh giữa text trong ô trống/đang tải */
+.text-center {
+    text-align: center;
+}
