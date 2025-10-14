@@ -3,6 +3,7 @@
   "WorkspaceRootPath": "D:\\FA25\\EXE201\\heartoza-git\\Backend_Heartoza\\",
   "Documents": [
     {
+<<<<<<< HEAD
       "AbsoluteMoniker": "D:0:0:{9F51160A-07B4-4347-8F06-B7D5DEC004B4}|Heartoza\\Heartoza.csproj|d:\\fa25\\exe201\\heartoza-git\\backend_heartoza\\heartoza\\controllers\\authcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{9F51160A-07B4-4347-8F06-B7D5DEC004B4}|Heartoza\\Heartoza.csproj|solutionrelative:heartoza\\controllers\\authcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
@@ -15,6 +16,14 @@
     },
     {
       "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|D:\\FA25\\EXE201\\heartoza-git\\Frontend_Heartoza\\heartoza\\src\\components\\admin\\AdminSidebar.jsx||{14D17961-FE51-464D-9111-C4AF11D7D99A}"
+=======
+      "AbsoluteMoniker": "D:0:0:{9F51160A-07B4-4347-8F06-B7D5DEC004B4}|Heartoza\\Heartoza.csproj|d:\\fa25\\exe201\\heartoza-git\\backend_heartoza\\heartoza\\controllers\\profilecontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{9F51160A-07B4-4347-8F06-B7D5DEC004B4}|Heartoza\\Heartoza.csproj|solutionrelative:heartoza\\controllers\\profilecontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{9F51160A-07B4-4347-8F06-B7D5DEC004B4}|Heartoza\\Heartoza.csproj|d:\\fa25\\exe201\\heartoza-git\\backend_heartoza\\heartoza\\controllers\\orderscontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{9F51160A-07B4-4347-8F06-B7D5DEC004B4}|Heartoza\\Heartoza.csproj|solutionrelative:heartoza\\controllers\\orderscontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+>>>>>>> vuhd
     }
   ],
   "DocumentGroupContainers": [
@@ -24,6 +33,7 @@
       "DocumentGroups": [
         {
           "DockedWidth": 272,
+<<<<<<< HEAD
           "SelectedChildIndex": 0,
           "Children": [
             {
@@ -84,6 +94,16 @@
             },
             {
               "$type": "Bookmark",
+=======
+          "SelectedChildIndex": 209,
+          "Children": [
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{e1b7d1f8-9b3c-49b1-8f4f-bfc63a88835d}"
+            },
+            {
+              "$type": "Bookmark",
+>>>>>>> vuhd
               "Name": "ST:0:0:{3ae79031-e1bc-11d0-8f78-00a0c9110057}"
             },
             {
@@ -913,6 +933,35 @@
             {
               "$type": "Bookmark",
               "Name": "ST:15:0:{e8034f19-ab72-4f06-83fd-f6832b41aa63}"
+<<<<<<< HEAD
+=======
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "ProfileController.cs",
+              "DocumentMoniker": "D:\\FA25\\EXE201\\heartoza-git\\Backend_Heartoza\\Heartoza\\Controllers\\ProfileController.cs",
+              "RelativeDocumentMoniker": "Heartoza\\Controllers\\ProfileController.cs",
+              "ToolTip": "D:\\FA25\\EXE201\\heartoza-git\\Backend_Heartoza\\Heartoza\\Controllers\\ProfileController.cs",
+              "RelativeToolTip": "Heartoza\\Controllers\\ProfileController.cs",
+              "ViewState": "AgIAAL4BAAAAAAAAAAAowOIBAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-10-14T21:15:20.959Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "OrdersController.cs",
+              "DocumentMoniker": "D:\\FA25\\EXE201\\heartoza-git\\Backend_Heartoza\\Heartoza\\Controllers\\OrdersController.cs",
+              "RelativeDocumentMoniker": "Heartoza\\Controllers\\OrdersController.cs",
+              "ToolTip": "D:\\FA25\\EXE201\\heartoza-git\\Backend_Heartoza\\Heartoza\\Controllers\\OrdersController.cs",
+              "RelativeToolTip": "Heartoza\\Controllers\\OrdersController.cs",
+              "ViewState": "AgIAAEcAAAAAAAAAAAAowG8AAAAeAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-10-14T21:14:03.118Z",
+              "EditorCaption": ""
+>>>>>>> vuhd
             }
           ]
         },

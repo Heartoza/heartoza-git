@@ -511,6 +511,12 @@ public class AdminController : ControllerBase
         var cat = await _db.Categories.FindAsync(id);
         if (cat == null) return NotFound();
 
+        // 🔒 NEW: chặn xóa nếu còn category con
+        var hasChildren = await _db.Categories.AnyAsync(c => c.ParentId == id);
+        if (hasChildren)
+            return BadRequest("Không thể xóa category cha vì vẫn còn category con. Hãy di chuyển hoặc xóa các category con trước.");
+
+        // (giữ nguyên) chặn xóa nếu còn sản phẩm
         var hasProducts = await _db.Products.AnyAsync(p => p.CategoryId == id);
         if (hasProducts)
             return BadRequest("Không thể xóa category vì vẫn còn sản phẩm.");
@@ -520,6 +526,7 @@ public class AdminController : ControllerBase
 
         return Ok(new { Message = $"Đã xóa category {id}" });
     }
+
     // GET /api/admin/orders/{id}
     [HttpGet("orders/{id:int}")]
     public async Task<IActionResult> GetById(int id, CancellationToken ct)

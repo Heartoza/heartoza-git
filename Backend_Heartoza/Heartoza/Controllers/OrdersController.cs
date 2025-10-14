@@ -20,64 +20,85 @@ public class OrdersController : ControllerBase
     [HttpPost]
     public async Task<IActionResult> Create([FromBody] CreateOrderRequest req, CancellationToken ct)
     {
+        // ===== 0) Validate input cơ bản =====
         if (req?.Items == null || req.Items.Count == 0)
-            return BadRequest("Thiếu danh sách sản phẩm.");
+            return BadRequest(new { message = "Thiếu danh sách sản phẩm." });
 
         if (string.IsNullOrWhiteSpace(req.Comment))
-            return BadRequest("Vui lòng nhập ghi chú (comment) cho đơn hàng.");
+            return BadRequest(new { message = "Vui lòng nhập ghi chú (comment) cho đơn hàng." });
+
+        if (req.Items.Any(i => i.ProductId <= 0 || i.Quantity <= 0))
+            return BadRequest(new { message = "Mỗi item phải có ProductId hợp lệ và Quantity > 0." });
+
+        if (req.ShippingFee < 0)
+            return BadRequest(new { message = "ShippingFee không được âm." });
 
         var userIdStr = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
         if (string.IsNullOrEmpty(userIdStr))
-            return Unauthorized("Không tìm thấy thông tin user trong token.");
-
-        if (req.Items.Any(i => i.ProductId <= 0 || i.Quantity <= 0))
-            return BadRequest("Mỗi item phải có ProductId hợp lệ và Quantity > 0.");
-        if (req.ShippingFee < 0)
-            return BadRequest("ShippingFee không được âm.");
+            return Unauthorized(new { message = "Không tìm thấy thông tin user trong token." });
 
         int userId = int.Parse(userIdStr);
 
-        // 1) Lấy CategoryId "Hộp quà"
+        // ===== 1) Validate địa chỉ giao hàng + SĐT =====
+        if (req.ShippingAddressId <= 0)
+            return BadRequest(new { message = "Thiếu địa chỉ giao hàng." });
+
+        var addr = await _db.Addresses
+            .AsNoTracking()
+            .FirstOrDefaultAsync(a => a.AddressId == req.ShippingAddressId && a.UserId == userId, ct);
+
+        if (addr == null)
+            return BadRequest(new { message = "Không tìm thấy địa chỉ giao hàng của bạn." });
+
+        var phone = (addr.Phone ?? "").Trim();
+        var phoneOk = !string.IsNullOrWhiteSpace(phone) && System.Text.RegularExpressions.Regex.IsMatch(phone, @"^[0-9+()\s-]{8,}$");
+        if (!phoneOk)
+            return BadRequest(new { message = "Địa chỉ giao hàng thiếu số điện thoại hợp lệ." });
+
+        // ===== 2) Lấy CategoryId 'Hộp quà' =====
         var giftBoxCatId = await _db.Categories.AsNoTracking()
             .Where(c => c.Name == "Hộp quà")
             .Select(c => c.CategoryId)
             .FirstOrDefaultAsync(ct);
         if (giftBoxCatId == 0)
-            return BadRequest("Thiếu danh mục 'Hộp quà'.");
+            return BadRequest(new { message = "Thiếu danh mục 'Hộp quà'." });
 
-        // 2) Gom items
+        // ===== 3) Gom items theo ProductId =====
         var itemGroups = req.Items
             .GroupBy(i => i.ProductId)
             .Select(g => new { ProductId = g.Key, Quantity = g.Sum(x => x.Quantity) })
             .ToList();
         var pids = itemGroups.Select(x => x.ProductId).ToList();
 
-        // 3) Products (active)
+        // ===== 4) Lấy products đang active =====
         var products = await _db.Products.AsNoTracking()
             .Where(p => p.IsActive == true && pids.Contains(p.ProductId))
             .Select(p => new { p.ProductId, p.CategoryId, Price = (decimal?)p.Price })
             .ToListAsync(ct);
         if (products.Count != pids.Count)
-            return BadRequest("Có sản phẩm không tồn tại hoặc không hoạt động.");
+            return BadRequest(new { message = "Có sản phẩm không tồn tại hoặc không hoạt động." });
 
-        // 4) Rule hộp quà
+        // ===== 5) Rule 'Hộp quà' phải có ít nhất 1 item =====
         if (!products.Any(p => p.CategoryId == giftBoxCatId))
-            return BadRequest("Đơn hàng phải có ít nhất 1 sản phẩm thuộc danh mục 'Hộp quà'.");
+            return BadRequest(new { message = "Đơn hàng phải có ít nhất 1 sản phẩm thuộc danh mục 'Hộp quà'." });
 
-        // 5) Kiểm tồn kho (đọc trước khi vào tx)
-        var invRows = await _db.Inventories.Where(i => pids.Contains(i.ProductId)).ToListAsync(ct);
+        // ===== 6) Kiểm tồn kho trước khi vào transaction =====
+        var invRows = await _db.Inventories
+            .Where(i => pids.Contains(i.ProductId))
+            .ToListAsync(ct);
         var invMap = invRows.ToDictionary(i => i.ProductId, i => i);
+
         foreach (var g in itemGroups)
         {
             if (!invMap.TryGetValue(g.ProductId, out var invRow))
-                return BadRequest($"Sản phẩm {g.ProductId} chưa có dòng tồn kho.");
+                return BadRequest(new { message = $"Sản phẩm {g.ProductId} chưa có dòng tồn kho." });
 
-            var onHand = (int)invRow.Quantity; // Quantity là int (không null)
+            var onHand = (int)invRow.Quantity; // int non-null
             if (onHand < g.Quantity)
-                return BadRequest($"Sản phẩm {g.ProductId} không đủ hàng (tồn: {onHand}, cần: {g.Quantity}).");
+                return BadRequest(new { message = $"Sản phẩm {g.ProductId} không đủ hàng (tồn: {onHand}, cần: {g.Quantity})." });
         }
 
-        // 6) Tính tiền
+        // ===== 7) Tính tiền =====
         decimal subtotal = 0m;
         foreach (var g in itemGroups)
         {
@@ -86,7 +107,7 @@ public class OrdersController : ControllerBase
         }
         decimal grand = subtotal + req.ShippingFee;
 
-        // 7) Thực thi có retry + transaction
+        // ===== 8) Transaction + retry strategy =====
         var strategy = _db.Database.CreateExecutionStrategy();
         return await strategy.ExecuteAsync<IActionResult>(async () =>
         {
@@ -94,6 +115,7 @@ public class OrdersController : ControllerBase
             try
             {
                 var nowUtc = DateTime.UtcNow;
+
                 var order = new Order
                 {
                     OrderCode = $"GBX-{nowUtc:yyyyMMddHHmmssfff}",
@@ -122,7 +144,7 @@ public class OrdersController : ControllerBase
                         UnitPrice = unit
                     });
 
-                    // Trừ tồn (Quantity là int non-null)
+                    // Trừ tồn
                     var invRow = invMap[g.ProductId];
                     invRow.Quantity = invRow.Quantity - g.Quantity;
                     if (invRow.Quantity < 0)
@@ -161,7 +183,6 @@ public class OrdersController : ControllerBase
             }
         });
     }
-
 
 
     // GET /api/orders (list + filter/paging/sort)

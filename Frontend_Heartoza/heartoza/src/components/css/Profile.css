@@ -1,28 +1,24 @@
-
+﻿/* -------- NEW palette: light theme with Heartoza accent -------- */
 :root {
-    --bg: #0b0f19;
-    --card: #111827;
-    --muted: #9aa4b2;
-    --text: #e5e7eb;
-    --primary: #3b82f6;
+    --bg: #ffffff;
+    --card: #ffffff;
+    --muted: #6b7280;
+    --text: #111827;
+    --primary: #ff6f61; /* accent đồng bộ admin */
     --danger: #ef4444;
-    --ring: rgba(59,130,246,.3);
+    --ring: rgba(255,111,97,.25);
 }
 
+/* layout tổng thể */
 .profile-wrapper {
-    max-width: 1920px;
-    margin: 24px auto;
-    padding: 0 16px;
     color: var(--text);
 }
 
+/* cards */
 .profile-card, .address-card {
     background: var(--card);
-    border: 1px solid #1f2937;
-    border-radius: 16px;
-    padding: 20px;
-    box-shadow: 0 8px 24px rgba(0,0,0,.25);
-    margin-bottom: 20px;
+    border: 1px solid #eee;
+    box-shadow: 0 6px 16px rgba(0,0,0,.06);
 }
 
 .profile-top {
@@ -37,7 +33,7 @@
     height: 96px;
     border-radius: 50%;
     overflow: hidden;
-    background: #0f172a;
+    background: #f3f4f6; /* was #0f172a */
     display: flex;
     align-items: center;
     justify-content: center;
@@ -51,7 +47,7 @@
 
 .avatar-fallback {
     font-size: 32px;
-    color: #93c5fd;
+    color: #ff8a7d; /* was #93c5fd */
 }
 
 .info h2 {
@@ -68,9 +64,9 @@
     margin-top: 6px;
     padding: 4px 10px;
     border-radius: 999px;
-    background: #0b1220;
-    border: 1px solid #203354;
-    color: #93c5fd;
+    background: #fff8f7; /* was #0b1220 */
+    border: 1px solid #ffd7d0; /* was #203354 */
+    color: #ff6f61; /* was #93c5fd */
     font-size: 12px;
 }
 
@@ -87,13 +83,13 @@
 }
 
 .profile-form label {
-    color: #c1c9d6;
+    color: #6b7280; /* was #c1c9d6 */
     font-size: 14px;
 }
 
 .profile-form input {
-    background: #0b1220;
-    border: 1px solid #1f2a44;
+    background: #fff; /* was #0b1220 */
+    border: 1px solid #e5e7eb; /* was #1f2a44 */
     color: var(--text);
     padding: 10px 12px;
     border-radius: 10px;
@@ -133,15 +129,15 @@
 }
 
 .address-item {
-    border: 1px solid #1f2937;
+    border: 1px solid #eee; /* was #1f2937 */
     border-radius: 12px;
     padding: 12px;
-    background: #0b1220;
+    background: #fff; /* was #0b1220 */
 }
 
     .address-item.default {
-        border-color: #2756a8;
-        box-shadow: 0 0 0 2px rgba(59,130,246,.2) inset;
+        border-color: #ffb3a8; /* highlight accent */
+        box-shadow: 0 0 0 2px rgba(255,111,97,.15) inset; /* was blue */
     }
 
 .address-head {
@@ -152,14 +148,14 @@
 
 .default-badge {
     font-size: 12px;
-    color: #60a5fa;
-    border: 1px solid #1f3b76;
+    color: #ff6f61; /* was #60a5fa */
+    border: 1px solid #ffd7d0; /* was #1f3b76 */
     padding: 2px 8px;
     border-radius: 999px;
 }
 
 .address-body {
-    color: #cbd5e1;
+    color: #374151; /* was #cbd5e1 */
     margin-top: 6px;
     display: grid;
     gap: 2px;
@@ -175,24 +171,26 @@
 .btn {
     padding: 10px 14px;
     border-radius: 10px;
-    border: 1px solid transparent;
-    background: #0f172a;
+    border: 1px solid #e5e7eb; /* was transparent */
+    background: #fff; /* was #0f172a */
     color: var(--text);
     cursor: pointer;
 }
 
     .btn.primary {
         background: var(--primary);
-        border-color: #1e40af;
+        border-color: #ff6f61; /* was #1e40af */
+        color: #fff;
     }
 
     .btn.light {
-        border-color: #25324a;
+        border-color: #e5e7eb; /* was #25324a */
     }
 
     .btn.danger {
         background: var(--danger);
-        border-color: #7f1d1d;
+        border-color: #dc2626; /* was #7f1d1d */
+        color: #fff;
     }
 
     .btn:disabled {
@@ -218,8 +216,8 @@
 
 .modal {
     width: min(640px, calc(100% - 24px));
-    background: var(--card);
-    border: 1px solid #1f2937;
+    background: var(--card); /* now white */
+    border: 1px solid #eee; /* was #1f2937 */
     border-radius: 16px;
     padding: 16px;
 }
@@ -238,13 +236,13 @@
         display: flex;
         flex-direction: column;
         gap: 6px;
-        color: #c1c9d6;
+        color: #6b7280; /* was #c1c9d6 */
         font-size: 14px;
     }
 
     .grid input {
-        background: #0b1220;
-        border: 1px solid #1f2a44;
+        background: #fff; /* was #0b1220 */
+        border: 1px solid #e5e7eb; /* was #1f2a44 */
         color: var(--text);
         padding: 10px 12px;
         border-radius: 10px;
@@ -276,5 +274,310 @@
 
     .grid {
         grid-template-columns: 1fr;
+    }
+}
+
+/* Badge cảnh báo thiếu SĐT (nếu dùng) */
+.warn-badge {
+    margin-left: 8px;
+    font-size: 12px;
+    color: #b45309;
+    background: #fff7ed;
+    border: 1px solid #fed7aa;
+    padding: 2px 8px;
+    border-radius: 999px;
+}
+/* === PROFILE TWEAKS: canh lề & pop giống admin === */
+
+/* 1) Container gọn lại, có gutter hai bên */
+.profile-wrapper {
+    max-width: 1080px; /* trước là 1920 */
+    margin: 24px auto;
+    padding: 0 24px; /* gutter rõ ràng */
+    background: #fff; /* nổi trên nền tổng */
+}
+
+/* 2) Lưới 2 cột cân đối & khoảng cách */
+.content-grid {
+    display: grid;
+    grid-template-columns: 1.3fr 1fr;
+    gap: 20px;
+}
+
+/* 3) Card “đậm đà” như admin dashboard */
+.profile-card, .address-card {
+    background: #ffffff;
+    border: 1px solid #f1f5f9;
+    box-shadow: 0 6px 16px rgba(17,24,39,.06);
+    border-radius: 16px;
+    padding: 24px;
+}
+
+/* 4) Header khu trên: căn lại khoảng cách */
+.profile-top {
+    grid-template-columns: 96px 1fr auto;
+    gap: 20px;
+}
+
+/* 5) Nhấn mạnh tiêu đề section */
+.section-title {
+    margin: 0 0 10px 0;
+    font-size: 18px;
+    font-weight: 700;
+    color: #111827;
+}
+
+/* 6) Email nhạt hơn một chút cho gọn mắt */
+.email {
+    color: #6b7280;
+}
+
+/* 7) Badge role theo accent #ff6f61 cho đồng bộ admin */
+.role-badge {
+    background: #fff8f7;
+    border: 1px solid #ffd7d0;
+    color: #ff6f61;
+}
+
+/* 8) Input sáng, viền rõ, focus accent */
+.profile-form input,
+.grid input {
+    background: #fff;
+    border: 1px solid #e5e7eb;
+    color: #111827;
+}
+
+    .profile-form input:focus,
+    .grid input:focus {
+        border-color: #ff6f61;
+        box-shadow: 0 0 0 3px rgba(255,111,97,.25);
+    }
+
+/* 9) Address item sáng + default accent hồng cam */
+.address-item {
+    background: #fff;
+    border: 1px solid #f1f5f9;
+}
+
+    .address-item.default {
+        border-color: #ffb3a8;
+        box-shadow: 0 0 0 2px rgba(255,111,97,.15) inset;
+    }
+
+.default-badge {
+    color: #ff6f61;
+    border: 1px solid #ffd7d0;
+}
+
+/* 10) Nút theo style admin */
+.btn {
+    padding: 10px 14px;
+    border-radius: 12px;
+    border: 1px solid #e5e7eb;
+    background: #ffffff;
+    color: #111827;
+    transition: transform .06s ease, box-shadow .2s ease, background .2s ease;
+}
+
+    .btn:hover {
+        background: #f9fafb;
+        box-shadow: 0 2px 8px rgba(0,0,0,.06);
+    }
+
+    .btn.primary {
+        background: #ff6f61;
+        border-color: #ff6f61;
+        color: #fff;
+    }
+
+    .btn.danger {
+        background: #ef4444;
+        border-color: #ef4444;
+        color: #fff;
+    }
+
+/* 11) Modal theo nền sáng */
+.modal {
+    background: #fff;
+    border: 1px solid #eee;
+}
+
+/* 12) Responsive giữ gutter */
+@media (max-width: 720px) {
+    .profile-wrapper {
+        padding: 0 16px;
+    }
+
+    .content-grid {
+        grid-template-columns: 1fr;
+        gap: 16px;
+    }
+}
+/* === Profile polish: colorful like dashboard === */
+
+/* 0) nền trang dịu + footer không dính sát */
+body {
+    background: #f8fafc;
+}
+
+.profile-wrapper {
+    max-width: 1120px;
+    margin: 28px auto 48px;
+    padding: 0 24px;
+}
+
+/* 1) Hero card (card đầu tiên) có gradient + viền mờ */
+.profile-card:first-of-type {
+    background: linear-gradient(180deg, #ffffff 0%, #fff8f7 100%);
+    border: 1px solid #ffe3dd;
+    box-shadow: 0 16px 40px rgba(255,111,97,.08);
+    border-radius: 20px;
+    padding: 28px;
+    margin-bottom: 22px; /* tách khỏi card dưới */
+}
+
+/* 2) Lưới 2 cột với khoảng cách rõ */
+.content-grid {
+    display: grid;
+    grid-template-columns: 1.2fr 1fr;
+    gap: 20px;
+}
+
+/* 3) Card thường: tách nhau, bóng nhẹ */
+.profile-card, .address-card {
+    border-radius: 18px;
+    border: 1px solid #eef2f7;
+    background: #fff;
+    box-shadow: 0 10px 26px rgba(15, 23, 42, .06);
+    padding: 22px;
+}
+
+    .profile-card + .profile-card,
+    .profile-card + .address-card,
+    .address-card + .profile-card,
+    .address-card + .address-card {
+        margin-top: 0;
+    }
+
+/* 4) Avatar & header cân đối */
+.avatar {
+    background: #f3f4f6;
+}
+
+.avatar-fallback {
+    color: #ff8a7d;
+}
+
+.top-main .email {
+    display: inline-block;
+    background: #f1f5f9;
+    color: #374151;
+    border: 1px solid #e5e7eb;
+    padding: 6px 10px;
+    border-radius: 999px;
+}
+
+.role-badge {
+    background: #fff1ee;
+    border: 1px solid #ffd7d0;
+    color: #ff6f61;
+    font-weight: 600;
+}
+
+/* 5) Section title giống admin */
+.section-title {
+    margin: 0 0 12px 0;
+    font: 700 18px/1.3 ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial;
+    color: #0f172a;
+}
+
+/* 6) Input sáng + focus accent */
+.profile-form input, .grid input {
+    background: #fff;
+    border: 1px solid #e5e7eb;
+    color: #111827;
+    box-shadow: 0 1px 0 rgba(0,0,0,.02) inset;
+}
+
+    .profile-form input:focus, .grid input:focus {
+        border-color: #ff6f61;
+        box-shadow: 0 0 0 3px rgba(255,111,97,.25);
+    }
+
+/* 7) Buttons như admin */
+.btn {
+    padding: 10px 14px;
+    border-radius: 12px;
+    border: 1px solid #e5e7eb;
+    background: #fff;
+    color: #0f172a;
+    transition: transform .06s ease, box-shadow .2s ease, background .2s ease;
+}
+
+    .btn:hover {
+        background: #f9fafb;
+        box-shadow: 0 4px 12px rgba(15,23,42,.08);
+        transform: translateY(-1px);
+    }
+
+    .btn.primary {
+        background: #ff6f61;
+        border-color: #ff6f61;
+        color: #fff;
+    }
+
+        .btn.primary:hover {
+            box-shadow: 0 8px 18px rgba(255,111,97,.25);
+        }
+
+    .btn.danger {
+        background: #fee2e2;
+        border-color: #fecaca;
+        color: #b91c1c;
+    }
+
+        .btn.danger:hover {
+            background: #ef4444;
+            border-color: #ef4444;
+            color: #fff;
+        }
+
+/* 8) Address list pop hơn */
+.address-item {
+    background: #fff;
+    border: 1px solid #eef2f7;
+    border-radius: 16px;
+    box-shadow: 0 8px 20px rgba(15,23,42,.05);
+}
+
+    .address-item.default {
+        border-color: #ffb3a8;
+        box-shadow: 0 0 0 2px rgba(255,111,97,.15) inset;
+    }
+
+.default-badge {
+    color: #ff6f61;
+    border: 1px solid #ffd7d0;
+    background: #fff8f7;
+    font-weight: 600;
+}
+
+/* 9) Modal sáng, bóng mềm */
+.modal {
+    background: #fff;
+    border: 1px solid #eef2f7;
+    box-shadow: 0 20px 60px rgba(15,23,42,.18);
+    border-radius: 20px;
+}
+
+/* 10) Responsive */
+@media (max-width: 900px) {
+    .content-grid {
+        grid-template-columns: 1fr;
+        gap: 16px;
+    }
+
+    .profile-card, .address-card {
+        padding: 18px;
     }
 }

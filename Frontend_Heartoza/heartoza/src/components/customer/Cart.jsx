@@ -5,17 +5,23 @@ import { useNavigate } from "react-router-dom";
 import "../css/Cart.css";
 import http from "../../services/api";
 
+const PHONE_RE = /^[0-9+()\s-]{8,}$/;
+
 export default function Cart() {
     const [cart, setCart] = useState(null);
     const navigate = useNavigate();
     const [loading, setLoading] = useState(true);
+
     const [accessory, setAccessory] = useState("");
     const [led, setLed] = useState("Không");
     const [wish, setWish] = useState("");
     const [cardMessage, setCardMessage] = useState("");
+
     const [selectedItems, setSelectedItems] = useState([]);
     const [selectAll, setSelectAll] = useState(false);
-    const [addresses, setAddresses] = useState([]);
+
+    const [addresses, setAddresses] = useState([]);            // tất cả địa chỉ (raw)
+    const [usableAddresses, setUsableAddresses] = useState([]); // địa chỉ có SĐT hợp lệ
     const [selectedAddress, setSelectedAddress] = useState(null);
 
     useEffect(() => {
@@ -40,9 +46,17 @@ export default function Cart() {
                 setCart(mappedCart);
 
                 const profile = await AuthService.getProfile();
-                setAddresses(profile.addresses || []);
-                const defaultAddr = profile.addresses?.find((a) => a.isDefault);
-                if (defaultAddr) setSelectedAddress(defaultAddr.addressId);
+                const raw = profile.addresses || [];
+                const usable = raw.filter((a) => PHONE_RE.test((a.phone || "").trim()));
+
+                setAddresses(raw);
+                setUsableAddresses(usable);
+
+                // ưu tiên default hợp lệ, nếu không lấy cái đầu tiên hợp lệ
+                const defaultUsable = usable.find((a) => a.isDefault);
+                if (defaultUsable) setSelectedAddress(defaultUsable.addressId);
+                else if (usable.length) setSelectedAddress(usable[0].addressId);
+                else setSelectedAddress(null);
             } catch (err) {
                 console.error("Lỗi khi load Cart/Addresses:", err);
             } finally {
@@ -79,6 +93,7 @@ export default function Cart() {
             });
         } catch (err) {
             console.error("Lỗi cập nhật giỏ hàng:", err);
+            alert(err.userMessage || "Cập nhật giỏ hàng thất bại.");
         }
     };
 
@@ -99,14 +114,13 @@ export default function Cart() {
             setSelectedItems((prev) => prev.filter((id) => id !== cartItemId));
         } catch (err) {
             console.error("Lỗi xóa item:", err);
+            alert(err.userMessage || "Xoá sản phẩm thất bại.");
         }
     };
 
     const toggleSelectItem = (cartItemId) => {
         setSelectedItems((prev) =>
-            prev.includes(cartItemId)
-                ? prev.filter((x) => x !== cartItemId)
-                : [...prev, cartItemId]
+            prev.includes(cartItemId) ? prev.filter((x) => x !== cartItemId) : [...prev, cartItemId]
         );
     };
 
@@ -130,6 +144,14 @@ export default function Cart() {
             alert("Vui lòng chọn địa chỉ giao hàng.");
             return;
         }
+
+        // ✅ bảo hiểm: selectedAddress phải nằm trong usableAddresses
+        const isUsable = usableAddresses.some((a) => a.addressId === selectedAddress);
+        if (!isUsable) {
+            alert("Địa chỉ giao hàng thiếu số điện thoại hợp lệ. Vui lòng cập nhật trong trang Hồ sơ.");
+            return;
+        }
+
         if (!accessory.trim() || !led.trim() || !cardMessage.trim() || !wish.trim()) {
             alert("⚠️ Vui lòng điền đầy đủ tất cả các trường trong phần ghi chú (Phụ kiện, LED, Lời nhắn, Mong muốn).");
             return;
@@ -156,32 +178,25 @@ export default function Cart() {
             const res = await http.post("orders", payload);
             alert(`✅ Thanh toán thành công! Mã đơn: ${res.data.orderCode}`);
 
-            await Promise.all(
-                selectedItems.map((id) => http.delete(`Cart/RemoveItem/${id}`))
-            );
+            await Promise.all(selectedItems.map((id) => http.delete(`Cart/RemoveItem/${id}`)));
 
             setCart((prev) => ({
                 ...prev,
-                cartItems: prev.cartItems.filter(
-                    (ci) => !selectedItems.includes(ci.cartItemId)
-                ),
+                cartItems: prev.cartItems.filter((ci) => !selectedItems.includes(ci.cartItemId)),
             }));
 
             setSelectedItems([]);
             navigate("/orders");
         } catch (err) {
-            console.error("Lỗi thanh toán chi tiết:", err.response || err.message);
-
-            if (err.response && err.response.data) {
-                const serverMessage =
-                    err.response.data.message ||
-                    err.response.data.title ||
-                    err.response.data ||
-                    "Có lỗi xảy ra khi tạo đơn hàng.";
-                alert(`❌ ${serverMessage}`);
-            } else {
-                alert("❌ Không thể kết nối đến máy chủ. Vui lòng thử lại!");
-            }
+            console.error("Lỗi thanh toán chi tiết:", err);
+            // dùng message chuẩn hoá từ interceptor
+            const msg =
+                err?.userMessage ||
+                err?.response?.data?.message ||
+                err?.response?.data?.title ||
+                err?.response?.data ||
+                "Có lỗi xảy ra khi tạo đơn hàng.";
+            alert(`❌ ${msg}`);
         }
     };
 
@@ -223,11 +238,7 @@ export default function Cart() {
                     {/* Select All Bar */}
                     <div className="select-all-bar">
                         <label>
-                            <input
-                                type="checkbox"
-                                checked={selectAll}
-                                onChange={toggleSelectAll}
-                            />
+                            <input type="checkbox" checked={selectAll} onChange={toggleSelectAll} />
                             Chọn tất cả ({cart.cartItems.length} sản phẩm)
                         </label>
                     </div>
@@ -236,7 +247,7 @@ export default function Cart() {
                     {cart.cartItems.map((item) => (
                         <div
                             key={item.cartItemId}
-                            className={`cart-item-card ${selectedItems.includes(item.cartItemId) ? 'selected' : ''}`}
+                            className={`cart-item-card ${selectedItems.includes(item.cartItemId) ? "selected" : ""}`}
                         >
                             <div className="item-checkbox">
                                 <input
@@ -248,7 +259,6 @@ export default function Cart() {
 
                             <div className="item-info">
                                 <h3 className="item-name">{item.productName}</h3>
-                                {/* Bạn có thể thêm ảnh sản phẩm ở đây nếu muốn */}
                             </div>
 
                             <div className="item-quantity">
@@ -302,10 +312,7 @@ export default function Cart() {
 
                         <div className="comment-field">
                             <label>💡 LED trang trí</label>
-                            <select
-                                value={led}
-                                onChange={(e) => setLed(e.target.value)}
-                            >
+                            <select value={led} onChange={(e) => setLed(e.target.value)}>
                                 <option value="Không">Không</option>
                                 <option value="Có">Có</option>
                             </select>
@@ -329,58 +336,61 @@ export default function Cart() {
                                 rows={3}
                             />
                         </div>
-
                     </div>
 
                     {/* Address Section */}
                     <div className="address-section">
                         <h3>🏠 Địa chỉ giao hàng</h3>
-                        {addresses.length === 0 ? (
-                            <div style={{ textAlign: 'center', padding: '20px' }}>
-                                <p style={{ color: '#718096', marginBottom: '12px' }}>
-                                    Chưa có địa chỉ giao hàng nào.
+
+                        {usableAddresses.length === 0 ? (
+                            <div style={{ textAlign: "center", padding: "20px" }}>
+                                <p style={{ color: "#718096", marginBottom: "12px" }}>
+                                    Chưa có địa chỉ hợp lệ (thiếu số điện thoại).
                                 </p>
                                 <a
                                     href="/profile"
-                                    style={{
-                                        color: '#667eea',
-                                        textDecoration: 'none',
-                                        fontWeight: 600
-                                    }}
+                                    style={{ color: "#ff6f61", textDecoration: "none", fontWeight: 600 }}
                                 >
-                                    + Thêm địa chỉ mới
+                                    + Cập nhật số điện thoại trong địa chỉ
                                 </a>
                             </div>
                         ) : (
-                            <ul>
-                                {addresses.map((addr) => (
-                                    <li
-                                        key={addr.addressId}
-                                        className={`address-item ${selectedAddress === addr.addressId ? 'selected' : ''}`}
-                                    >
-                                        <label>
-                                            <input
-                                                type="radio"
-                                                name="shippingAddress"
-                                                value={addr.addressId}
-                                                checked={selectedAddress === addr.addressId}
-                                                onChange={() => setSelectedAddress(addr.addressId)}
-                                            />
-                                            <div className="address-content">
-                                                <div className="address-name">
-                                                    {addr.fullName}
-                                                    {addr.isDefault && (
-                                                        <span className="default-badge">Mặc định</span>
-                                                    )}
+                            <>
+                                {/* nếu có địa chỉ bị ẩn vì thiếu SĐT, nhắc nhẹ */}
+                                {addresses.length > usableAddresses.length && (
+                                    <div className="note" style={{ marginBottom: 8, color: "#b45309" }}>
+                                        Một số địa chỉ đã ẩn vì thiếu số điện thoại. Hãy cập nhật trong trang Hồ sơ.
+                                    </div>
+                                )}
+
+                                <ul>
+                                    {usableAddresses.map((addr) => (
+                                        <li
+                                            key={addr.addressId}
+                                            className={`address-item ${selectedAddress === addr.addressId ? "selected" : ""}`}
+                                        >
+                                            <label>
+                                                <input
+                                                    type="radio"
+                                                    name="shippingAddress"
+                                                    value={addr.addressId}
+                                                    checked={selectedAddress === addr.addressId}
+                                                    onChange={() => setSelectedAddress(addr.addressId)}
+                                                />
+                                                <div className="address-content">
+                                                    <div className="address-name">
+                                                        {addr.fullName}
+                                                        {addr.isDefault && <span className="default-badge">Mặc định</span>}
+                                                    </div>
+                                                    <div className="address-details">
+                                                        {addr.line1}, {addr.district}, {addr.city} • 📞 {addr.phone}
+                                                    </div>
                                                 </div>
-                                                <div className="address-details">
-                                                    {addr.line1}, {addr.district}, {addr.city}
-                                                </div>
-                                            </div>
-                                        </label>
-                                    </li>
-                                ))}
-                            </ul>
+                                            </label>
+                                        </li>
+                                    ))}
+                                </ul>
+                            </>
                         )}
                     </div>
                 </div>
@@ -402,7 +412,9 @@ export default function Cart() {
 
                         <div className="summary-row">
                             <span className="summary-label">Thanh toán</span>
-                            <span className="summary-value" style={{ color: '#48bb78' }}>Khi nhận hàng</span>
+                            <span className="summary-value" style={{ color: "#48bb78" }}>
+                                Khi nhận hàng
+                            </span>
                         </div>
 
                         <div className="summary-total">
@@ -413,13 +425,13 @@ export default function Cart() {
                         <button
                             className="checkout-btn"
                             onClick={handleCheckout}
-                            disabled={selectedItems.length === 0 || !selectedAddress}
+                            disabled={selectedItems.length === 0 || !selectedAddress || usableAddresses.length === 0}
                         >
                             {selectedItems.length === 0
-                                ? '⚠️ Chọn sản phẩm'
-                                : !selectedAddress
-                                    ? '⚠️ Chọn địa chỉ'
-                                    : '✅ Thanh toán ngay'}
+                                ? "⚠️ Chọn sản phẩm"
+                                : !selectedAddress || usableAddresses.length === 0
+                                    ? "⚠️ Chọn địa chỉ hợp lệ"
+                                    : "✅ Thanh toán ngay"}
                         </button>
                     </div>
                 </div>

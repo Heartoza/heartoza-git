@@ -170,6 +170,11 @@ export default function Profile() {
 
     const saveAddress = async () => {
         try {
+            const phone = (addrForm.phone || "").trim();
+            if (!/^[0-9+()\s-]{8,}$/.test(phone)) {
+                addToast("Vui lòng nhập số điện thoại hợp lệ cho địa chỉ.", "error");
+                return;
+            }
             if (editing) {
                 await AuthService.updateAddress(editing.addressId, addrForm);
                 addToast("Đã cập nhật địa chỉ.", "success");
@@ -352,7 +357,8 @@ export default function Profile() {
                                             <div>📞 {a.phone || me.phone}</div>
                                         </div>
                                         <div className="address-actions">
-                                            {!a.isDefault && (
+                                            {/* chỉ cho đặt mặc định khi có phone */}
+                                            {!a.isDefault && !!(a.phone || "").trim() && (
                                                 <button className="btn ghost" onClick={() => setDefault(a.addressId)}>
                                                     Đặt mặc định
                                                 </button>
