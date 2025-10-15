@@ -394,10 +394,14 @@ public class ProductsController : ControllerBase
         });
     }
 
+    // TOP-SELLING: trả cả thumbnailUrl giống các endpoint khác
     [HttpGet("top-selling")]
-    public IActionResult GetTopSellingProducts([FromQuery] int top = 5)
+    public async Task<IActionResult> GetTopSellingProducts(
+        [FromQuery] int top = 5,
+        CancellationToken ct = default)
     {
-        var topProducts = _db.OrderItems
+        // Top N theo số lượng bán
+        var rows = await _db.OrderItems
             .GroupBy(oi => oi.ProductId)
             .Select(g => new
             {
@@ -405,21 +409,41 @@ public class ProductsController : ControllerBase
                 TotalSold = g.Sum(x => x.Quantity)
             })
             .OrderByDescending(x => x.TotalSold)
-            .Take(top)  // ✅ giới hạn ngay tại đây
-            .Join(_db.Products,
-                  g => g.ProductId,
-                  p => p.ProductId,
-                  (g, p) => new
-                  {
-                      p.ProductId,
-                      p.Sku,
-                      p.Name,
-                      p.Price,
-                      g.TotalSold
-                  })
-            .ToList();
+            .Take(top)
+            .Join(
+                _db.Products.AsNoTracking().Where(p => p.IsActive == true),
+                g => g.ProductId,
+                p => p.ProductId,
+                (g, p) => new
+                {
+                    p.ProductId,
+                    p.Sku,
+                    p.Name,
+                    p.Price,
+                    g.TotalSold,
+                    // lấy blob path ảnh chính để build URL
+                    PrimaryBlobPath = _db.ProductMedia
+                        .Where(pm => pm.ProductId == p.ProductId)
+                        .OrderByDescending(pm => pm.IsPrimary)
+                        .ThenBy(pm => pm.SortOrder)
+                        .Select(pm => pm.Media.BlobPath)
+                        .FirstOrDefault()
+                }
+            )
+            .ToListAsync(ct);
 
-        return Ok(topProducts);
+        // Build ra payload chuẩn có thumbnailUrl
+        var result = rows.Select(r => new
+        {
+            r.ProductId,
+            r.Sku,
+            name = r.Name,
+            price = r.Price,
+            totalSold = r.TotalSold,
+            thumbnailUrl = BuildImageUrl(r.PrimaryBlobPath, 10) // <-- giống ProductList
+        });
+
+        return Ok(result);
     }
 
 }
