@@ -1,6 +1,5 @@
 {
   "Version": 1,
-<<<<<<< HEAD
   "WorkspaceRootPath": "E:\\heartoza-git\\Backend_Heartoza\\",
   "Documents": [
     {
@@ -18,16 +17,8 @@
     {
       "AbsoluteMoniker": "D:0:0:{9F51160A-07B4-4347-8F06-B7D5DEC004B4}|Heartoza\\Heartoza.csproj|e:\\heartoza-git\\backend_heartoza\\heartoza\\dbsetup.sql||{CC5D8DF0-88F4-4BB2-9DBB-B48CEE65C30A}",
       "RelativeMoniker": "D:0:0:{9F51160A-07B4-4347-8F06-B7D5DEC004B4}|Heartoza\\Heartoza.csproj|solutionrelative:heartoza\\dbsetup.sql||{CC5D8DF0-88F4-4BB2-9DBB-B48CEE65C30A}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{9F51160A-07B4-4347-8F06-B7D5DEC004B4}|Heartoza\\Heartoza.csproj|e:\\heartoza-git\\backend_heartoza\\heartoza\\dbsetup.sql||{CC5D8DF0-88F4-4BB2-9DBB-B48CEE65C30A}|CodeFrame",
-      "RelativeMoniker": "D:0:0:{9F51160A-07B4-4347-8F06-B7D5DEC004B4}|Heartoza\\Heartoza.csproj|solutionrelative:heartoza\\dbsetup.sql||{CC5D8DF0-88F4-4BB2-9DBB-B48CEE65C30A}|CodeFrame"
     }
   ],
-=======
-  "WorkspaceRootPath": "D:\\FA25\\EXE201\\heartoza-git\\Backend_Heartoza\\",
-  "Documents": [],
->>>>>>> dev
   "DocumentGroupContainers": [
     {
       "Orientation": 0,
@@ -35,23 +26,11 @@
       "DocumentGroups": [
         {
           "DockedWidth": 272,
-<<<<<<< HEAD
           "SelectedChildIndex": 214,
           "Children": [
             {
               "$type": "Bookmark",
               "Name": "ST:0:0:{1c4feeaa-4718-4aa9-859d-94ce25d182ba}"
-=======
-          "SelectedChildIndex": -1,
-          "Children": [
-            {
-              "$type": "Bookmark",
-              "Name": "ST:0:0:{e1b7d1f8-9b3c-49b1-8f4f-bfc63a88835d}"
-            },
-            {
-              "$type": "Bookmark",
-              "Name": "ST:0:0:{3ae79031-e1bc-11d0-8f78-00a0c9110057}"
->>>>>>> dev
             },
             {
               "$type": "Bookmark",
@@ -900,7 +879,6 @@
             {
               "$type": "Bookmark",
               "Name": "ST:15:0:{e8034f19-ab72-4f06-83fd-f6832b41aa63}"
-<<<<<<< HEAD
             },
             {
               "$type": "Document",
@@ -912,8 +890,7 @@
               "RelativeToolTip": "Heartoza\\Models\\Inventory.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-10-15T16:07:10.54Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-10-15T16:07:10.54Z"
             },
             {
               "$type": "Document",
@@ -923,7 +900,7 @@
               "RelativeDocumentMoniker": "Heartoza\\Controllers\\CartController.cs",
               "ToolTip": "E:\\heartoza-git\\Backend_Heartoza\\Heartoza\\Controllers\\CartController.cs",
               "RelativeToolTip": "Heartoza\\Controllers\\CartController.cs",
-              "ViewState": "AgIAADsAAAAAAAAAAAAowFEAAABAAAAAAAAAAA==",
+              "ViewState": "AgIAACkAAAAAAAAAAAAowFEAAABAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2025-10-15T16:06:15.144Z",
               "EditorCaption": ""
@@ -931,14 +908,13 @@
             {
               "$type": "Document",
               "DocumentIndex": 3,
-              "Title": "DBSetup.sql ",
+              "Title": "DBSetup.sql",
               "DocumentMoniker": "E:\\heartoza-git\\Backend_Heartoza\\Heartoza\\DBSetup.sql",
               "RelativeDocumentMoniker": "Heartoza\\DBSetup.sql",
               "ToolTip": "E:\\heartoza-git\\Backend_Heartoza\\Heartoza\\DBSetup.sql",
               "RelativeToolTip": "Heartoza\\DBSetup.sql",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000826|",
-              "WhenOpened": "2025-10-15T15:59:58.005Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-10-15T15:59:58.005Z"
             },
             {
               "$type": "Document",
@@ -950,10 +926,7 @@
               "RelativeToolTip": "Heartoza\\Controllers\\OrdersController.cs",
               "ViewState": "AgIAAKAAAAAAAAAAAAAAAJkAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-10-15T15:46:06.273Z",
-              "EditorCaption": ""
-=======
->>>>>>> dev
+              "WhenOpened": "2025-10-15T15:46:06.273Z"
             }
           ]
         },

@@ -14,33 +14,33 @@ export default function AdminOrderDetail() {
   const statusList = ["Pending", "Packing", "Shipped", "Delivering", "Cancelled"];
 
   useEffect(() => {
-  if (!id) return;
+    if (!id) return;
 
-  const fetchOrder = async () => {
-    try {
-      const data = await AdminService.getOrderById(id);
+    const fetchOrder = async () => {
+      try {
+        const data = await AdminService.getOrderById(id);
 
-      // 🔹 Gọi thêm API địa chỉ
-      let address = null;
-      if (data.shippingAddressId) {
-        const resAddr = await http.get(
-          `orders/address/${data.shippingAddressId}`,
-          { validateStatus: (s) => (s >= 200 && s < 300) || s === 204 }
-        );
-        address = resAddr.status === 204 ? null : resAddr.data ?? null;
+        // 🔹 Gọi thêm API địa chỉ
+        let address = null;
+        if (data.shippingAddressId) {
+          const resAddr = await http.get(
+            `orders/address/${data.shippingAddressId}`,
+            { validateStatus: (s) => (s >= 200 && s < 300) || s === 204 }
+          );
+          address = resAddr.status === 204 ? null : resAddr.data ?? null;
+        }
+
+        setOrder({ ...data, shippingAddress: address });
+        setNewStatus(data.status);
+      } catch (err) {
+        setError(err.message || "Không tải được chi tiết đơn hàng");
+      } finally {
+        setLoading(false);
       }
+    };
 
-      setOrder({ ...data, shippingAddress: address });
-      setNewStatus(data.status);
-    } catch (err) {
-      setError(err.message || "Không tải được chi tiết đơn hàng");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  fetchOrder();
-}, [id]);
+    fetchOrder();
+  }, [id]);
 
   const handleUpdateStatus = async () => {
     try {
@@ -94,10 +94,10 @@ export default function AdminOrderDetail() {
   return (
     <div style={{ padding: '24px', maxWidth: '1200px', margin: '0 auto' }}>
       {/* Header */}
-      <div style={{ 
-        background: 'white', 
-        borderRadius: '12px', 
-        padding: '24px', 
+      <div style={{
+        background: 'white',
+        borderRadius: '12px',
+        padding: '24px',
         marginBottom: '24px',
         boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
         border: '1px solid #e5e7eb'
@@ -108,8 +108,15 @@ export default function AdminOrderDetail() {
               📦 Đơn hàng {order.orderCode}
             </h2>
             <p style={{ fontSize: '14px', color: '#6b7280', margin: 0 }}>
-              Ngày tạo: {new Date(order.createdAt).toLocaleString("vi-VN")}
+              Ngày tạo: {
+                new Date(
+                  new Date(order.createdAt).setHours(
+                    new Date(order.createdAt).getHours() + 7
+                  )
+                ).toLocaleString("vi-VN")
+              }
             </p>
+
           </div>
           <div style={{ textAlign: 'right' }}>
             <span style={{
@@ -141,8 +148,8 @@ export default function AdminOrderDetail() {
               🔄 Cập nhật trạng thái
             </h3>
             <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
-              <select 
-                value={newStatus} 
+              <select
+                value={newStatus}
                 onChange={(e) => setNewStatus(e.target.value)}
                 style={{
                   flex: 1,
@@ -159,7 +166,7 @@ export default function AdminOrderDetail() {
                   return <option key={s} value={s}>{config.label || s}</option>;
                 })}
               </select>
-              <button 
+              <button
                 onClick={handleUpdateStatus}
                 style={{
                   padding: '10px 24px',
@@ -234,15 +241,15 @@ export default function AdminOrderDetail() {
               <h3 style={{ fontSize: '18px', fontWeight: '600', margin: '0 0 12px 0', color: '#111827', display: 'flex', alignItems: 'center', gap: '8px' }}>
                 💬 Ghi chú đơn hàng
               </h3>
-              <p style={{ 
-                margin: 0, 
-                padding: '12px', 
-                background: '#fef3c7', 
-                borderRadius: '8px', 
-                fontSize: '14px', 
+              <p style={{
+                margin: 0,
+                padding: '12px',
+                background: '#fef3c7',
+                borderRadius: '8px',
+                fontSize: '14px',
                 color: '#92400e',
                 borderLeft: '4px solid #f59e0b',
-                whiteSpace: 'pre-line' 
+                whiteSpace: 'pre-line'
               }}>
                 {order.comment}
               </p>
@@ -268,10 +275,10 @@ export default function AdminOrderDetail() {
                   {order.shippingAddress.country}
                   {order.shippingAddress.postalCode ? ` • ${order.shippingAddress.postalCode}` : ""}
                 </div>
-                <div style={{ 
-                  marginTop: '12px', 
-                  padding: '8px 12px', 
-                  background: '#eef2ff', 
+                <div style={{
+                  marginTop: '12px',
+                  padding: '8px 12px',
+                  background: '#eef2ff',
                   borderRadius: '6px',
                   color: '#6366f1',
                   fontWeight: '600'
