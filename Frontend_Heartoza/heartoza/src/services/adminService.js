@@ -54,7 +54,12 @@ export const AdminService = {
 
     /** Gửi body chuẩn { status: "..." } thay vì JSON.stringify(status) */
     updateOrderStatus: (id, status) =>
-        api.post(`/admin/orders/${id}/status`, { status }).then((r) => r.data),
+        api.post(
+            `/admin/orders/${id}/status`,
+            `"${status}"`, // gửi chuỗi JSON thô
+            { headers: { "Content-Type": "application/json" } }
+        ).then((r) => r.data),
+
 
     // ================= PRODUCTS (để nguyên, chỉ encode q) =================
 
