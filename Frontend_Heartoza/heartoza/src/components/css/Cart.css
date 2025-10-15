@@ -347,6 +347,18 @@ input[type="checkbox"]:checked::after {
     font-family: inherit;
     width: 720px;
 }
+.quantity-input {
+    width: 50px;
+    text-align: center;
+    font-size: 16px;
+    padding: 4px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    outline: none;
+}
+.quantity-input:focus {
+    border-color: #48bb78;
+}
 
 .comment-field input:focus,
 .comment-field select:focus,

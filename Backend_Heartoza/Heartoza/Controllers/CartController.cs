@@ -42,10 +42,15 @@ namespace Heartoza.Controllers
 
             if (cart == null)
             {
-                return Ok(new { cartItems = new object[0] }); // trả về giỏ rỗng
+                return Ok(new { cartItems = new object[0] });
             }
 
-            // Nếu bạn có DTO để trả về frontend thì map sang DTO thay vì trả entity thô
+            var productIds = cart.CartItems.Select(ci => ci.ProductId).Distinct().ToList();
+
+            var inventoryMap = await _context.Inventories
+                .Where(inv => productIds.Contains(inv.ProductId))
+                .ToDictionaryAsync(inv => inv.ProductId, inv => inv.Quantity);
+
             var cartDto = new
             {
                 cart.CartId,
@@ -57,12 +62,16 @@ namespace Heartoza.Controllers
                     ProductName = ci.Product.Name,
                     ci.Quantity,
                     UnitPrice = ci.UnitPrice,
-                    LineTotal = ci.Quantity * ci.UnitPrice
+                    LineTotal = ci.Quantity * ci.UnitPrice,
+                    AvailableStock = inventoryMap.ContainsKey(ci.ProductId)
+                        ? inventoryMap[ci.ProductId]
+                        : 0 
                 })
             };
 
             return Ok(cartDto);
         }
+
 
 
         [HttpPost("AddItem")]
