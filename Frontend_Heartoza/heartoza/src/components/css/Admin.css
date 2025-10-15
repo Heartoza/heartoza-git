@@ -538,3 +538,15 @@
 .text-center {
     text-align: center;
 }
+
+/* Base (tuỳ) để chắc chắn chữ không trắng */
+.status-badge {
+    color: #111; /* thêm màu chữ mặc định */
+}
+
+    /* Badge dùng cho số sản phẩm */
+    .status-badge.info {
+        background-color: #e0f2fe; /* xanh nhạt */
+        border: 1px solid #bae6fd;
+        color: #0c4a6e; /* chữ xanh đậm, dễ đọc */
+    }

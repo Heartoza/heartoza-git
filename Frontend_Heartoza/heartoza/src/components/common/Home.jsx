@@ -7,21 +7,6 @@ import api from "../../services/api";
 export default function Home() {
     const [featured, setFeatured] = useState([]);
 
-    // chọn ảnh theo chuỗi ưu tiên như ProductList
-    const pickImage = (p) => {
-        const candidates = [
-            p?.thumbnailUrl,
-            p?.imageUrl,
-            p?.primaryImageUrl,
-            p?.primaryImage?.url,
-            // nếu API trả mảng images
-            (Array.isArray(p?.images) && p.images.find((x) => x?.isPrimary)?.url) || null,
-            (Array.isArray(p?.images) && p.images[0]?.url) || null,
-        ];
-        const found = candidates.find((u) => typeof u === "string" && u.trim() !== "");
-        return found || "/img/no-image.png";
-    };
-
     // chuẩn hoá product
     const normalize = (p) => ({
         productId: p?.productId ?? p?.id,
@@ -29,13 +14,13 @@ export default function Home() {
         sku: p?.sku ?? p?.SKU ?? "",
         price: Number(p?.price || 0),
         totalSold: Number(p?.totalSold ?? p?.sold ?? 0),
-        img: pickImage(p),
+        thumbnailUrl: p?.thumbnailUrl,
+        imageUrl: p?.imageUrl,
     });
 
     useEffect(() => {
         (async () => {
             try {
-                // vẫn giữ endpoint cũ; nếu BE trả { items: [...] } thì lấy items, không thì lấy data
                 const res = await api.get("/products/top-selling");
                 const arr = Array.isArray(res?.data?.items) ? res.data.items : (res?.data || []);
                 const normalized = arr.map(normalize);
@@ -83,7 +68,16 @@ export default function Home() {
                         featured.map((item) => (
                             <div key={item.productId} className="featured-card">
                                 <div className="card-img">
-                                    <img src={item.img} alt={item.name} />
+                                    <img
+                                        src={
+                                            (item.thumbnailUrl && item.thumbnailUrl.trim() !== "")
+                                                ? item.thumbnailUrl
+                                                : (item.imageUrl && item.imageUrl.trim() !== "")
+                                                    ? item.imageUrl
+                                                    : "/img/no-image.png"
+                                        }
+                                        alt={item.name}
+                                    />
                                 </div>
                                 <div className="card-info">
                                     <h3>{item.name}</h3>

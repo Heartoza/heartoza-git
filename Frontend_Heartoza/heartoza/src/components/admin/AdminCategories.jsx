@@ -1,6 +1,7 @@
 ﻿// src/admin/categories/AdminCategories.jsx
 import React, { useEffect, useMemo, useState } from "react";
 import { AdminService } from "../../services/adminService";
+import api from "../../services/api"; // dùng trực tiếp để gắn ?includeCounts=true
 import "../css/Admin.css";
 
 export default function AdminCategories() {
@@ -13,11 +14,10 @@ export default function AdminCategories() {
     const load = async () => {
         setLoading(true);
         try {
-            // BE: GET /api/admin/categories (đã có)
-            // (nếu muốn có ProductCount: có thể thay bằng endpoint ?includeCounts=true
-            // và update AdminService.getCategories() -> thêm qs; để đơn giản giữ nguyên)
-            const data = await AdminService.getCategories();
-            setCats(Array.isArray(data) ? data : []);
+            // Lấy kèm ProductCount
+            const res = await api.get(`/admin/categories?includeCounts=true`);
+            const data = Array.isArray(res?.data) ? res.data : [];
+            setCats(data);
         } finally {
             setLoading(false);
         }
@@ -37,12 +37,6 @@ export default function AdminCategories() {
         );
     }, [cats, q]);
 
-    const parentMap = useMemo(() => {
-        const m = new Map();
-        cats.forEach((c) => m.set(c.categoryId, c.name));
-        return m;
-    }, [cats]);
-
     const onCreate = async (payload) => {
         await AdminService.createCategory(payload); // { name, parentId? }
         setCreating(false);
@@ -50,19 +44,26 @@ export default function AdminCategories() {
     };
 
     const onUpdate = async (id, payload) => {
-        // Update API yêu cầu phân biệt ParentIdHasValue khi muốn set null/root
-        // payload dự kiến: { name?, parentIdHasValue: true, parentId: number|null }
+        // payload: { name?, parentIdHasValue: true, parentId: number|null }
         await AdminService.updateCategory(id, payload);
         setEditing(null);
         await load();
     };
 
-
     const onDelete = async (id) => {
-        // 🛡️ Pre-check trên FE: có category con?
-        const hasChildren = cats.some(c => c.parentId === id);
+        // 🛡️ Pre-check 1: có category con không?
+        const hasChildren = cats.some((c) => c.parentId === id);
         if (hasChildren) {
-            alert("Không thể xóa category cha vì vẫn còn category con. Hãy di chuyển hoặc xóa các category con trước.");
+            alert(
+                "Không thể xóa category cha vì vẫn còn category con. Hãy di chuyển hoặc xóa các category con trước."
+            );
+            return;
+        }
+
+        // 🛡️ Pre-check 2: còn sản phẩm?
+        const cat = cats.find((x) => x.categoryId === id);
+        if (cat && (cat.productCount || 0) > 0) {
+            alert("Không thể xóa category vì vẫn còn sản phẩm trong category này.");
             return;
         }
 
@@ -82,7 +83,6 @@ export default function AdminCategories() {
             alert(msg);
         }
     };
-
 
     return (
         <div className="admin-page">
@@ -106,7 +106,7 @@ export default function AdminCategories() {
                     <tr>
                         <th style={{ width: 80 }}>ID</th>
                         <th>Tên</th>
-                        <th>Thuộc (Parent)</th>
+                        <th style={{ width: 160, textAlign: "right" }}>Số sản phẩm</th>
                         <th style={{ width: 200 }}>Thao tác</th>
                     </tr>
                 </thead>
@@ -122,12 +122,17 @@ export default function AdminCategories() {
                             <tr key={c.categoryId}>
                                 <td>{c.categoryId}</td>
                                 <td>{c.name}</td>
-                                <td>{c.parentId ? parentMap.get(c.parentId) || `#${c.parentId}` : "—"}</td>
+                                <td style={{ textAlign: "right" }}>
+                                    <span className="status-badge info">{c.productCount || 0}</span>
+                                </td>
                                 <td className="row-actions">
                                     <button className="btn" onClick={() => setEditing(c)}>
                                         Sửa
                                     </button>
-                                    <button className="btn danger" onClick={() => onDelete(c.categoryId)}>
+                                    <button
+                                        className="btn danger"
+                                        onClick={() => onDelete(c.categoryId)}
+                                    >
                                         Xóa
                                     </button>
                                 </td>
@@ -158,9 +163,7 @@ export default function AdminCategories() {
                     categories={cats}
                     initial={editing}
                     onClose={() => setEditing(null)}
-                    onSubmit={(payload) =>
-                        onUpdate(editing.categoryId, payload)
-                    }
+                    onSubmit={(payload) => onUpdate(editing.categoryId, payload)}
                     isEdit
                 />
             )}
@@ -183,7 +186,6 @@ function CategoryForm({ title, categories, initial, onClose, onSubmit, isEdit })
         setSaving(true);
         try {
             if (isEdit) {
-                // luôn gửi ParentIdHasValue để đảm bảo có thể đẩy về root (null)
                 await onSubmit({
                     name: name.trim(),
                     parentIdHasValue: true,
@@ -192,7 +194,6 @@ function CategoryForm({ title, categories, initial, onClose, onSubmit, isEdit })
             } else {
                 await onSubmit({
                     name: name.trim(),
-                    // với Create, BE chấp nhận không có parentId => root
                     ...(parentId === "" ? {} : { parentId: Number(parentId) }),
                 });
             }
@@ -218,10 +219,7 @@ function CategoryForm({ title, categories, initial, onClose, onSubmit, isEdit })
                     />
 
                     <label>Parent</label>
-                    <select
-                        value={parentId}
-                        onChange={(e) => setParentId(e.target.value)}
-                    >
+                    <select value={parentId} onChange={(e) => setParentId(e.target.value)}>
                         <option value="">(Không có — Root)</option>
                         {options.map((c) => (
                             <option key={c.categoryId} value={c.categoryId}>
