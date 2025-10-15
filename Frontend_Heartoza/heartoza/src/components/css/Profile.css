@@ -581,3 +581,77 @@ body {
         padding: 18px;
     }
 }
+/* === Address Modal breathing room === */
+.modal {
+    width: min(840px, calc(100% - 32px)); /* rộng hơn */
+    padding: 22px 22px 18px;
+    border-radius: 20px;
+}
+
+    .modal h4 {
+        margin: 0 0 16px 0; /* thêm khoảng dưới tiêu đề */
+    }
+
+/* Lưới form trong modal: 2 cột, giãn dòng/cột rõ ràng */
+.grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    column-gap: 16px;
+    row-gap: 14px; /* ↑↑ quan trọng: giãn hàng */
+}
+
+    /* Nhãn và input rõ ràng hơn */
+    .grid label {
+        gap: 8px; /* nhãn cách input hơn */
+        font-size: 14px;
+        color: #374151;
+    }
+
+    /* Input & Select đồng nhất kích thước */
+    .grid input,
+    .grid select {
+        height: 44px; /* cao hơn */
+        padding: 10px 12px;
+        border: 1px solid #e5e7eb;
+        border-radius: 10px;
+        background: #fff;
+        color: #111827;
+        outline: none;
+    }
+
+        .grid input:focus,
+        .grid select:focus {
+            border-color: #ff6f61;
+            box-shadow: 0 0 0 3px rgba(255,111,97,.25);
+        }
+
+    /* Hàng cần tràn hết chiều ngang (ví dụ VNAddressPicker, checkbox…) */
+    .grid .full {
+        grid-column: 1 / -1;
+    }
+
+    /* Hàng checkbox “Đặt mặc định” */
+    .grid .row {
+        grid-column: 1 / -1;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-top: 2px;
+    }
+
+/* Nếu dùng VNAddressPicker: style riêng cho select của nó */
+.vn-address-picker {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+}
+
+    .vn-address-picker select {
+        height: 44px;
+    }
+
+/* Nút ở chân modal: tách xa nội dung */
+.modal-actions {
+    margin-top: 16px;
+    gap: 10px;
+}

@@ -4,6 +4,8 @@ import { Link } from "react-router-dom";
 import { AuthService } from "../../services/authService";
 import { AuthContext } from "../../context/AuthContext";
 import "../css/Profile.css";
+import VNAddressPicker from "../common/VNAddressPicker";
+import { useVNAddress } from "../../hooks/useVNAddress";
 
 /* ---------- Tiny Toast system (no library) ---------- */
 function Toast({ id, type = "info", message, onClose }) {
@@ -35,7 +37,9 @@ function Toast({ id, type = "info", message, onClose }) {
     return (
         <div style={{ ...styles.base, ...tone }}>
             <div>{message}</div>
-            <button aria-label="Đóng" onClick={() => onClose(id)} style={styles.btn}>✕</button>
+            <button aria-label="Đóng" onClick={() => onClose(id)} style={styles.btn}>
+                ✕
+            </button>
         </div>
     );
 }
@@ -49,24 +53,25 @@ function useToasts() {
     };
     const removeToast = (id) => setToasts((t) => t.filter((x) => x.id !== id));
     const Container = useMemo(
-        () => ({ children }) => (
-            <div
-                aria-live="polite"
-                style={{
-                    position: "fixed",
-                    right: 16,
-                    bottom: 16,
-                    display: "grid",
-                    gap: 10,
-                    zIndex: 60,
-                }}
-            >
-                {toasts.map((t) => (
-                    <Toast key={t.id} {...t} onClose={removeToast} />
-                ))}
-                {children}
-            </div>
-        ),
+        () =>
+            ({ children }) => (
+                <div
+                    aria-live="polite"
+                    style={{
+                        position: "fixed",
+                        right: 16,
+                        bottom: 16,
+                        display: "grid",
+                        gap: 10,
+                        zIndex: 60,
+                    }}
+                >
+                    {toasts.map((t) => (
+                        <Toast key={t.id} {...t} onClose={removeToast} />
+                    ))}
+                    {children}
+                </div>
+            ),
         [toasts]
     );
     return { addToast, ToastContainer: Container };
@@ -106,6 +111,12 @@ export default function Profile() {
         isDefault: false,
     });
 
+    // ---- VN Address (2 cấp) ----
+    const addr = useVNAddress(); // { provinces, districts, getProvinceName, getDistrictName, ... }
+    const [provinceCode, setProvinceCode] = useState("");
+    const [districtCode, setDistrictCode] = useState("");
+
+    // khởi tạo form hồ sơ
     const load = async () => {
         try {
             const data = await AuthService.getProfile();
@@ -159,6 +170,8 @@ export default function Profile() {
             phone: me?.phone || "",
             isDefault: me?.addresses?.length === 0,
         });
+        setProvinceCode("");
+        setDistrictCode("");
         setShowModal(true);
     };
 
@@ -168,18 +181,60 @@ export default function Profile() {
         setShowModal(true);
     };
 
+    // khi mở modal & đã có dataset tỉnh/quận, cố gắng map city/district -> code
+    useEffect(() => {
+        if (!showModal) return;
+        if (!addr?.provinces?.length) return;
+
+        const cityName = (addrForm.city || "").trim();
+        const districtName = (addrForm.district || "").trim();
+
+        const p = addr.provinces.find((x) => x.name === cityName);
+        if (p) {
+            setProvinceCode(p.code);
+            const d = p.districts.find((x) => x.name === districtName);
+            if (d) setDistrictCode(d.code);
+            else setDistrictCode("");
+        } else {
+            setProvinceCode("");
+            setDistrictCode("");
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [showModal, addr.provinces]);
+
     const saveAddress = async () => {
         try {
+            // validate phone
             const phone = (addrForm.phone || "").trim();
             if (!/^[0-9+()\s-]{8,}$/.test(phone)) {
                 addToast("Vui lòng nhập số điện thoại hợp lệ cho địa chỉ.", "error");
                 return;
             }
+            // validate chọn tỉnh/quận
+            if (!provinceCode || !districtCode) {
+                addToast("Vui lòng chọn đầy đủ Tỉnh/TP và Quận/Huyện.", "error");
+                return;
+            }
+
+            // map code -> tên để gửi BE
+            const cityName =
+                addr.getProvinceName?.(provinceCode) || addrForm.city || "";
+            const districtName =
+                addr.getDistrictName?.(provinceCode, districtCode) ||
+                addrForm.district ||
+                "";
+
+            const payload = {
+                ...addrForm,
+                city: cityName,
+                district: districtName,
+            };
+
             if (editing) {
-                await AuthService.updateAddress(editing.addressId, addrForm);
+                await AuthService.updateAddress(editing.addressId, payload);
                 addToast("Đã cập nhật địa chỉ.", "success");
             } else {
-                await AuthService.addAddress(addrForm);
+                await AuthService.addAddress(payload);
                 addToast("Đã thêm địa chỉ mới.", "success");
             }
             setShowModal(false);
@@ -214,7 +269,6 @@ export default function Profile() {
     const onPickAvatar = (e) => {
         const file = e.target.files?.[0];
         if (!file) return;
-        // validate type/size sơ bộ
         if (!file.type.startsWith("image/")) {
             addToast("File không phải hình ảnh.", "error");
             return;
@@ -357,7 +411,6 @@ export default function Profile() {
                                             <div>📞 {a.phone || me.phone}</div>
                                         </div>
                                         <div className="address-actions">
-                                            {/* chỉ cho đặt mặc định khi có phone */}
                                             {!a.isDefault && !!(a.phone || "").trim() && (
                                                 <button className="btn ghost" onClick={() => setDefault(a.addressId)}>
                                                     Đặt mặc định
@@ -388,6 +441,7 @@ export default function Profile() {
                                         onChange={(e) => setAddrForm((s) => ({ ...s, fullName: e.target.value }))}
                                     />
                                 </label>
+
                                 <label>
                                     Điện thoại
                                     <input
@@ -395,28 +449,30 @@ export default function Profile() {
                                         onChange={(e) => setAddrForm((s) => ({ ...s, phone: e.target.value }))}
                                     />
                                 </label>
-                                <label>
-                                    Địa chỉ
+
+                                <label className="row">
+                                    Địa chỉ (Số nhà, đường…)
                                     <input
                                         placeholder="Số nhà, đường…"
                                         value={addrForm.line1 || ""}
                                         onChange={(e) => setAddrForm((s) => ({ ...s, line1: e.target.value }))}
                                     />
                                 </label>
-                                <label>
-                                    Quận/Huyện
-                                    <input
-                                        value={addrForm.district || ""}
-                                        onChange={(e) => setAddrForm((s) => ({ ...s, district: e.target.value }))}
-                                    />
-                                </label>
-                                <label>
-                                    Tỉnh/Thành
-                                    <input
-                                        value={addrForm.city || ""}
-                                        onChange={(e) => setAddrForm((s) => ({ ...s, city: e.target.value }))}
-                                    />
-                                </label>
+
+                                {/* Picker tỉnh/quận */}
+                                <div className="row" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
+                                    <div className="full">
+                                        <VNAddressPicker
+                                            value={{ provinceCode, districtCode }}
+                                            onChange={({ provinceCode: p, districtCode: d }) => {
+                                                setProvinceCode(p);
+                                                setDistrictCode(d);
+                                            }}
+                                        // hiển thị riêng 2 select, nhưng component đã gộp & đồng bộ sẵn
+                                        />
+                                    </div>
+                                </div>
+
                                 <label>
                                     Quốc gia
                                     <input
@@ -424,6 +480,7 @@ export default function Profile() {
                                         onChange={(e) => setAddrForm((s) => ({ ...s, country: e.target.value }))}
                                     />
                                 </label>
+
                                 <label>
                                     Mã bưu chính
                                     <input
@@ -431,6 +488,7 @@ export default function Profile() {
                                         onChange={(e) => setAddrForm((s) => ({ ...s, postalCode: e.target.value }))}
                                     />
                                 </label>
+
                                 <label className="row">
                                     <input
                                         type="checkbox"
@@ -440,6 +498,7 @@ export default function Profile() {
                                     Đặt làm địa chỉ mặc định
                                 </label>
                             </div>
+
                             <div className="modal-actions">
                                 <button className="btn ghost" onClick={() => setShowModal(false)}>Huỷ</button>
                                 <button className="btn primary" onClick={saveAddress}>
