@@ -149,6 +149,7 @@ public class OrdersController : ControllerBase
                     invRow.Quantity = invRow.Quantity - g.Quantity;
                     if (invRow.Quantity < 0)
                         throw new InvalidOperationException($"Sản phẩm {g.ProductId} bị âm tồn sau khi trừ.");
+
                 }
 
                 _db.Payments.Add(new Payment
@@ -307,13 +308,12 @@ public class OrdersController : ControllerBase
         var strategy = _db.Database.CreateExecutionStrategy();
         return await strategy.ExecuteAsync<IActionResult>(async () =>
         {
-            // Tải đơn trước khi mở tx để sớm bắt NotFound
             var order = await _db.Orders
                 .Include(o => o.OrderItems)
                 .FirstOrDefaultAsync(o => o.OrderId == id, ct);
 
             if (order == null) return NotFound();
-            if (order.Status is not ("Pending" or "Packing"))
+            if (order.Status is not ("Pending"))
                 return BadRequest("Trạng thái hiện tại không cho phép hủy.");
 
             await using var tx = await _db.Database.BeginTransactionAsync(ct);
@@ -325,7 +325,7 @@ public class OrdersController : ControllerBase
             foreach (var oi in order.OrderItems)
             {
                 if (invMap.TryGetValue(oi.ProductId, out var inv))
-                    inv.Quantity = inv.Quantity + oi.Quantity; // int non-null
+                    inv.Quantity = inv.Quantity + oi.Quantity; 
             }
 
             order.Status = "Cancelled";

@@ -84,16 +84,38 @@ export default function OrderDetail() {
         Delivering: { color: "#10b981", bg: "#d1fae5" },
         Cancelled: { color: "#ef4444", bg: "#fee2e2" },
     };
+    const handleCancelOrder = async () => {
+        if (!window.confirm("Bạn có chắc chắn muốn hủy đơn hàng này không?")) {
+            return;
+        }
+
+        const reason = prompt("Nhập lý do hủy đơn (có thể bỏ trống, nhấn Cancel để thoát):");
+
+        if (reason === null) {
+            alert("Đã hủy thao tác hủy đơn hàng.");
+            return;
+        }
+
+        try {
+            const res = await http.patch(`orders/${id}/cancel`, { reason: reason || "" });
+            alert(res.data?.message || "Đơn hàng đã được hủy thành công.");
+            setOrder((prev) => ({ ...prev, status: "Cancelled" }));
+        } catch (err) {
+            alert(err?.response?.data?.message || "Không thể hủy đơn hàng.");
+        }
+    };
+
+
 
     const currentStatus = statusConfig[order.status] || { color: "#6b7280", bg: "#f3f4f6" };
 
     return (
         <div style={{ padding: '24px', maxWidth: '900px', margin: '0 auto' }}>
             {/* Header */}
-            <div style={{ 
-                background: 'white', 
-                borderRadius: '12px', 
-                padding: '24px', 
+            <div style={{
+                background: 'white',
+                borderRadius: '12px',
+                padding: '24px',
                 marginBottom: '24px',
                 boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
                 border: '1px solid #e5e7eb'
@@ -130,6 +152,27 @@ export default function OrderDetail() {
                             {Number(order.grandTotal || 0).toLocaleString("vi-VN")} ₫
                         </div>
                     </div>
+                    {(order.status === "Pending") && (
+                        <button
+                            onClick={handleCancelOrder}
+                            style={{
+                                background: '#ef4444',
+                                color: 'white',
+                                border: 'none',
+                                padding: '10px 16px',
+                                borderRadius: '8px',
+                                fontWeight: '600',
+                                cursor: 'pointer',
+                                transition: 'background 0.2s',
+                                marginLeft: 'auto'
+                            }}
+                            onMouseOver={(e) => (e.target.style.background = '#dc2626')}
+                            onMouseOut={(e) => (e.target.style.background = '#ef4444')}
+                        >
+                            ❌ Hủy đơn hàng
+                        </button>
+                    )}
+
                 </div>
             </div>
 
@@ -191,15 +234,15 @@ export default function OrderDetail() {
                             <h3 style={{ fontSize: '18px', fontWeight: '600', margin: '0 0 12px 0', color: '#111827', display: 'flex', alignItems: 'center', gap: '8px' }}>
                                 💬 Ghi chú đơn hàng
                             </h3>
-                            <p style={{ 
-                                margin: 0, 
-                                padding: '12px', 
-                                background: '#fef3c7', 
-                                borderRadius: '8px', 
-                                fontSize: '14px', 
+                            <p style={{
+                                margin: 0,
+                                padding: '12px',
+                                background: '#fef3c7',
+                                borderRadius: '8px',
+                                fontSize: '14px',
                                 color: '#92400e',
                                 borderLeft: '4px solid #f59e0b',
-                                whiteSpace: 'pre-line' 
+                                whiteSpace: 'pre-line'
                             }}>
                                 {order.comment}
                             </p>
@@ -225,10 +268,10 @@ export default function OrderDetail() {
                                     {order.shippingAddress.country}
                                     {order.shippingAddress.postalCode ? ` • ${order.shippingAddress.postalCode}` : ""}
                                 </div>
-                                <div style={{ 
-                                    marginTop: '12px', 
-                                    padding: '8px 12px', 
-                                    background: '#eef2ff', 
+                                <div style={{
+                                    marginTop: '12px',
+                                    padding: '8px 12px',
+                                    background: '#eef2ff',
                                     borderRadius: '6px',
                                     color: '#6366f1',
                                     fontWeight: '600'

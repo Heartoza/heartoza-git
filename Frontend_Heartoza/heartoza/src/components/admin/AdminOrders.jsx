@@ -168,7 +168,11 @@ export default function AdminOrders() {
                         {config.label}
                       </span>
                     </td>
-                    <td>{new Date(o.createdAt).toLocaleString("vi-VN")}</td>
+
+                    <td>
+                      {new Date(new Date(o.createdAt).getTime() + 7 * 60 * 60 * 1000).toLocaleString("vi-VN")}
+                    </td>
+
                     <td>
                       <NavLink
                         to={`/admin/orders/${o.orderId}`}

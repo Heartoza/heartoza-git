@@ -41,6 +41,7 @@ export default function Cart() {
                         cartItemId: Number(ci.cartItemId),
                         productName: ci.product?.name || ci.productName || "Sản phẩm không xác định",
                         lineTotal: ci.quantity * ci.unitPrice,
+                        availableStock: ci.availableStock ?? 9999,
                     })),
                 };
                 setCart(mappedCart);
@@ -52,7 +53,6 @@ export default function Cart() {
                 setAddresses(raw);
                 setUsableAddresses(usable);
 
-                // ưu tiên default hợp lệ, nếu không lấy cái đầu tiên hợp lệ
                 const defaultUsable = usable.find((a) => a.isDefault);
                 if (defaultUsable) setSelectedAddress(defaultUsable.addressId);
                 else if (usable.length) setSelectedAddress(usable[0].addressId);
@@ -72,23 +72,27 @@ export default function Cart() {
             const token = localStorage.getItem("token");
             if (!token) return;
 
+            const item = cart?.cartItems?.find(ci => ci.cartItemId === cartItemId);
+            if (!item) return alert("Không tìm thấy sản phẩm trong giỏ.");
+
+            if (newQuantity > item.availableStock) {
+                alert(`⚠️ Chỉ còn ${item.availableStock} sản phẩm "${item.productName}" trong kho.`);
+                return;
+            }
+
             await http.post("Cart/UpdateQuantity", {
                 cartItemId,
                 quantity: newQuantity,
             });
 
-            setCart((prev) => {
+            setCart(prev => {
                 const updatedItems = prev.cartItems
-                    .map((ci) =>
+                    .map(ci =>
                         ci.cartItemId === cartItemId
-                            ? {
-                                ...ci,
-                                quantity: newQuantity,
-                                lineTotal: newQuantity * ci.unitPrice,
-                            }
+                            ? { ...ci, quantity: newQuantity, lineTotal: newQuantity * ci.unitPrice }
                             : ci
                     )
-                    .filter((ci) => ci.quantity > 0);
+                    .filter(ci => ci.quantity > 0);
                 return { ...prev, cartItems: updatedItems };
             });
         } catch (err) {
@@ -96,6 +100,7 @@ export default function Cart() {
             alert(err.userMessage || "Cập nhật giỏ hàng thất bại.");
         }
     };
+
 
     const removeItem = async (cartItemId, productName) => {
         if (!window.confirm(`Bạn có chắc muốn xóa "${productName}" khỏi giỏ hàng?`)) return;
@@ -137,7 +142,7 @@ export default function Cart() {
 
     const handleCheckout = async () => {
         if (selectedItems.length === 0) {
-            alert("Vui lòng chọn ít nhất một sản phẩm để thanh toán.");
+            alert("Vui lòng chọn ít nhất một sản phẩm để đặt hàng.");
             return;
         }
         if (!selectedAddress) {
@@ -145,7 +150,6 @@ export default function Cart() {
             return;
         }
 
-        // ✅ bảo hiểm: selectedAddress phải nằm trong usableAddresses
         const isUsable = usableAddresses.some((a) => a.addressId === selectedAddress);
         if (!isUsable) {
             alert("Địa chỉ giao hàng thiếu số điện thoại hợp lệ. Vui lòng cập nhật trong trang Hồ sơ.");
@@ -176,7 +180,7 @@ export default function Cart() {
             };
 
             const res = await http.post("orders", payload);
-            alert(`✅ Thanh toán thành công! Mã đơn: ${res.data.orderCode}`);
+            alert(`✅ Đặt hàng thành công! Mã đơn: ${res.data.orderCode}`);
 
             await Promise.all(selectedItems.map((id) => http.delete(`Cart/RemoveItem/${id}`)));
 
@@ -188,8 +192,7 @@ export default function Cart() {
             setSelectedItems([]);
             navigate("/orders");
         } catch (err) {
-            console.error("Lỗi thanh toán chi tiết:", err);
-            // dùng message chuẩn hoá từ interceptor
+            console.error("Lỗi đặt hàng chi tiết:", err);
             const msg =
                 err?.userMessage ||
                 err?.response?.data?.message ||
@@ -270,7 +273,36 @@ export default function Cart() {
                                     >
                                         −
                                     </button>
-                                    <span className="quantity-value">{item.quantity}</span>
+
+                                    <input
+                                        type="number"
+                                        min="1"
+                                        className="quantity-input"
+                                        value={item.quantity}
+                                        onChange={(e) => {
+                                            const val = e.target.value;
+                                            // Cho phép xoá tạm để gõ số khác
+                                            if (val === "") {
+                                                setCart((prev) => ({
+                                                    ...prev,
+                                                    cartItems: prev.cartItems.map((ci) =>
+                                                        ci.cartItemId === item.cartItemId ? { ...ci, quantity: "" } : ci
+                                                    ),
+                                                }));
+                                                return;
+                                            }
+                                            const newQty = parseInt(val, 10);
+                                            if (!isNaN(newQty) && newQty > 0) {
+                                                updateQuantity(item.cartItemId, newQty);
+                                            }
+                                        }}
+                                        onBlur={(e) => {
+                                            if (e.target.value === "" || parseInt(e.target.value) <= 0) {
+                                                updateQuantity(item.cartItemId, 1);
+                                            }
+                                        }}
+                                    />
+
                                     <button
                                         className="quantity-btn"
                                         onClick={() => updateQuantity(item.cartItemId, item.quantity + 1)}
@@ -278,6 +310,7 @@ export default function Cart() {
                                         +
                                     </button>
                                 </div>
+
                             </div>
 
                             <div className="item-total">
@@ -431,7 +464,7 @@ export default function Cart() {
                                 ? "⚠️ Chọn sản phẩm"
                                 : !selectedAddress || usableAddresses.length === 0
                                     ? "⚠️ Chọn địa chỉ hợp lệ"
-                                    : "✅ Thanh toán ngay"}
+                                    : "✅ Đặt hàng ngay"}
                         </button>
                     </div>
                 </div>
