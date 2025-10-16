@@ -1,94 +1,75 @@
-﻿import React, { useMemo } from "react";
+﻿// src/components/common/VNAddressPicker.jsx
+import React from "react";
 import { useVNAddress } from "../../hooks/useVNAddress";
 
 /**
  * Props:
- * - value: { provinceCode, districtCode }
- * - onChange: ({ provinceCode, districtCode }) => void
- * - disabled?: boolean
- * - labels?: { province?: string, district?: string }
- * - required?: boolean
+ *  value: { provinceCode?: string, wardCode?: string }
+ *  onChange: ({ provinceCode, wardCode, provinceName, wardName }) => void
+ *  required?: boolean
+ *  labels?: { province?: string, ward?: string }
+ *  className?: string
  */
 export default function VNAddressPicker({
-    value,
+    value = {},
     onChange,
-    disabled = false,
-    labels = {},
     required = false,
+    labels = { province: "Tỉnh/Thành phố", ward: "Phường/Xã" },
+    className = "vn-address-picker",
 }) {
-    const { loading, provinces } = useVNAddress();
-    const provinceCode = value?.provinceCode || "";
-    const districtCode = value?.districtCode || "";
+    const { loading, error, provinces, wardsByProvince } = useVNAddress();
 
-    const districts = useMemo(() => {
-        const p = provinces.find((x) => x.code === provinceCode);
-        return p?.districts || [];
-    }, [provinces, provinceCode]);
+    const provinceCode = value.provinceCode || "";
+    const wardCode = value.wardCode || "";
+    const wards = provinceCode ? (wardsByProvince[provinceCode] || []) : [];
 
     const handleProvince = (e) => {
-        const p = e.target.value;
-        // reset district khi đổi tỉnh
-        onChange?.({ provinceCode: p, districtCode: "" });
+        const code = e.target.value || "";
+        const p = provinces.find(x => x.code === code);
+        // reset ward khi đổi province
+        onChange?.({
+            provinceCode: code,
+            wardCode: "",
+            provinceName: p?.name || "",
+            wardName: "",
+        });
     };
 
-    const handleDistrict = (e) => {
-        const d = e.target.value;
-        onChange?.({ provinceCode, districtCode: d });
+    const handleWard = (e) => {
+        const code = e.target.value || "";
+        const w = wards.find(x => x.code === code);
+        onChange?.({
+            provinceCode,
+            wardCode: code,
+            provinceName: provinces.find(x => x.code === provinceCode)?.name || "",
+            wardName: w?.name || "",
+        });
     };
+
+    if (loading) return <div className={className}>Đang tải danh mục địa chỉ…</div>;
+    if (error) return <div className={className} style={{ color: "#c62828" }}>Lỗi: {error}</div>;
 
     return (
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
-            <div>
-                <label style={{ display: "block", marginBottom: 6 }}>
-                    {labels.province || "Tỉnh/Thành phố"}
-                </label>
-                <select
-                    value={provinceCode}
-                    onChange={handleProvince}
-                    disabled={disabled || loading}
-                    required={required}
-                    style={{
-                        width: "100%",
-                        padding: "10px 12px",
-                        borderRadius: 10,
-                        border: "1px solid #e5e7eb",
-                        background: "#fff",
-                    }}
-                >
-                    <option value="">— Chọn Tỉnh/TP —</option>
-                    {provinces.map((p) => (
-                        <option key={p.code} value={p.code}>
-                            {p.name}
-                        </option>
+        <div className={className}>
+            <label>
+                {labels.province}
+                <select value={provinceCode} onChange={handleProvince} required={required}>
+                    <option value="">{`— Chọn ${labels.province} —`}</option>
+                    {provinces.map(p => (
+                        <option key={p.code} value={p.code}>{p.name}</option>
                     ))}
                 </select>
-            </div>
+            </label>
 
-            <div>
-                <label style={{ display: "block", marginBottom: 6 }}>
-                    {labels.district || "Quận/Huyện"}
-                </label>
-                <select
-                    value={districtCode}
-                    onChange={handleDistrict}
-                    disabled={disabled || loading || !provinceCode}
-                    required={required}
-                    style={{
-                        width: "100%",
-                        padding: "10px 12px",
-                        borderRadius: 10,
-                        border: "1px solid #e5e7eb",
-                        background: "#fff",
-                    }}
-                >
-                    <option value="">— Chọn Quận/Huyện (Cũ) —</option>
-                    {districts.map((d) => (
-                        <option key={d.code} value={d.code}>
-                            {d.name}
-                        </option>
+            <label>
+                {labels.ward}
+                <select value={wardCode} onChange={handleWard} required={required} disabled={!provinceCode}>
+                    <option value="">{`— Chọn ${labels.ward} —`}</option>
+                    {wards.map(w => (
+                        <option key={w.code} value={w.code}>{w.name}</option>
                     ))}
                 </select>
-            </div>
+            </label>
         </div>
     );
 }

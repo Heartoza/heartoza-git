@@ -583,7 +583,7 @@ body {
 }
 /* === Address Modal breathing room === */
 .modal {
-    width: min(840px, calc(100% - 32px)); /* rộng hơn */
+    width: min(1680px, calc(100% - 32px)); /* rộng hơn x2 */
     padding: 22px 22px 18px;
     border-radius: 20px;
 }
@@ -654,4 +654,93 @@ body {
 .modal-actions {
     margin-top: 16px;
     gap: 10px;
+}
+.vn-address-picker {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+}
+
+    .vn-address-picker label {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+        color: #374151;
+        font-size: 14px;
+    }
+
+    .vn-address-picker select {
+        height: 44px;
+        padding: 10px 12px;
+        background: #fff;
+        border: 1px solid #e5e7eb;
+        border-radius: 10px;
+    }
+
+        .vn-address-picker select:focus {
+            border-color: #ff6f61;
+            box-shadow: 0 0 0 3px rgba(255,111,97,.25);
+            outline: none;
+        }
+
+/* === OVERRIDE: Modal rộng hơn & select không tràn === */
+
+/* 1) Nới modal trên màn hình lớn – vẫn an toàn mobile */
+.modal {
+    /* rộng hơn nhưng vẫn chừa padding 24px mỗi bên */
+    width: min(920px, calc(100% - 48px));
+    max-width: 92vw;
+}
+
+/* 2) Grid trong modal cho phép con co lại đúng cách */
+.grid {
+    grid-template-columns: 1fr 1fr;
+    column-gap: 16px;
+    row-gap: 14px;
+}
+
+/* 3) VNAddressPicker luôn full chiều ngang & co hợp lý */
+.vn-address-picker {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    min-width: 0; /* QUAN TRỌNG: cho phép con co */
+}
+
+    .vn-address-picker > * {
+        min-width: 0; /* tránh đẩy tràn cột */
+    }
+
+    /* 4) Label + select chiếm đủ chỗ, không tràn modal */
+    .vn-address-picker label {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+    }
+
+    .vn-address-picker select {
+        width: 100%; /* full bề ngang cột */
+        min-width: 0; /* cho phép co khi tên tỉnh dài */
+        height: 44px;
+        padding: 10px 12px;
+        border: 1px solid #e5e7eb;
+        border-radius: 10px;
+        background: #fff;
+    }
+
+    /* 5) Hàng cần full bề ngang (picker, checkbox…) */
+    .grid .full,
+    .vn-address-picker.full {
+        grid-column: 1 / -1;
+    }
+
+/* 6) Responsive – thu hẹp về 1 cột khi màn nhỏ */
+@media (max-width: 720px) {
+    .modal {
+        width: calc(100% - 24px);
+    }
+
+    .grid, .vn-address-picker {
+        grid-template-columns: 1fr;
+    }
 }

@@ -5,7 +5,7 @@ import { AuthService } from "../../services/authService";
 import { AuthContext } from "../../context/AuthContext";
 import "../css/Profile.css";
 import VNAddressPicker from "../common/VNAddressPicker";
-import { useVNAddress } from "../../hooks/useVNAddress";
+import { getVNAddressData } from "../../hooks/useVNAddress";
 
 /* ---------- Tiny Toast system (no library) ---------- */
 function Toast({ id, type = "info", message, onClose }) {
@@ -18,12 +18,14 @@ function Toast({ id, type = "info", message, onClose }) {
             gridTemplateColumns: "1fr auto",
             gap: 8,
             alignItems: "start",
-            border: "1px solid rgba(255,255,255,.08)",
-            boxShadow: "0 10px 30px rgba(0,0,0,.35)",
+            border: "1px solid rgba(0,0,0,.06)",
+            boxShadow: "0 10px 30px rgba(0,0,0,.10)",
+            background: "#fff",
+            color: "#111827",
         },
-        success: { background: "#0f2a1a", color: "#b5f3c8", borderColor: "#124b2b" },
-        error: { background: "#2a1010", color: "#ffc1c1", borderColor: "#4b1212" },
-        info: { background: "#0b1220", color: "#dbeafe", borderColor: "#203354" },
+        success: { borderColor: "#16a34a33" },
+        error: { borderColor: "#dc262633" },
+        info: { borderColor: "#3b82f633" },
         btn: {
             background: "transparent",
             border: "0",
@@ -33,9 +35,8 @@ function Toast({ id, type = "info", message, onClose }) {
             padding: "2px 6px",
         },
     };
-    const tone = styles[type] || styles.info;
     return (
-        <div style={{ ...styles.base, ...tone }}>
+        <div style={styles.base}>
             <div>{message}</div>
             <button aria-label="Đóng" onClick={() => onClose(id)} style={styles.btn}>
                 ✕
@@ -103,20 +104,18 @@ export default function Profile() {
     const [addrForm, setAddrForm] = useState({
         fullName: "",
         line1: "",
-        district: "",
-        city: "",
+        district: "", // sẽ là tên Phường/Xã (FAKE)
+        city: "", // sẽ là tên Tỉnh/Thành
         country: "Vietnam",
         postalCode: "",
         phone: "",
         isDefault: false,
     });
 
-    // ---- VN Address (2 cấp) ----
-    const addr = useVNAddress(); // { provinces, districts, getProvinceName, getDistrictName, ... }
-    const [provinceCode, setProvinceCode] = useState("");
-    const [districtCode, setDistrictCode] = useState("");
+    // 2 dropdown theo mô hình mới
+    const [provinceCode, setProvinceCode] = useState(""); // code Tỉnh/Thành
+    const [wardCode, setWardCode] = useState(""); // code Phường/Xã
 
-    // khởi tạo form hồ sơ
     const load = async () => {
         try {
             const data = await AuthService.getProfile();
@@ -171,36 +170,34 @@ export default function Profile() {
             isDefault: me?.addresses?.length === 0,
         });
         setProvinceCode("");
-        setDistrictCode("");
+        setWardCode("");
         setShowModal(true);
     };
 
-    const openEdit = (a) => {
+    const openEdit = async (a) => {
         setEditing(a);
         setAddrForm({ ...a });
         setShowModal(true);
-    };
 
-    // khi mở modal & đã có dataset tỉnh/quận, cố gắng map city/district -> code
-    useEffect(() => {
-        if (!showModal) return;
-        if (!addr?.provinces?.length) return;
-
-        const cityName = (addrForm.city || "").trim();
-        const districtName = (addrForm.district || "").trim();
-
-        const p = addr.provinces.find((x) => x.name === cityName);
-        if (p) {
-            setProvinceCode(p.code);
-            const d = p.districts.find((x) => x.name === districtName);
-            if (d) setDistrictCode(d.code);
-            else setDistrictCode("");
-        } else {
+        // Map tên city/district → code để hiển thị đúng trong dropdown
+        try {
+            const data = await getVNAddressData();
+            const norm = (s) => (s || "").trim().toLowerCase();
+            const p = data.provinces.find((x) => norm(x.name) === norm(a.city));
+            if (p) {
+                setProvinceCode(p.code);
+                const wards = data.wardsByProvince[p.code] || [];
+                const w = wards.find((x) => norm(x.name) === norm(a.district));
+                setWardCode(w ? w.code : "");
+            } else {
+                setProvinceCode("");
+                setWardCode("");
+            }
+        } catch {
             setProvinceCode("");
-            setDistrictCode("");
+            setWardCode("");
         }
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [showModal, addr.provinces]);
+    };
 
     const saveAddress = async () => {
         try {
@@ -210,24 +207,23 @@ export default function Profile() {
                 addToast("Vui lòng nhập số điện thoại hợp lệ cho địa chỉ.", "error");
                 return;
             }
-            // validate chọn tỉnh/quận
-            if (!provinceCode || !districtCode) {
-                addToast("Vui lòng chọn đầy đủ Tỉnh/TP và Quận/Huyện.", "error");
+            // validate chọn tỉnh/phường
+            if (!provinceCode || !wardCode) {
+                addToast("Vui lòng chọn đầy đủ Tỉnh/Thành và Phường/Xã.", "error");
                 return;
             }
 
-            // map code -> tên để gửi BE
-            const cityName =
-                addr.getProvinceName?.(provinceCode) || addrForm.city || "";
-            const districtName =
-                addr.getDistrictName?.(provinceCode, districtCode) ||
-                addrForm.district ||
-                "";
+            // Tra tên theo code (để gửi text cho BE, giữ nguyên schema DB)
+            const data = await getVNAddressData();
+            const province = data.provinces.find((p) => p.code === provinceCode);
+            const ward =
+                (data.wardsByProvince[provinceCode] || []).find((w) => w.code === wardCode) ||
+                null;
 
             const payload = {
                 ...addrForm,
-                city: cityName,
-                district: districtName,
+                city: province?.name || addrForm.city,
+                district: ward?.name || addrForm.district, // district = tên Phường/Xã (FAKE)
             };
 
             if (editing) {
@@ -459,18 +455,22 @@ export default function Profile() {
                                     />
                                 </label>
 
-                                {/* Picker tỉnh/quận */}
-                                <div className="row" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
-                                    <div className="full">
-                                        <VNAddressPicker
-                                            value={{ provinceCode, districtCode }}
-                                            onChange={({ provinceCode: p, districtCode: d }) => {
-                                                setProvinceCode(p);
-                                                setDistrictCode(d);
-                                            }}
-                                        // hiển thị riêng 2 select, nhưng component đã gộp & đồng bộ sẵn
-                                        />
-                                    </div>
+                                <div className="full">
+                                    <VNAddressPicker
+                                        value={{ provinceCode, wardCode }}
+                                        onChange={({ provinceCode, wardCode, provinceName, wardName }) => {
+                                            setProvinceCode(provinceCode);
+                                            setWardCode(wardCode);
+                                            // Ghi TEXT vào form để gửi về BE (giữ schema cũ)
+                                            setAddrForm((s) => ({
+                                                ...s,
+                                                city: provinceName,   // Tỉnh/Thành
+                                                district: wardName,   // Phường/Xã (FAKE district)
+                                            }));
+                                        }}
+                                        required
+                                        labels={{ province: "Tỉnh/Thành phố", ward: "Phường/Xã" }}
+                                    />
                                 </div>
 
                                 <label>
@@ -518,7 +518,7 @@ export default function Profile() {
                                 <img
                                     src={previewUrl}
                                     alt="Xem trước"
-                                    style={{ width: 180, height: 180, borderRadius: "999px", objectFit: "cover", border: "1px solid #1f2937" }}
+                                    style={{ width: 180, height: 180, borderRadius: "999px", objectFit: "cover", border: "1px solid #e5e7eb" }}
                                 />
                             </div>
                             <div className="modal-actions">

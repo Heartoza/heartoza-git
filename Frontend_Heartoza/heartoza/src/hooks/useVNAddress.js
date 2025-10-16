@@ -1,139 +1,98 @@
-﻿import { useEffect, useMemo, useState } from "react";
+﻿// src/hooks/useVNAddress.js
+import { useEffect, useMemo, useState } from "react";
 
-/**
- * useVNAddress
- * - Tải dữ liệu tỉnh/thành (tinh_tp.json) và quận/huyện (quan_huyen.json) từ hanhchinhvn (chuẩn tên nhà nước).
- * - Hợp nhất thành cấu trúc: [{ code, name, districts: [{ code, name }] }]
- * - Cache localStorage 7 ngày + theo VERSION để chủ động làm mới.
- */
+// Nguồn dữ liệu chính thức (đã bạn gửi)
+const DATA_URL =
+    "https://cdn.jsdelivr.net/npm/vietnam-address-database@1.0.0/address.json";
 
-const VERSION = "v1.0"; // đổi nếu muốn ép làm mới cache
-const LS_KEY = "vn_admin_2level_cache";
+// Cache Promise ở scope module để chỉ tải 1 lần cho toàn app
+let _cachePromise = null;
 
-const SRC = {
-    provinces:
-        "https://cdn.jsdelivr.net/gh/madnh/hanhchinhvn/dist/tinh_tp.json",
-    districts:
-        "https://cdn.jsdelivr.net/gh/madnh/hanhchinhvn/dist/quan_huyen.json",
-};
+/** Tải & build index cho dữ liệu địa chỉ VN (2 cấp: Tỉnh/Thành -> Phường/Xã) */
+export function getVNAddressData() {
+    if (_cachePromise) return _cachePromise;
 
-function loadCache() {
-    try {
-        const raw = localStorage.getItem(LS_KEY);
-        if (!raw) return null;
-        const parsed = JSON.parse(raw);
-        const isVersionOk = parsed?.version === VERSION;
-        const isFresh =
-            Date.now() - (parsed?.ts || 0) < 7 * 24 * 60 * 60 * 1000; // 7 ngày
-        return isVersionOk && isFresh ? parsed.data : null;
-    } catch {
-        return null;
+    _cachePromise = fetch(DATA_URL)
+        .then((r) => {
+            if (!r.ok) throw new Error("Failed to load VN address database");
+            return r.json();
+        })
+        .then(buildIndex);
+
+    return _cachePromise;
+}
+
+/** Chuyển JSON gốc thành structures dễ dùng */
+function buildIndex(json) {
+    const provincesTable = json.find(
+        (x) => x.type === "table" && x.name === "provinces"
+    );
+    const wardsTable = json.find((x) => x.type === "table" && x.name === "wards");
+
+    const provincesRaw = provincesTable?.data || [];
+    const wardsRaw = wardsTable?.data || [];
+
+    const provinces = provincesRaw.map((p) => ({
+        code: p.province_code, // "01", "79", ...
+        name: p.short_name || p.name, // ưu tiên short_name nếu có
+    }));
+
+    // group wards theo province_code
+    const wardsByProvince = {};
+    for (const w of wardsRaw) {
+        const pcode = w.province_code;
+        (wardsByProvince[pcode] ||= []).push({
+            code: w.ward_code, // "00004", ...
+            name: w.name, // "Phường ... / Xã ..."
+        });
     }
+
+    // sort theo tiếng Việt
+    const collator = new Intl.Collator("vi");
+    provinces.sort((a, b) => collator.compare(a.name, b.name));
+    Object.values(wardsByProvince).forEach((arr) =>
+        arr.sort((a, b) => collator.compare(a.name, b.name))
+    );
+
+    return { provinces, wardsByProvince };
 }
 
-function saveCache(data) {
-    try {
-        localStorage.setItem(
-            LS_KEY,
-            JSON.stringify({ version: VERSION, ts: Date.now(), data })
-        );
-    } catch { }
-}
-
+/** Hook tiện dùng trên UI */
 export function useVNAddress() {
-    const [loading, setLoading] = useState(true);
-    const [provinces, setProvinces] = useState([]); // [{ code, name, districts: [...] }]
+    const [state, setState] = useState({
+        provinces: [],
+        wardsByProvince: {},
+        loading: true,
+        error: null,
+    });
 
     useEffect(() => {
-        const fromCache = loadCache();
-        if (fromCache?.length) {
-            setProvinces(fromCache);
-            setLoading(false);
-            return;
-        }
-
-        (async () => {
-            try {
-                // tải 2 file
-                const [pRes, dRes] = await Promise.all([
-                    fetch(SRC.provinces),
-                    fetch(SRC.districts),
-                ]);
-                const pJson = await pRes.json(); // object map { code: { name, ... } }
-                const dJson = await dRes.json(); // object map { code: { name, parent_code, ... } }
-
-                // build provinces
-                const pList = Object.entries(pJson).map(([pCode, pVal]) => ({
-                    code: pCode,
-                    name: pVal?.name || "",
-                }));
-
-                // group districts
-                const dMapByProvince = {};
-                for (const [dCode, dVal] of Object.entries(dJson)) {
-                    const parent = dVal?.parent_code;
-                    if (!parent) continue;
-                    if (!dMapByProvince[parent]) dMapByProvince[parent] = [];
-                    dMapByProvince[parent].push({
-                        code: dCode,
-                        name: dVal?.name || "",
-                    });
-                }
-
-                // merge
-                const merged = pList
-                    .map((p) => ({
-                        ...p,
-                        districts: (dMapByProvince[p.code] || []).sort((a, b) =>
-                            a.name.localeCompare(b.name, "vi")
-                        ),
-                    }))
-                    .sort((a, b) => a.name.localeCompare(b.name, "vi"));
-
-                setProvinces(merged);
-                saveCache(merged);
-            } catch (e) {
-                console.error("Tải dữ liệu tỉnh/quận thất bại:", e);
-                setProvinces([]); // tránh undefined
-            } finally {
-                setLoading(false);
-            }
-        })();
+        let alive = true;
+        getVNAddressData()
+            .then((data) => {
+                if (!alive) return;
+                setState({ ...data, loading: false, error: null });
+            })
+            .catch((err) => {
+                if (!alive) return;
+                setState((s) => ({ ...s, loading: false, error: err }));
+            });
+        return () => {
+            alive = false;
+        };
     }, []);
 
-    // helpers
-    const codes = useMemo(() => {
-        const p = {};
-        const d = {};
-        for (const prov of provinces) {
-            p[prov.code] = prov.name;
-            for (const qh of prov.districts || []) {
-                d[`${prov.code}:${qh.code}`] = qh.name;
-            }
-        }
-        return { p, d };
-    }, [provinces]);
+    const helpers = useMemo(
+        () => ({
+            getProvinceName: (code) =>
+                state.provinces.find((p) => p.code === code)?.name || "",
+            getWardName: (provinceCode, wardCode) =>
+                (state.wardsByProvince[provinceCode] || []).find(
+                    (w) => w.code === wardCode
+                )?.name || "",
+        }),
+        [state.provinces, state.wardsByProvince]
+    );
 
-    const getProvinceName = (provinceCode) => codes.p[provinceCode] || "";
-    const getDistrictName = (provinceCode, districtCode) =>
-        codes.d[`${provinceCode}:${districtCode}`] || "";
-
-    const getProvinceByName = (name) =>
-        provinces.find((x) => (x.name || "").trim() === (name || "").trim());
-    const getDistrictByName = (provinceCode, districtName) => {
-        const prov = provinces.find((x) => x.code === provinceCode);
-        if (!prov) return undefined;
-        return (prov.districts || []).find(
-            (d) => (d.name || "").trim() === (districtName || "").trim()
-        );
-    };
-
-    return {
-        loading,
-        provinces, // [{ code, name, districts: [{code, name}] }]
-        getProvinceName,
-        getDistrictName,
-        getProvinceByName,
-        getDistrictByName,
-    };
+    return { ...state, ...helpers };
 }
