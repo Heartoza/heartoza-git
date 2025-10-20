@@ -45,7 +45,14 @@ export default function Cart() {
                     })),
                 };
                 setCart(mappedCart);
-
+                const recent = localStorage.getItem("recentAddedProduct");
+                if (recent) {
+                    const foundItem = mappedCart.cartItems.find(ci => ci.productId == recent);
+                    if (foundItem) {
+                        setSelectedItems([foundItem.cartItemId]); 
+                    }
+                    localStorage.removeItem("recentAddedProduct"); 
+                }
                 const profile = await AuthService.getProfile();
                 const raw = profile.addresses || [];
                 const usable = raw.filter((a) => PHONE_RE.test((a.phone || "").trim()));

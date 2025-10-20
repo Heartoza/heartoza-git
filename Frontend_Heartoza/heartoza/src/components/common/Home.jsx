@@ -42,7 +42,6 @@ export default function Home() {
         })();
     }, []);
 
-    // 👉 Hàm thêm vào giỏ hàng
     const handleAddToCart = async (productId) => {
         const token = localStorage.getItem("token");
         if (!token) {
@@ -57,12 +56,19 @@ export default function Home() {
                 quantity: 1,
             });
             alert("🛒 Đã thêm vào giỏ hàng thành công!");
+            localStorage.setItem("recentAddedProduct", productId);
+
             navigate("/cart");
+            setTimeout(() => {
+                window.scrollTo({ top: 0, behavior: "smooth" });
+            }, 0);
+
         } catch (error) {
             console.error("Lỗi khi thêm vào giỏ hàng:", error);
             alert("❌ Thêm vào giỏ hàng thất bại.");
         }
     };
+
 
     return (
         <div className="home-container">
