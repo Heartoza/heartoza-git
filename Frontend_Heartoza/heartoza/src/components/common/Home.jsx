@@ -1,11 +1,11 @@
-// src/components/customer/Home.jsx
 import React, { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import "../css/Home.css";
 import api from "../../services/api";
 
 export default function Home() {
     const [featured, setFeatured] = useState([]);
+    const navigate = useNavigate();
 
     const pickImage = (p) => {
         const candidates = [
@@ -32,10 +32,8 @@ export default function Home() {
     useEffect(() => {
         (async () => {
             try {
-                // 👉 Lấy 5 sp top-selling
                 const res = await api.get("/products/top-selling?top=5");
                 const arr = Array.isArray(res?.data?.items) ? res.data.items : (res?.data || []);
-                // ❌ không slice top3 nữa
                 setFeatured(arr.map(normalize));
             } catch (err) {
                 console.error("Lỗi khi fetch featured:", err);
@@ -43,6 +41,28 @@ export default function Home() {
             }
         })();
     }, []);
+
+    // 👉 Hàm thêm vào giỏ hàng
+    const handleAddToCart = async (productId) => {
+        const token = localStorage.getItem("token");
+        if (!token) {
+            alert("Bạn cần đăng nhập trước khi thêm vào giỏ hàng.");
+            navigate("/login?reason=add-to-cart");
+            return;
+        }
+
+        try {
+            await api.post("Cart/AddItem", {
+                productId,
+                quantity: 1,
+            });
+            alert("🛒 Đã thêm vào giỏ hàng thành công!");
+            navigate("/cart");
+        } catch (error) {
+            console.error("Lỗi khi thêm vào giỏ hàng:", error);
+            alert("❌ Thêm vào giỏ hàng thất bại.");
+        }
+    };
 
     return (
         <div className="home-container">
@@ -58,7 +78,12 @@ export default function Home() {
                 <h2>✨ Sản phẩm nổi bật ✨</h2>
                 <div className="featured-grid">
                     {featured.length ? featured.map((item) => (
-                        <div key={item.productId} className="featured-card">
+                        <div
+                            key={item.productId}
+                            className="featured-card"
+                            onClick={() => navigate(`/products/${item.productId}`)} // 👉 Nhấn vào card là đi đến trang chi tiết
+                            style={{ cursor: "pointer" }}
+                        >
                             <div className="card-img">
                                 <img src={item.img} alt={item.name} />
                             </div>
@@ -67,7 +92,20 @@ export default function Home() {
                                 {item.sku && <p>SKU: {item.sku}</p>}
                                 <span className="price">{Number(item.price || 0).toLocaleString("vi-VN")}₫</span>
                                 <p>Đã bán: {item.totalSold}</p>
-                                <Link to={`/products/${item.productId}`} className="detail-link">Xem chi tiết</Link>
+
+                                <div className="card-actions">
+                                    {/* 🛒 Thêm vào giỏ */}
+                                    <button
+                                        className="cart-btn"
+                                        onClick={(e) => {
+                                            e.stopPropagation(); // ❗ Ngăn không cho click card mở trang chi tiết khi bấm nút
+                                            handleAddToCart(item.productId);
+                                        }}
+                                        title="Đặt hàng ngay"
+                                    >
+                                        Đặt hàng
+                                    </button>
+                                </div>
                             </div>
                         </div>
                     )) : <p>Đang tải sản phẩm...</p>}
