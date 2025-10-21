@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { jwtDecode } from "jwt-decode";
 import { AuthService } from "../../services/authService";
 import { useNavigate } from "react-router-dom";
@@ -16,6 +16,7 @@ export default function Cart() {
     const [led, setLed] = useState("Không");
     const [wish, setWish] = useState("");
     const [cardMessage, setCardMessage] = useState("");
+    const itemRefs = useRef({});
 
     const [selectedItems, setSelectedItems] = useState([]);
     const [selectAll, setSelectAll] = useState(false);
@@ -49,9 +50,15 @@ export default function Cart() {
                 if (recent) {
                     const foundItem = mappedCart.cartItems.find(ci => ci.productId == recent);
                     if (foundItem) {
-                        setSelectedItems([foundItem.cartItemId]); 
+                        setSelectedItems([foundItem.cartItemId]);
+                        setTimeout(() => {
+                            const ref = itemRefs.current[foundItem.cartItemId];
+                            if (ref?.current) {
+                                ref.current.scrollIntoView({ behavior: "smooth", block: "center" });
+                            }
+                        }, 100);
                     }
-                    localStorage.removeItem("recentAddedProduct"); 
+                    localStorage.removeItem("recentAddedProduct");
                 }
                 const profile = await AuthService.getProfile();
                 const raw = profile.addresses || [];
@@ -254,87 +261,94 @@ export default function Cart() {
                     </div>
 
                     {/* Cart Items */}
-                    {cart.cartItems.map((item) => (
-                        <div
-                            key={item.cartItemId}
-                            className={`cart-item-card ${selectedItems.includes(item.cartItemId) ? "selected" : ""}`}
-                        >
-                            <div className="item-checkbox">
-                                <input
-                                    type="checkbox"
-                                    checked={selectedItems.includes(item.cartItemId)}
-                                    onChange={() => toggleSelectItem(item.cartItemId)}
-                                />
-                            </div>
+                    {cart.cartItems.map((item) => {
+                        // Tạo ref nếu chưa tồn tại
+                        if (!itemRefs.current[item.cartItemId]) {
+                            itemRefs.current[item.cartItemId] = React.createRef();
+                        }
 
-                            <div className="item-info">
-                                <h3 className="item-name">{item.productName}</h3>
-                            </div>
-
-                            <div className="item-quantity">
-                                <div className="quantity-control">
-                                    <button
-                                        className="quantity-btn"
-                                        onClick={() => updateQuantity(item.cartItemId, item.quantity - 1)}
-                                        disabled={item.quantity <= 1}
-                                    >
-                                        −
-                                    </button>
-
+                        return (
+                            <div
+                                key={item.cartItemId}
+                                ref={itemRefs.current[item.cartItemId]} // ✅ gán ref cho div
+                                className={`cart-item-card ${selectedItems.includes(item.cartItemId) ? "selected" : ""}`}
+                            >
+                                <div className="item-checkbox">
                                     <input
-                                        type="number"
-                                        min="1"
-                                        className="quantity-input"
-                                        value={item.quantity}
-                                        onChange={(e) => {
-                                            const val = e.target.value;
-                                            // Cho phép xoá tạm để gõ số khác
-                                            if (val === "") {
-                                                setCart((prev) => ({
-                                                    ...prev,
-                                                    cartItems: prev.cartItems.map((ci) =>
-                                                        ci.cartItemId === item.cartItemId ? { ...ci, quantity: "" } : ci
-                                                    ),
-                                                }));
-                                                return;
-                                            }
-                                            const newQty = parseInt(val, 10);
-                                            if (!isNaN(newQty) && newQty > 0) {
-                                                updateQuantity(item.cartItemId, newQty);
-                                            }
-                                        }}
-                                        onBlur={(e) => {
-                                            if (e.target.value === "" || parseInt(e.target.value) <= 0) {
-                                                updateQuantity(item.cartItemId, 1);
-                                            }
-                                        }}
+                                        type="checkbox"
+                                        checked={selectedItems.includes(item.cartItemId)}
+                                        onChange={() => toggleSelectItem(item.cartItemId)}
                                     />
-
-                                    <button
-                                        className="quantity-btn"
-                                        onClick={() => updateQuantity(item.cartItemId, item.quantity + 1)}
-                                    >
-                                        +
-                                    </button>
                                 </div>
 
-                            </div>
+                                <div className="item-info">
+                                    <h3 className="item-name">{item.productName}</h3>
+                                </div>
 
-                            <div className="item-total">
-                                <span>{item.lineTotal.toLocaleString()} đ</span>
-                            </div>
+                                <div className="item-quantity">
+                                    <div className="quantity-control">
+                                        <button
+                                            className="quantity-btn"
+                                            onClick={() => updateQuantity(item.cartItemId, item.quantity - 1)}
+                                            disabled={item.quantity <= 1}
+                                        >
+                                            −
+                                        </button>
 
-                            <div className="item-remove">
-                                <button
-                                    className="remove-btn"
-                                    onClick={() => removeItem(item.cartItemId, item.productName)}
-                                    title="Xóa sản phẩm"
-                                >
-                                    🗑️
-                                </button>
+                                        <input
+                                            type="number"
+                                            min="1"
+                                            className="quantity-input"
+                                            value={item.quantity}
+                                            onChange={(e) => {
+                                                const val = e.target.value;
+                                                if (val === "") {
+                                                    setCart((prev) => ({
+                                                        ...prev,
+                                                        cartItems: prev.cartItems.map((ci) =>
+                                                            ci.cartItemId === item.cartItemId ? { ...ci, quantity: "" } : ci
+                                                        ),
+                                                    }));
+                                                    return;
+                                                }
+                                                const newQty = parseInt(val, 10);
+                                                if (!isNaN(newQty) && newQty > 0) {
+                                                    updateQuantity(item.cartItemId, newQty);
+                                                }
+                                            }}
+                                            onBlur={(e) => {
+                                                if (e.target.value === "" || parseInt(e.target.value) <= 0) {
+                                                    updateQuantity(item.cartItemId, 1);
+                                                }
+                                            }}
+                                        />
+
+                                        <button
+                                            className="quantity-btn"
+                                            onClick={() => updateQuantity(item.cartItemId, item.quantity + 1)}
+                                        >
+                                            +
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <div className="item-total">
+                                    <span>{item.lineTotal.toLocaleString()} đ</span>
+                                </div>
+
+                                <div className="item-remove">
+                                    <button
+                                        className="remove-btn"
+                                        onClick={() => removeItem(item.cartItemId, item.productName)}
+                                        title="Xóa sản phẩm"
+                                    >
+                                        🗑️
+                                    </button>
+                                </div>
                             </div>
-                        </div>
-                    ))}
+                        );
+                    })}
+
 
                     {/* Comment Section */}
                     <div className="comment-section">
