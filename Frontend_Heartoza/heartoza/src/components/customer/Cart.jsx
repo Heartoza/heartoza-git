@@ -5,6 +5,10 @@ import { useNavigate } from "react-router-dom";
 import "../css/Cart.css";
 import http from "../../services/api";
 
+// ✅ Marketing
+import BannerStrip from "../../components/marketing/BannerStrip";
+import VoucherBox from "../../components/marketing/VoucherBox";
+
 const PHONE_RE = /^[0-9+()\s-]{8,}$/;
 
 export default function Cart() {
@@ -21,9 +25,13 @@ export default function Cart() {
     const [selectedItems, setSelectedItems] = useState([]);
     const [selectAll, setSelectAll] = useState(false);
 
-    const [addresses, setAddresses] = useState([]);            // tất cả địa chỉ (raw)
+    const [addresses, setAddresses] = useState([]);             // tất cả địa chỉ (raw)
     const [usableAddresses, setUsableAddresses] = useState([]); // địa chỉ có SĐT hợp lệ
     const [selectedAddress, setSelectedAddress] = useState(null);
+
+    // ✅ lưu profile (để lấy userId) + voucher state
+    const [profile, setProfile] = useState(null);
+    const [voucher, setVoucher] = useState({ code: "", discount: 0 });
 
     useEffect(() => {
         const fetchCartAndAddresses = async () => {
@@ -46,6 +54,7 @@ export default function Cart() {
                     })),
                 };
                 setCart(mappedCart);
+
                 const recent = localStorage.getItem("recentAddedProduct");
                 if (recent) {
                     const foundItem = mappedCart.cartItems.find(ci => ci.productId == recent);
@@ -60,8 +69,11 @@ export default function Cart() {
                     }
                     localStorage.removeItem("recentAddedProduct");
                 }
-                const profile = await AuthService.getProfile();
-                const raw = profile.addresses || [];
+
+                const profileRes = await AuthService.getProfile();
+                setProfile(profileRes); // ✅ lưu lại
+
+                const raw = profileRes.addresses || [];
                 const usable = raw.filter((a) => PHONE_RE.test((a.phone || "").trim()));
 
                 setAddresses(raw);
@@ -115,7 +127,6 @@ export default function Cart() {
         }
     };
 
-
     const removeItem = async (cartItemId, productName) => {
         if (!window.confirm(`Bạn có chắc muốn xóa "${productName}" khỏi giỏ hàng?`)) return;
 
@@ -155,7 +166,10 @@ export default function Cart() {
     };
 
     const handleCheckout = async () => {
-        if (selectedItems.length === 0) {
+        const selected = cart?.cartItems?.filter((i) => selectedItems.includes(i.cartItemId)) || [];
+        const subtotal = selected.reduce((sum, i) => sum + i.lineTotal, 0);
+
+        if (selected.length === 0) {
             alert("Vui lòng chọn ít nhất một sản phẩm để đặt hàng.");
             return;
         }
@@ -183,19 +197,21 @@ export default function Cart() {
                 shippingAddressId: selectedAddress,
                 shippingFee: 0,
                 method: "COD",
-                comment: `🎁 Phụ kiện kèm theo: ${accessory}\n💡 LED: ${led}\n✉️ Lời nhắn trong thiệp: ${cardMessage}\n💭 Mong muốn: ${wish}`,
-                items: selectedItems.map((id) => {
-                    const item = cart.cartItems.find((ci) => ci.cartItemId === id);
-                    return {
-                        productId: item.productId,
-                        quantity: item.quantity,
-                    };
-                }),
+                comment: `🎁 Phụ kiện kèm theo: ${accessory}\n💡 LED: ${led}\n✉️ Lời nhắn trong thiệp: ${cardMessage}\n💭 Mong muốn: ${wish}${voucher.code ? `\n🎫 Voucher: ${voucher.code} (giảm ${voucher.discount.toLocaleString()}đ)` : ""
+                    }`,
+                items: selected.map((item) => ({
+                    productId: item.productId,
+                    quantity: item.quantity,
+                })),
             };
 
             const res = await http.post("orders", payload);
             alert(`✅ Đặt hàng thành công! Mã đơn: ${res.data.orderCode}`);
 
+            // ❗ VoucherBox đã "apply" (log usage) khi người dùng bấm Áp dụng,
+            // nên ở đây KHÔNG gọi apply lần nữa để tránh đếm 2 lần.
+
+            // Xóa các item đã đặt khỏi giỏ
             await Promise.all(selectedItems.map((id) => http.delete(`Cart/RemoveItem/${id}`)));
 
             setCart((prev) => ({
@@ -231,6 +247,8 @@ export default function Cart() {
     if (!cart || !cart.cartItems || cart.cartItems.length === 0) {
         return (
             <div className="cart-container">
+                {/* ✅ Banner ngay cả khi rỗng giỏ */}
+                <BannerStrip position="checkout-top" className="mb-3" />
                 <div className="empty-cart">
                     <div className="empty-cart-icon">🛒</div>
                     <p>Giỏ hàng của bạn đang trống</p>
@@ -243,10 +261,14 @@ export default function Cart() {
         .filter((i) => selectedItems.includes(i.cartItemId))
         .reduce((sum, i) => sum + i.lineTotal, 0);
 
+    const finalTotal = Math.max(total - (voucher.discount || 0), 0); // ✅ tổng sau giảm
     const selectedCount = selectedItems.length;
 
     return (
         <div className="cart-container">
+            {/* ✅ Banner trên đầu trang thanh toán */}
+            <BannerStrip position="checkout-top" className="mb-3" />
+
             <h2>Giỏ hàng của bạn</h2>
 
             <div className="cart-layout">
@@ -270,7 +292,7 @@ export default function Cart() {
                         return (
                             <div
                                 key={item.cartItemId}
-                                ref={itemRefs.current[item.cartItemId]} // ✅ gán ref cho div
+                                ref={itemRefs.current[item.cartItemId]}
                                 className={`cart-item-card ${selectedItems.includes(item.cartItemId) ? "selected" : ""}`}
                             >
                                 <div className="item-checkbox">
@@ -348,7 +370,6 @@ export default function Cart() {
                             </div>
                         );
                     })}
-
 
                     {/* Comment Section */}
                     <div className="comment-section">
@@ -454,6 +475,15 @@ export default function Cart() {
                     <div className="summary-card">
                         <h3>📋 Tóm tắt đơn hàng</h3>
 
+                        {/* ✅ Voucher */}
+                        <div style={{ marginBottom: 12 }}>
+                            <VoucherBox
+                                orderSubtotal={total}
+                                userId={profile?.userId}
+                                onApplied={({ code, discount }) => setVoucher({ code, discount })}
+                            />
+                        </div>
+
                         <div className="summary-row">
                             <span className="summary-label">Sản phẩm đã chọn</span>
                             <span className="summary-value">{selectedCount} sản phẩm</span>
@@ -464,6 +494,16 @@ export default function Cart() {
                             <span className="summary-value">{total.toLocaleString()} đ</span>
                         </div>
 
+                        {/* ✅ Hiển thị giảm giá nếu có */}
+                        {voucher.discount > 0 && (
+                            <div className="summary-row">
+                                <span className="summary-label">Giảm ({voucher.code})</span>
+                                <span className="summary-value" style={{ color: "#e53e3e" }}>
+                                    -{voucher.discount.toLocaleString()} đ
+                                </span>
+                            </div>
+                        )}
+
                         <div className="summary-row">
                             <span className="summary-label">Thanh toán</span>
                             <span className="summary-value" style={{ color: "#48bb78" }}>
@@ -471,9 +511,10 @@ export default function Cart() {
                             </span>
                         </div>
 
+                        {/* ✅ Tổng sau giảm */}
                         <div className="summary-total">
                             <span className="label">Tổng cộng</span>
-                            <span className="value">{total.toLocaleString()} đ</span>
+                            <span className="value">{finalTotal.toLocaleString()} đ</span>
                         </div>
 
                         <button
@@ -488,6 +529,9 @@ export default function Cart() {
                                     : "✅ Đặt hàng ngay"}
                         </button>
                     </div>
+
+                    {/* ✅ Banner ở cột tóm tắt */}
+                    <BannerStrip position="cart-sidebar" className="mt-4" />
                 </div>
             </div>
         </div>

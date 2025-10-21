@@ -31,7 +31,11 @@ public partial class Medium
 
     public DateTime CreatedAt { get; set; }
 
+    public virtual ICollection<Banner> Banners { get; set; } = new List<Banner>();
+
     public virtual ICollection<ProductMedium> ProductMedia { get; set; } = new List<ProductMedium>();
+
+    public virtual ICollection<SeoMetum> SeoMeta { get; set; } = new List<SeoMetum>();
 
     public virtual ICollection<UserMedium> UserMedia { get; set; } = new List<UserMedium>();
 }

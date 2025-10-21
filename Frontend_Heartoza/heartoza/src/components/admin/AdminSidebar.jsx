@@ -14,6 +14,10 @@ export default function AdminDashboard() {
                 <li><NavLink to="/admin/orders">📦 Đơn hàng</NavLink></li>
                 <li><NavLink to="/admin/products">🛍️ Sản phẩm</NavLink></li>
                 <li><NavLink to="/admin/categories">🗂️ Phân loại sản phẩm</NavLink></li>
+                <li><NavLink to="/admin/marketing/banners">🏁 Banners</NavLink></li>
+                <li><NavLink to="/admin/marketing/vouchers">🎟️ Vouchers</NavLink></li>
+                <li><NavLink to="/admin/marketing/seo">📈 SEO Meta</NavLink></li>
+
                 <button onClick={logout} className="logout-btn">Đăng xuất</button>
             </ul>
         </div>

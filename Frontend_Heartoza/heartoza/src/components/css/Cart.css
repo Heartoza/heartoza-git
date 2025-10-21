@@ -630,3 +630,95 @@ input[type="checkbox"]:checked::after {
 .cart-container::-webkit-scrollbar-thumb:hover {
     background: #764ba2;
 }
+/* ===== Voucher box (sidebar) ===== */
+.voucher-box {
+    display: flex;
+    flex-wrap: wrap; /* ✅ cho phép xuống dòng */
+    gap: 10px;
+    align-items: center;
+}
+
+.voucher-input {
+    flex: 1 1 auto; /* ✅ chiếm hết chiều ngang còn lại */
+    min-width: 160px;
+    padding: 10px 12px;
+    border: 2px solid #e2e8f0;
+    border-radius: 10px;
+    font-size: 14px;
+    outline: none;
+}
+
+    .voucher-input:focus {
+        border-color: #667eea;
+        box-shadow: 0 0 0 3px rgba(102,126,234,.12);
+    }
+
+.voucher-btn {
+    flex: 0 0 auto;
+    padding: 10px 14px;
+    border-radius: 10px;
+    font-weight: 700;
+    font-size: 14px;
+    border: none;
+    cursor: pointer;
+    transition: transform .15s ease, box-shadow .15s ease;
+    box-shadow: 0 2px 6px rgba(0,0,0,.08);
+}
+
+    .voucher-btn:disabled {
+        opacity: .6;
+        cursor: not-allowed;
+    }
+
+    .voucher-btn.primary {
+        color: #fff;
+        background: linear-gradient(135deg, #1e3a8a 0%, #2563eb 100%);
+    }
+
+    .voucher-btn.outline {
+        color: #1e3a8a;
+        background: #e8eefc;
+    }
+
+    .voucher-btn:hover:not(:disabled) {
+        transform: translateY(-1px);
+    }
+
+.voucher-hint {
+    flex-basis: 100%; /* ✅ luôn xuống dòng dưới */
+    font-size: 13px;
+    margin-top: -2px;
+    line-height: 1.4;
+    color: #64748b;
+    /* đảm bảo không tràn khung */
+    overflow-wrap: anywhere;
+}
+
+    .voucher-hint.success {
+        color: #059669;
+    }
+    /* xanh */
+    .voucher-hint.error {
+        color: #dc2626;
+    }
+    /* đỏ */
+    .voucher-hint.muted {
+        color: #64748b;
+    }
+
+/* Thu hẹp một chút để tránh lòi mép trong card hẹp */
+.summary-card .voucher-box {
+    margin-bottom: 6px;
+}
+
+.summary-card .voucher-btn {
+    padding: 10px 12px;
+}
+/* nút gọn hơn một nhịp */
+
+/* Responsive: khi card hẹp, cho input full hàng trên; 2 nút chia hàng dưới */
+@media (max-width: 420px) {
+    .voucher-input {
+        flex-basis: 100%;
+    }
+}

@@ -27,6 +27,7 @@ packages/
 *.cache
 *.db
 *.sqlite
+*.sql
 
 # MSBuild auto-gen
 *.props

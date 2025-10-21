@@ -15,6 +15,8 @@ public partial class GiftBoxShopContext : DbContext
 
     public virtual DbSet<AuditLog> AuditLogs { get; set; }
 
+    public virtual DbSet<Banner> Banners { get; set; }
+
     public virtual DbSet<Cart> Carts { get; set; }
 
     public virtual DbSet<CartItem> CartItems { get; set; }
@@ -43,11 +45,17 @@ public partial class GiftBoxShopContext : DbContext
 
     public virtual DbSet<RefreshToken> RefreshTokens { get; set; }
 
+    public virtual DbSet<SeoMetum> SeoMeta { get; set; }
+
     public virtual DbSet<Shipment> Shipments { get; set; }
 
     public virtual DbSet<User> Users { get; set; }
 
     public virtual DbSet<UserMedium> UserMedia { get; set; }
+
+    public virtual DbSet<Voucher> Vouchers { get; set; }
+
+    public virtual DbSet<VoucherUsage> VoucherUsages { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -88,6 +96,35 @@ public partial class GiftBoxShopContext : DbContext
             entity.HasOne(d => d.User).WithMany(p => p.AuditLogs)
                 .HasForeignKey(d => d.UserId)
                 .HasConstraintName("FK_AuditLogs_Users");
+        });
+
+        modelBuilder.Entity<Banner>(entity =>
+        {
+            entity.HasKey(e => e.BannerId).HasName("PK__Banners__32E86AD1731128B5");
+
+            entity.HasIndex(e => new { e.Position, e.IsActive, e.StartAt, e.EndAt, e.SortOrder }, "IX_Banners_Position_Active_Time");
+
+            entity.Property(e => e.CreatedAt).HasDefaultValueSql("(sysutcdatetime())");
+            entity.Property(e => e.ExternalImageUrl).HasMaxLength(500);
+            entity.Property(e => e.IsActive).HasDefaultValue(true);
+            entity.Property(e => e.LinkUrl).HasMaxLength(500);
+            entity.Property(e => e.OpenInNewTab).HasDefaultValue(true);
+            entity.Property(e => e.Position)
+                .HasMaxLength(50)
+                .IsUnicode(false);
+            entity.Property(e => e.Title).HasMaxLength(200);
+
+            entity.HasOne(d => d.CreatedByUser).WithMany(p => p.BannerCreatedByUsers)
+                .HasForeignKey(d => d.CreatedByUserId)
+                .HasConstraintName("FK_Banners_Users_CreatedBy");
+
+            entity.HasOne(d => d.Media).WithMany(p => p.Banners)
+                .HasForeignKey(d => d.MediaId)
+                .HasConstraintName("FK_Banners_Media");
+
+            entity.HasOne(d => d.UpdatedByUser).WithMany(p => p.BannerUpdatedByUsers)
+                .HasForeignKey(d => d.UpdatedByUserId)
+                .HasConstraintName("FK_Banners_Users_UpdatedBy");
         });
 
         modelBuilder.Entity<Cart>(entity =>
@@ -361,6 +398,25 @@ public partial class GiftBoxShopContext : DbContext
                 .HasConstraintName("FK_RefreshTokens_Users");
         });
 
+        modelBuilder.Entity<SeoMetum>(entity =>
+        {
+            entity.HasKey(e => e.SeoMetaId).HasName("PK__SeoMeta__1A17C80AF94BA20B");
+
+            entity.HasIndex(e => e.Slug, "UX_SeoMeta_Slug").IsUnique();
+
+            entity.Property(e => e.CanonicalUrl).HasMaxLength(500);
+            entity.Property(e => e.CreatedAt).HasDefaultValueSql("(sysutcdatetime())");
+            entity.Property(e => e.Description).HasMaxLength(500);
+            entity.Property(e => e.Keywords).HasMaxLength(500);
+            entity.Property(e => e.OgImageUrl).HasMaxLength(500);
+            entity.Property(e => e.Slug).HasMaxLength(300);
+            entity.Property(e => e.Title).HasMaxLength(300);
+
+            entity.HasOne(d => d.ImageMedia).WithMany(p => p.SeoMeta)
+                .HasForeignKey(d => d.ImageMediaId)
+                .HasConstraintName("FK_SeoMeta_Media");
+        });
+
         modelBuilder.Entity<Shipment>(entity =>
         {
             entity.HasKey(e => e.ShipmentId).HasName("PK__Shipment__5CAD37EDB1AF919E");
@@ -426,6 +482,59 @@ public partial class GiftBoxShopContext : DbContext
             entity.HasOne(d => d.User).WithMany(p => p.UserMedia)
                 .HasForeignKey(d => d.UserId)
                 .HasConstraintName("FK_UserMedia_User");
+        });
+
+        modelBuilder.Entity<Voucher>(entity =>
+        {
+            entity.HasKey(e => e.VoucherId).HasName("PK__Vouchers__3AEE7921670B819A");
+
+            entity.HasIndex(e => e.Code, "UX_Vouchers_Code").IsUnique();
+
+            entity.Property(e => e.Code)
+                .HasMaxLength(50)
+                .IsUnicode(false);
+            entity.Property(e => e.CreatedAt).HasDefaultValueSql("(sysutcdatetime())");
+            entity.Property(e => e.DiscountType)
+                .HasMaxLength(20)
+                .IsUnicode(false);
+            entity.Property(e => e.DiscountValue).HasColumnType("decimal(18, 2)");
+            entity.Property(e => e.IsActive).HasDefaultValue(true);
+            entity.Property(e => e.MaxDiscount).HasColumnType("decimal(18, 2)");
+            entity.Property(e => e.MinOrder).HasColumnType("decimal(18, 2)");
+            entity.Property(e => e.Name).HasMaxLength(200);
+
+            entity.HasOne(d => d.CreatedByUser).WithMany(p => p.VoucherCreatedByUsers)
+                .HasForeignKey(d => d.CreatedByUserId)
+                .HasConstraintName("FK_Vouchers_Users_CreatedBy");
+
+            entity.HasOne(d => d.UpdatedByUser).WithMany(p => p.VoucherUpdatedByUsers)
+                .HasForeignKey(d => d.UpdatedByUserId)
+                .HasConstraintName("FK_Vouchers_Users_UpdatedBy");
+        });
+
+        modelBuilder.Entity<VoucherUsage>(entity =>
+        {
+            entity.HasKey(e => e.VoucherUsageId).HasName("PK__VoucherU__4264F80BC2BA50C7");
+
+            entity.HasIndex(e => e.UserId, "IX_VoucherUsages_User");
+
+            entity.HasIndex(e => e.VoucherId, "IX_VoucherUsages_Voucher");
+
+            entity.Property(e => e.DiscountApplied).HasColumnType("decimal(18, 2)");
+            entity.Property(e => e.UsedAt).HasDefaultValueSql("(sysutcdatetime())");
+
+            entity.HasOne(d => d.Order).WithMany(p => p.VoucherUsages)
+                .HasForeignKey(d => d.OrderId)
+                .HasConstraintName("FK_VoucherUsages_Orders");
+
+            entity.HasOne(d => d.User).WithMany(p => p.VoucherUsages)
+                .HasForeignKey(d => d.UserId)
+                .HasConstraintName("FK_VoucherUsages_Users");
+
+            entity.HasOne(d => d.Voucher).WithMany(p => p.VoucherUsages)
+                .HasForeignKey(d => d.VoucherId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_VoucherUsages_Vouchers");
         });
 
         OnModelCreatingPartial(modelBuilder);

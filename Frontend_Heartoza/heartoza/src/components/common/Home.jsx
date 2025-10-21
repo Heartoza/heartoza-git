@@ -2,10 +2,13 @@ import React, { useEffect, useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import "../css/Home.css";
 import api from "../../services/api";
+import useSeoMeta from "../../hooks/useSeoMeta";
+import BannerStrip from "../../components/marketing/BannerStrip";
 
 export default function Home() {
     const [featured, setFeatured] = useState([]);
     const navigate = useNavigate();
+    useSeoMeta("/"); // gắn tiêu đề + og
 
     const pickImage = (p) => {
         const candidates = [
@@ -72,6 +75,7 @@ export default function Home() {
 
     return (
         <div className="home-container">
+            <BannerStrip position="home-top" className="mb-4" />
             {/* Hero Section */}
             <section className="hero-section">
                 <div className="hero-content">
@@ -97,7 +101,7 @@ export default function Home() {
                     <div className="decoration-circle circle-3"></div>
                 </div>
             </section>
-
+            <BannerStrip position="home-mid" className="my-6" />
             {/* Stats Section */}
             <section className="stats-section">
                 <div className="stat-item">
