@@ -9,7 +9,7 @@ export default function ProductList() {
     const [products, setProducts] = useState([]);
     const [filteredProducts, setFilteredProducts] = useState([]);
     const [priceFilter, setPriceFilter] = useState("");
-    const [categoryFilter, setCategoryFilter] = useState("");
+    const [selectedCategories, setSelectedCategories] = useState([]);
     const [categories, setCategories] = useState([]);
 
     const searchText = searchParams.get("search") || "";
@@ -31,12 +31,12 @@ export default function ProductList() {
     }, []);
 
     // 🔹 Lấy sản phẩm theo category / search
-    const fetchProducts = async (categoryId = "", search = "") => {
+    const fetchProducts = async (categoryIds = [], search = "") => {
         try {
             const res = await http.get("Products", {
                 params: {
                     isActive: true,
-                    ...(categoryId && { categoryId }),
+                    ...(categoryIds.length > 0 && { categoryId: categoryIds[0] }),
                     ...(search && { q: search }),
                 },
                 validateStatus: (s) => (s >= 200 && s < 300) || s === 204,
@@ -44,7 +44,7 @@ export default function ProductList() {
 
             const dataArray = res.status === 204 ? [] : (res.data?.items || []);
             setProducts(dataArray);
-            applyFilters(priceFilter, dataArray);
+            applyFilters(priceFilter, dataArray, categoryIds);
         } catch (err) {
             console.log("Lỗi load products:", err?.message || err);
             setProducts([]);
@@ -54,235 +54,227 @@ export default function ProductList() {
 
     // 🔹 Reload khi category/search đổi
     useEffect(() => {
-        fetchProducts(categoryFilter, searchText);
+        fetchProducts(selectedCategories, searchText);
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [categoryFilter, searchText]);
+    }, [selectedCategories, searchText]);
 
-    const handlePriceFilter = (e) => {
-        const value = e.target.value;
+    const handlePriceFilter = (value) => {
         setPriceFilter(value);
-        applyFilters(value, products);
+        applyFilters(value, products, selectedCategories);
     };
 
-    const handleCategoryFilter = (e) => {
-        const value = e.target.value;
-        setCategoryFilter(value);
+    const handleCategoryToggle = (categoryId) => {
+        const newSelected = selectedCategories.includes(categoryId)
+            ? selectedCategories.filter(id => id !== categoryId)
+            : [categoryId]; // Single selection for now
+        setSelectedCategories(newSelected);
     };
 
-    const applyFilters = (priceValue, list) => {
+    const applyFilters = (priceValue, list, categoryIds) => {
         let result = [...list];
+        
+        // Filter by categories if any selected
+        if (categoryIds && categoryIds.length > 0) {
+            result = result.filter(p => categoryIds.includes(p.categoryId));
+        }
+        
+        // Sort by price
         if (priceValue === "increament") result.sort((a, b) => a.price - b.price);
         else if (priceValue === "decreament") result.sort((a, b) => b.price - a.price);
+        
         setFilteredProducts(result);
     };
 
     return (
-        <div style={{
-            minHeight: '100vh',
-            background: '#f8f9fa',
-            padding: '30px 20px'
-        }}>
-            <div style={{ maxWidth: '1400px', margin: '0 auto' }}>
+        <div className="product-list-page">
+            <div className="product-list-container">
                 {/* Header */}
                 {searchText && (
-                    <div style={{
-                        textAlign: 'center',
-                        marginBottom: '30px',
-                        padding: '20px',
-                        background: 'white',
-                        borderRadius: '12px',
-                        boxShadow: '0 2px 10px rgba(0,0,0,0.05)'
-                    }}>
-                        <h2 style={{
-                            fontSize: '1.5rem',
-                            color: '#6db4f7',
-                            margin: '0'
-                        }}>
-                            🔍 Kết quả tìm kiếm cho: "{searchText}"
-                        </h2>
+                    <div className="search-result-header">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                            <circle cx="11" cy="11" r="8"/>
+                            <path d="m21 21-4.35-4.35"/>
+                        </svg>
+                        <h2>Kết quả tìm kiếm: "{searchText}"</h2>
                     </div>
                 )}
 
-                {/* Filter Section */}
-                <div style={{
-                    display: 'flex',
-                    gap: '15px',
-                    marginBottom: '30px',
-                    flexWrap: 'wrap',
-                    justifyContent: 'center'
-                }}>
-                    <div style={{
-                        position: 'relative',
-                        minWidth: '250px'
-                    }}>
-                        <select
-                            value={categoryFilter}
-                            onChange={handleCategoryFilter}
-                            style={{
-                                width: '100%',
-                                padding: '12px 40px 12px 15px',
-                                fontSize: '1rem',
-                                border: '2px solid #e0e0e0',
-                                borderRadius: '8px',
-                                background: 'white',
-                                cursor: 'pointer',
-                                transition: 'all 0.3s ease',
-                                outline: 'none'
-                            }}
-                            onFocus={(e) => e.target.style.borderColor = '#6db4f7'}
-                            onBlur={(e) => e.target.style.borderColor = '#e0e0e0'}
-                        >
-                            <option value="">🏷️ Tất cả danh mục</option>
-                            {categories.map((cat) => (
-                                <option key={cat.categoryId} value={cat.categoryId}>
-                                    {cat.name}
-                                </option>
-                            ))}
-                        </select>
-                    </div>
+                <div className="product-content">
+                    {/* Sidebar Filter */}
+                    <aside className="filter-sidebar">
+                        <div className="filter-header">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/>
+                            </svg>
+                            <h3>Bộ lọc</h3>
+                        </div>
 
-                    <div style={{
-                        position: 'relative',
-                        minWidth: '250px'
-                    }}>
-                        <select
-                            value={priceFilter}
-                            onChange={handlePriceFilter}
-                            style={{
-                                width: '100%',
-                                padding: '12px 40px 12px 15px',
-                                fontSize: '1rem',
-                                border: '2px solid #e0e0e0',
-                                borderRadius: '8px',
-                                background: 'white',
-                                cursor: 'pointer',
-                                transition: 'all 0.3s ease',
-                                outline: 'none'
-                            }}
-                            onFocus={(e) => e.target.style.borderColor = '#6db4f7'}
-                            onBlur={(e) => e.target.style.borderColor = '#e0e0e0'}
-                        >
-                            <option value="">💰 Sắp xếp theo giá</option>
-                            <option value="increament">Giá: Thấp → Cao</option>
-                            <option value="decreament">Giá: Cao → Thấp</option>
-                        </select>
-                    </div>
-                </div>
+                        {/* Price Filter */}
+                        <div className="filter-section">
+                            <h4 className="filter-title">Sắp xếp theo giá</h4>
+                            <div className="filter-options">
+                                <label className="filter-checkbox">
+                                    <input
+                                        type="radio"
+                                        name="price"
+                                        value=""
+                                        checked={priceFilter === ""}
+                                        onChange={(e) => handlePriceFilter(e.target.value)}
+                                    />
+                                    <span className="checkbox-custom"></span>
+                                    <span className="checkbox-label">Mặc định</span>
+                                </label>
+                                <label className="filter-checkbox">
+                                    <input
+                                        type="radio"
+                                        name="price"
+                                        value="increament"
+                                        checked={priceFilter === "increament"}
+                                        onChange={(e) => handlePriceFilter(e.target.value)}
+                                    />
+                                    <span className="checkbox-custom"></span>
+                                    <span className="checkbox-label">Giá thấp đến cao</span>
+                                </label>
+                                <label className="filter-checkbox">
+                                    <input
+                                        type="radio"
+                                        name="price"
+                                        value="decreament"
+                                        checked={priceFilter === "decreament"}
+                                        onChange={(e) => handlePriceFilter(e.target.value)}
+                                    />
+                                    <span className="checkbox-custom"></span>
+                                    <span className="checkbox-label">Giá cao đến thấp</span>
+                                </label>
+                            </div>
+                        </div>
 
-                {/* Product Grid */}
-                <div style={{
-                    display: 'grid',
-                    gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))',
-                    gap: '25px'
-                }}>
-                    {filteredProducts.length > 0 ? (
-                        filteredProducts.map((p) => (
-                            <div
-                                key={p.productId}
-                                onClick={() => navigate(`/products/${p.productId}`)}
-                                style={{
-                                    background: 'white',
-                                    borderRadius: '12px',
-                                    overflow: 'hidden',
-                                    boxShadow: '0 2px 15px rgba(0,0,0,0.08)',
-                                    cursor: 'pointer',
-                                    transition: 'all 0.3s ease',
-                                    border: '2px solid transparent'
-                                }}
-                                onMouseEnter={(e) => {
-                                    e.currentTarget.style.transform = 'translateY(-5px)';
-                                    e.currentTarget.style.boxShadow = '0 8px 25px rgba(109, 180, 247, 0.3)';
-                                    e.currentTarget.style.borderColor = '#6db4f7';
-                                }}
-                                onMouseLeave={(e) => {
-                                    e.currentTarget.style.transform = 'translateY(0)';
-                                    e.currentTarget.style.boxShadow = '0 2px 15px rgba(0,0,0,0.08)';
-                                    e.currentTarget.style.borderColor = 'transparent';
+                        {/* Category Filter */}
+                        <div className="filter-section">
+                            <h4 className="filter-title">Danh mục</h4>
+                            <div className="filter-options">
+                                {categories.map((cat) => (
+                                    <label key={cat.categoryId} className="filter-checkbox">
+                                        <input
+                                            type="checkbox"
+                                            checked={selectedCategories.includes(cat.categoryId)}
+                                            onChange={() => handleCategoryToggle(cat.categoryId)}
+                                        />
+                                        <span className="checkbox-custom"></span>
+                                        <span className="checkbox-label">{cat.name}</span>
+                                    </label>
+                                ))}
+                            </div>
+                        </div>
+
+                        {/* Clear Filters */}
+                        {(selectedCategories.length > 0 || priceFilter !== "") && (
+                            <button
+                                className="clear-filters-btn"
+                                onClick={() => {
+                                    setSelectedCategories([]);
+                                    setPriceFilter("");
+                                    applyFilters("", products, []);
                                 }}
                             >
-                                {/* Image */}
-                                <div style={{
-                                    width: '100%',
-                                    height: '280px',
-                                    overflow: 'hidden',
-                                    background: '#f0f0f0',
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    justifyContent: 'center'
-                                }}>
-                                    <img
-                                        src={
-                                            (p.thumbnailUrl && p.thumbnailUrl.trim() !== "")
-                                                ? p.thumbnailUrl
-                                                : (p.imageUrl && p.imageUrl.trim() !== "")
-                                                    ? p.imageUrl
-                                                    : "/img/no-image.png"
-                                        }
-                                        alt={p.name}
-                                        style={{
-                                            width: '100%',
-                                            height: '100%',
-                                            objectFit: 'cover',
-                                            transition: 'transform 0.3s ease'
-                                        }}
-                                        onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.05)'}
-                                        onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
-                                    />
-                                </div>
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                    <line x1="18" y1="6" x2="6" y2="18"/>
+                                    <line x1="6" y1="6" x2="18" y2="18"/>
+                                </svg>
+                                Xóa bộ lọc
+                            </button>
+                        )}
+                    </aside>
 
-                                {/* Info */}
-                                <div style={{ padding: '20px' }}>
-                                    <h3 style={{
-                                        fontSize: '1.1rem',
-                                        fontWeight: '600',
-                                        color: '#333',
-                                        marginBottom: '10px',
-                                        minHeight: '50px',
-                                        display: '-webkit-box',
-                                        WebkitLineClamp: 2,
-                                        WebkitBoxOrient: 'vertical',
-                                        overflow: 'hidden'
-                                    }}>
-                                        {p.name}
-                                    </h3>
-                                    <p style={{
-                                        fontSize: '1.3rem',
-                                        fontWeight: '700',
-                                        color: '#6db4f7',
-                                        marginBottom: '8px'
-                                    }}>
-                                        {Number(p.price || 0).toLocaleString("vi-VN")} đ
-                                    </p>
-                                    <p style={{
-                                        fontSize: '0.85rem',
-                                        color: '#999',
-                                        margin: '0'
-                                    }}>
-                                        SKU: {p.sku}
+                    {/* Product Grid */}
+                    <div className="product-main">
+                        <div className="product-grid">
+                            {filteredProducts.length > 0 ? (
+                                filteredProducts.map((p) => (
+                                    <div
+                                        key={p.productId}
+                                        onClick={() => navigate(`/products/${p.productId}`)}
+                                        className="product-card"
+                                    >
+                                        <div className="product-image-wrapper">
+                                            <img
+                                                src={
+                                                    (p.thumbnailUrl && p.thumbnailUrl.trim() !== "")
+                                                        ? p.thumbnailUrl
+                                                        : (p.imageUrl && p.imageUrl.trim() !== "")
+                                                            ? p.imageUrl
+                                                            : "/img/no-image.png"
+                                                }
+                                                alt={p.name}
+                                                className="product-image"
+                                            />
+                                            <div className="product-overlay">
+                                                <button className="quick-view-btn">
+                                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                                        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                                                        <circle cx="12" cy="12" r="3"/>
+                                                    </svg>
+                                                    Xem chi tiết
+                                                </button>
+                                            </div>
+                                        </div>
+
+                                        <div className="product-info">
+                                            <h3 className="product-name">{p.name}</h3>
+                                            <div className="product-meta">
+                                                <p className="product-price">
+                                                    {Number(p.price || 0).toLocaleString("vi-VN")} đ
+                                                </p>
+                                            </div>
+                                            <button 
+                                                className="add-to-cart-card-btn"
+                                                onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    const token = localStorage.getItem("token");
+                                                    if (!token) {
+                                                        alert("Bạn cần đăng nhập trước khi thêm vào giỏ hàng.");
+                                                        navigate("/login?reason=add-to-cart");
+                                                        return;
+                                                    }
+                                                    http.post("Cart/AddItem", {
+                                                        productId: p.productId,
+                                                        quantity: 1,
+                                                    })
+                                                    .then(() => {
+                                                        alert("Đã thêm vào giỏ hàng!");
+                                                    })
+                                                    .catch((error) => {
+                                                        console.error("Lỗi:", error);
+                                                        alert("Thêm vào giỏ hàng thất bại.");
+                                                    });
+                                                }}
+                                            >
+                                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                                    <circle cx="9" cy="21" r="1"/>
+                                                    <circle cx="20" cy="21" r="1"/>
+                                                    <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/>
+                                                </svg>
+                                                Thêm vào giỏ
+                                            </button>
+                                        </div>
+                                    </div>
+                                ))
+                            ) : (
+                                <div className="empty-state">
+                                    <svg width="80" height="80" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+                                        <circle cx="12" cy="12" r="10"/>
+                                        <line x1="12" y1="8" x2="12" y2="12"/>
+                                        <line x1="12" y1="16" x2="12.01" y2="16"/>
+                                    </svg>
+                                    <p className="empty-text">
+                                        {searchText
+                                            ? `Không tìm thấy sản phẩm nào cho "${searchText}"`
+                                            : "Không có sản phẩm nào"}
                                     </p>
                                 </div>
-                            </div>
-                        ))
-                    ) : (
-                        <div style={{
-                            gridColumn: '1 / -1',
-                            textAlign: 'center',
-                            padding: '60px 20px',
-                            background: 'white',
-                            borderRadius: '12px',
-                            boxShadow: '0 2px 10px rgba(0,0,0,0.05)'
-                        }}>
-                            <p style={{
-                                fontSize: '1.2rem',
-                                color: '#999',
-                                margin: '0'
-                            }}>
-                                {searchText
-                                    ? `😔 Không tìm thấy sản phẩm nào cho "${searchText}"`
-                                    : "😔 Không có sản phẩm nào"}
-                            </p>
+                            )}
                         </div>
-                    )}
+                    </div>
                 </div>
             </div>
         </div>
