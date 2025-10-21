@@ -1,0 +1,67 @@
+name: Build and deploy ASP.NET Core API - HeartozaAPI
+
+on:
+  push:
+    branches: [ dev ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: windows-latest
+    permissions:
+      contents: read
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+
+      # (Tuỳ) Khôi phục ở đúng thư mục project
+      - name: Restore
+        working-directory: Backend_Heartoza/Heartoza
+        run: dotnet restore
+
+      - name: Build
+        working-directory: Backend_Heartoza/Heartoza
+        run: dotnet build --configuration Release --no-restore
+
+      - name: Publish
+        working-directory: Backend_Heartoza/Heartoza
+        run: dotnet publish -c Release -o "${{ github.workspace }}/publish" --no-build
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: api-publish
+          path: ${{ github.workspace }}/publish
+
+  deploy:
+    runs-on: windows-latest
+    needs: build
+    permissions:
+      id-token: write
+      contents: read
+
+    steps:
+      - name: Download artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: api-publish
+          path: ./publish
+
+      - name: Azure login (OIDC)
+        uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_AA5E9D3337EB40AF9CEA06B27DC758AE }}
+          tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_EF2EC0AA6CCD41C6A82F0437DEF6DE73 }}
+          subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_27720306AAD74CB593CE384EDF3FE0CD }}
+
+      - name: Deploy to Azure Web App
+        uses: azure/webapps-deploy@v3
+        with:
+          app-name: 'HeartozaAPI'
+          slot-name: 'Production'
+          package: './publish'

@@ -1,0 +1,290 @@
+/* About Page */
+.about-page {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #fff5f7 0%, #ffffff 100%);
+  padding: 60px 20px;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+.about-container {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+/* Hero Section */
+.about-hero {
+  text-align: center;
+  margin-bottom: 80px;
+  padding: 60px 40px;
+  background: linear-gradient(135deg, #ffffff 0%, #fff9fa 100%);
+  border-radius: 24px;
+  box-shadow: 0 8px 32px rgba(255, 105, 135, 0.08);
+  position: relative;
+  overflow: hidden;
+}
+
+.about-hero::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, #ff6987 0%, #ff8fab 50%, #ff6987 100%);
+  background-size: 200% 100%;
+  animation: gradientSlide 3s ease infinite;
+}
+
+@keyframes gradientSlide {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+}
+
+.about-hero-icon {
+  display: inline-block;
+  color: #ff6987;
+  margin-bottom: 20px;
+  animation: heartBeat 1.5s ease-in-out infinite;
+}
+
+@keyframes heartBeat {
+  0%, 100% { transform: scale(1); }
+  10%, 30% { transform: scale(1.1); }
+  20%, 40% { transform: scale(1); }
+}
+
+.about-title {
+  font-size: 3rem;
+  font-weight: 700;
+  background: linear-gradient(135deg, #ff6987 0%, #ff8fab 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin-bottom: 24px;
+  letter-spacing: -0.5px;
+}
+
+.about-divider {
+  width: 80px;
+  height: 4px;
+  background: linear-gradient(90deg, #ff6987, #ff8fab);
+  margin: 0 auto 32px;
+  border-radius: 2px;
+}
+
+.about-intro {
+  font-size: 1.15rem;
+  line-height: 1.8;
+  color: #555;
+  max-width: 750px;
+  margin: 0 auto;
+  font-weight: 400;
+}
+
+/* Team Section */
+.team-section {
+  margin-bottom: 60px;
+}
+
+.team-title {
+  font-size: 2.25rem;
+  font-weight: 700;
+  text-align: center;
+  color: #333;
+  margin-bottom: 50px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+}
+
+.team-title-icon {
+  font-size: 2.5rem;
+  filter: drop-shadow(0 2px 4px rgba(255, 105, 135, 0.2));
+}
+
+.team-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 32px;
+}
+
+.team-card {
+  background: #ffffff;
+  border-radius: 20px;
+  overflow: hidden;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  border: 2px solid transparent;
+}
+
+.team-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  border-radius: 20px;
+  padding: 2px;
+  background: linear-gradient(135deg, #ff6987, #ff8fab);
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  mask-composite: exclude;
+  opacity: 0;
+  transition: opacity 0.4s ease;
+}
+
+.team-card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 12px 40px rgba(255, 105, 135, 0.2);
+}
+
+.team-card:hover::before {
+  opacity: 1;
+}
+
+.team-card-image {
+  width: 100%;
+  height: 320px;
+  position: relative;
+  overflow: hidden;
+  background: linear-gradient(135deg, #fff5f7 0%, #ffeef2 100%);
+}
+
+.team-card-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.5s ease;
+}
+
+.team-card:hover .team-card-image img {
+  transform: scale(1.08);
+}
+
+.team-card-overlay {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 100px;
+  background: linear-gradient(to top, rgba(255, 255, 255, 0.9), transparent);
+  opacity: 0;
+  transition: opacity 0.4s ease;
+}
+
+.team-card:hover .team-card-overlay {
+  opacity: 1;
+}
+
+.team-card-content {
+  padding: 24px;
+  text-align: center;
+}
+
+.team-member-name {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #222;
+  margin-bottom: 10px;
+  letter-spacing: -0.3px;
+}
+
+.team-member-role {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #ff6987;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 12px;
+  position: relative;
+  display: inline-block;
+}
+
+.team-member-role::after {
+  content: '';
+  position: absolute;
+  bottom: -4px;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, #ff6987, transparent);
+  transform: scaleX(0);
+  transition: transform 0.4s ease;
+}
+
+.team-card:hover .team-member-role::after {
+  transform: scaleX(1);
+}
+
+.team-member-bio {
+  font-size: 0.95rem;
+  line-height: 1.6;
+  color: #666;
+}
+
+/* About Footer */
+.about-footer {
+  padding: 48px 40px;
+  background: linear-gradient(135deg, #fff9fa 0%, #ffffff 100%);
+  border-radius: 24px;
+  text-align: center;
+  box-shadow: 0 8px 32px rgba(255, 105, 135, 0.08);
+  border: 2px solid #fff0f2;
+}
+
+.about-footer-icon {
+  font-size: 3rem;
+  margin-bottom: 16px;
+  animation: float 3s ease-in-out infinite;
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+
+.about-footer-text {
+  font-size: 1.25rem;
+  font-weight: 500;
+  background: linear-gradient(135deg, #ff6987 0%, #ff8fab 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin: 0;
+  letter-spacing: -0.2px;
+}
+
+/* Responsive */
+@media (max-width: 992px) {
+  .team-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 24px;
+  }
+  
+  .about-title {
+    font-size: 2.5rem;
+  }
+}
+
+@media (max-width: 576px) {
+  .team-grid {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+  
+  .about-title {
+    font-size: 2rem;
+  }
+  
+  .team-title {
+    font-size: 1.75rem;
+  }
+  
+  .about-hero {
+    padding: 40px 24px;
+  }
+}

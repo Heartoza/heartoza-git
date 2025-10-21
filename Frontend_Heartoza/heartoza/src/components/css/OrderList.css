@@ -1,0 +1,88 @@
+.order-list-container {
+  padding: 16px;
+}
+
+.order-list-title {
+  font-size: 1.25rem;
+  font-weight: bold;
+  margin-bottom: 16px;
+}
+
+.order-table {
+  width: 100%;
+  border-collapse: collapse;
+  border: 1px solid #e5e7eb; /* gray-200 */
+  background: #fff;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.order-table thead {
+  background-color: #f9fafb; /* gray-50 */
+  text-align: left;
+}
+
+.order-table th,
+.order-table td {
+  padding: 12px;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.order-table th {
+  font-weight: 600;
+  color: #374151; /* gray-700 */
+}
+
+.order-table tbody tr:hover {
+  background-color: #f3f4f6; /* gray-100 */
+}
+
+.order-link {
+  color: #2563eb; /* blue-600 */
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.order-link:hover {
+  text-decoration: underline;
+}
+
+.status {
+  display: inline-block;
+  padding: 4px 10px;
+  border-radius: 8px;
+  font-weight: 600;
+  text-transform: capitalize;
+  font-size: 0.9rem;
+}
+
+/* từng trạng thái một */
+.status.pending {
+  background-color: #fff6cc;
+  color: #b37400;
+}
+
+.status.paid {
+  background-color: #e6f7ff;
+  color: #0077b6;
+}
+
+.status.packing {
+  background-color: #f0f0f0;
+  color: #555;
+}
+
+.status.shipped {
+  background-color: #eaf7e9;
+  color: #2a8c37;
+}
+
+.status.delivered {
+  background-color: #d1ffd6;
+  color: #107c10;
+}
+
+.status.cancelled {
+  background-color: #ffeaea;
+  color: #c62828;
+}
