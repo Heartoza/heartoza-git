@@ -72,52 +72,168 @@ export default function Home() {
 
     return (
         <div className="home-container">
-            {/* Banner */}
-            <section className="home-banner">
-                <h1>🎁 Chào mừng đến với Heartoza 🎁</h1>
-                <p>Kho quà tặng đặc biệt cho mọi dịp — Sinh nhật, Lễ tết, và nhiều hơn!</p>
-                <Link to="/products" className="cta-btn">Khám phá ngay</Link>
+            {/* Hero Section */}
+            <section className="hero-section">
+                <div className="hero-content">
+                    <h1 className="hero-title">Quà Tặng Ý Nghĩa<br/>Cho Mọi Dịp Đặc Biệt</h1>
+                    <p className="hero-subtitle">
+                        Khám phá bộ sưu tập quà tặng độc đáo được chọn lọc kỹ lưỡng<br/>
+                        Tạo nên những khoảnh khắc đáng nhớ cho người thân yêu
+                    </p>
+                    <div className="hero-actions">
+                        <Link to="/products" className="btn-primary">
+                            <span>Khám phá ngay</span>
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                <line x1="5" y1="12" x2="19" y2="12"/>
+                                <polyline points="12 5 19 12 12 19"/>
+                            </svg>
+                        </Link>
+                        <Link to="/about" className="btn-secondary">Về chúng tôi</Link>
+                    </div>
+                </div>
+                <div className="hero-decoration">
+                    <div className="decoration-circle circle-1"></div>
+                    <div className="decoration-circle circle-2"></div>
+                    <div className="decoration-circle circle-3"></div>
+                </div>
             </section>
 
-            {/* Featured */}
-            <section className="home-featured">
-                <h2>✨ Sản phẩm nổi bật ✨</h2>
-                <div className="featured-grid">
-                    {featured.length ? featured.map((item) => (
-                        <div
-                            key={item.productId}
-                            className="featured-card"
-                            onClick={() => navigate(`/products/${item.productId}`)} // 👉 Nhấn vào card là đi đến trang chi tiết
-                            style={{ cursor: "pointer" }}
-                        >
-                            <div className="card-img">
-                                <img src={item.img} alt={item.name} />
-                            </div>
-                            <div className="card-info">
-                                <h3>{item.name}</h3>
-                                {item.sku && <p>SKU: {item.sku}</p>}
-                                <span className="price">{Number(item.price || 0).toLocaleString("vi-VN")}₫</span>
-                                <p>Đã bán: {item.totalSold}</p>
+            {/* Stats Section */}
+            <section className="stats-section">
+                <div className="stat-item">
+                    <div className="stat-number">5000+</div>
+                    <div className="stat-label">Sản phẩm</div>
+                </div>
+                <div className="stat-item">
+                    <div className="stat-number">10000+</div>
+                    <div className="stat-label">Khách hàng</div>
+                </div>
+                <div className="stat-item">
+                    <div className="stat-number">98%</div>
+                    <div className="stat-label">Hài lòng</div>
+                </div>
+                <div className="stat-item">
+                    <div className="stat-number">24/7</div>
+                    <div className="stat-label">Hỗ trợ</div>
+                </div>
+            </section>
 
-                                <div className="card-actions">
-                                    {/* 🛒 Thêm vào giỏ */}
-                                    <button
-                                        className="cart-btn"
+            {/* Featured Products */}
+            <section className="featured-section">
+                <div className="section-header">
+                    <h2>Sản Phẩm Nổi Bật</h2>
+                    <p>Những món quà được yêu thích nhất</p>
+                </div>
+                
+                <div className="products-grid">
+                    {featured.length > 0 ? featured.map((item) => (
+                        <div key={item.productId} className="product-card">
+                            <div className="product-image" onClick={() => navigate(`/products/${item.productId}`)}>
+                                <img src={item.img} alt={item.name} />
+                                <div className="product-overlay">
+                                    <button 
+                                        className="quick-view-btn"
                                         onClick={(e) => {
-                                            e.stopPropagation(); // ❗ Ngăn không cho click card mở trang chi tiết khi bấm nút
-                                            handleAddToCart(item.productId);
+                                            e.stopPropagation();
+                                            navigate(`/products/${item.productId}`);
                                         }}
-                                        title="Đặt hàng ngay"
                                     >
-                                        Đặt hàng
+                                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                                            <circle cx="12" cy="12" r="3"/>
+                                        </svg>
+                                        Xem chi tiết
                                     </button>
                                 </div>
+                                {item.totalSold > 100 && (
+                                    <span className="product-badge">🔥 Bán chạy</span>
+                                )}
+                            </div>
+                            <div className="product-info">
+                                <h3 className="product-name" onClick={() => navigate(`/products/${item.productId}`)}>
+                                    {item.name}
+                                </h3>
+                                <div className="product-meta">
+                                    <span className="product-price">
+                                        {Number(item.price || 0).toLocaleString("vi-VN")}₫
+                                    </span>
+                                    <span className="product-sold">Đã bán {item.totalSold}</span>
+                                </div>
+                                <button 
+                                    className="add-to-cart-btn"
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        handleAddToCart(item.productId);
+                                    }}
+                                >
+                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                        <circle cx="9" cy="21" r="1"/>
+                                        <circle cx="20" cy="21" r="1"/>
+                                        <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/>
+                                    </svg>
+                                    <span>Thêm vào giỏ</span>
+                                </button>
                             </div>
                         </div>
-                    )) : <p>Đang tải sản phẩm...</p>}
+                    )) : (
+                        <div className="loading-state">
+                            <div className="spinner"></div>
+                            <p>Đang tải sản phẩm...</p>
+                        </div>
+                    )}
                 </div>
 
-                <Link to="/products" className="view-more">Xem tất cả sản phẩm →</Link>
+                <div className="section-footer">
+                    <Link to="/products" className="view-all-btn">
+                        Xem tất cả sản phẩm
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                            <line x1="5" y1="12" x2="19" y2="12"/>
+                            <polyline points="12 5 19 12 12 19"/>
+                        </svg>
+                    </Link>
+                </div>
+            </section>
+
+            {/* Features Section */}
+            <section className="features-section">
+                <div className="feature-card">
+                    <div className="feature-icon">
+                        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                            <circle cx="12" cy="7" r="4"/>
+                        </svg>
+                    </div>
+                    <h3>Miễn Phí Vận Chuyển</h3>
+                    <p>Giao hàng miễn phí cho đơn từ 500.000₫</p>
+                </div>
+                <div className="feature-card">
+                    <div className="feature-icon">
+                        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                            <circle cx="12" cy="12" r="10"/>
+                            <path d="M12 6v6l4 2"/>
+                        </svg>
+                    </div>
+                    <h3>Giao Hàng Nhanh</h3>
+                    <p>Giao hàng trong vòng 2-3 ngày làm việc</p>
+                </div>
+                <div className="feature-card">
+                    <div className="feature-icon">
+                        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                        </svg>
+                    </div>
+                    <h3>Đảm Bảo Chất Lượng</h3>
+                    <p>Cam kết 100% sản phẩm chính hãng</p>
+                </div>
+                <div className="feature-card">
+                    <div className="feature-icon">
+                        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+                        </svg>
+                    </div>
+                    <h3>Hỗ Trợ 24/7</h3>
+                    <p>Đội ngũ tư vấn nhiệt tình, chuyên nghiệp</p>
+                </div>
             </section>
         </div>
     );

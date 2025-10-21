@@ -105,111 +105,42 @@ export default function ProductDetail() {
     const mainSrc = mainImg && mainImg.trim() !== "" ? mainImg : fallback;
 
     return (
-        <div style={{
-            background: '#f8f9fa',
-            minHeight: '100vh',
-            padding: '30px 20px'
-        }}>
-            <div style={{ maxWidth: '1100px', margin: '0 auto' }}>
+        <div className="product-detail-page">
+            <div className="product-detail-container">
                 {/* Back Button */}
-                <Link to="/products" style={{
-                    display: 'inline-block',
-                    marginBottom: '20px',
-                    padding: '8px 16px',
-                    background: 'white',
-                    border: '2px solid #6db4f7',
-                    borderRadius: '8px',
-                    color: '#6db4f7',
-                    textDecoration: 'none',
-                    fontSize: '0.9rem',
-                    fontWeight: '500',
-                    transition: 'all 0.3s ease'
-                }}
-                onMouseEnter={(e) => {
-                    e.currentTarget.style.background = '#6db4f7';
-                    e.currentTarget.style.color = 'white';
-                }}
-                onMouseLeave={(e) => {
-                    e.currentTarget.style.background = 'white';
-                    e.currentTarget.style.color = '#6db4f7';
-                }}>
-                    ⬅ Quay lại
+                <Link to="/products" className="back-button">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                        <path d="M19 12H5M12 19l-7-7 7-7"/>
+                    </svg>
+                    Quay lại danh sách
                 </Link>
 
                 {/* Main Product Card */}
-                <div style={{
-                    display: 'grid',
-                    gridTemplateColumns: '1fr 1fr',
-                    gap: '30px',
-                    background: 'white',
-                    borderRadius: '12px',
-                    padding: '25px',
-                    boxShadow: '0 2px 12px rgba(0,0,0,0.08)',
-                    marginBottom: '40px'
-                }}>
+                <div className="product-main-card">
                     {/* Left: Images */}
-                    <div>
+                    <div className="product-images-section">
                         {/* Main Image */}
-                        <div style={{
-                            width: '100%',
-                            height: '400px',
-                            borderRadius: '10px',
-                            overflow: 'hidden',
-                            background: '#f5f5f5',
-                            marginBottom: '12px'
-                        }}>
+                        <div className="main-image-wrapper">
                             <img 
                                 src={mainSrc} 
                                 alt={product.name}
-                                style={{
-                                    width: '100%',
-                                    height: '100%',
-                                    objectFit: 'cover'
-                                }}
+                                className="main-image"
                             />
                         </div>
 
                         {/* Thumbnails */}
                         {product.images?.length > 1 && (
-                            <div style={{
-                                display: 'flex',
-                                gap: '8px',
-                                flexWrap: 'wrap'
-                            }}>
+                            <div className="thumbnails-wrapper">
                                 {product.images.map((im) => (
                                     <button
                                         key={im.productMediaId || im.mediaId}
                                         onClick={() => setMainImg(im.url)}
-                                        style={{
-                                            width: '70px',
-                                            height: '70px',
-                                            borderRadius: '6px',
-                                            overflow: 'hidden',
-                                            border: im.url === mainImg ? '2px solid #6db4f7' : '2px solid #ddd',
-                                            cursor: 'pointer',
-                                            background: '#f5f5f5',
-                                            padding: '0',
-                                            transition: 'all 0.2s ease'
-                                        }}
-                                        onMouseEnter={(e) => {
-                                            if (im.url !== mainImg) {
-                                                e.currentTarget.style.borderColor = '#6db4f7';
-                                            }
-                                        }}
-                                        onMouseLeave={(e) => {
-                                            if (im.url !== mainImg) {
-                                                e.currentTarget.style.borderColor = '#ddd';
-                                            }
-                                        }}
+                                        className={`thumbnail-btn ${im.url === mainImg ? 'active' : ''}`}
                                     >
                                         <img 
                                             src={im.url} 
                                             alt=""
-                                            style={{
-                                                width: '100%',
-                                                height: '100%',
-                                                objectFit: 'cover'
-                                            }}
+                                            className="thumbnail-image"
                                         />
                                     </button>
                                 ))}
@@ -218,99 +149,55 @@ export default function ProductDetail() {
                     </div>
 
                     {/* Right: Info */}
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '18px' }}>
-                        <h1 style={{
-                            fontSize: '1.6rem',
-                            fontWeight: '700',
-                            color: '#333',
-                            margin: '0',
-                            lineHeight: '1.3'
-                        }}>
-                            {product.name}
-                        </h1>
+                    <div className="product-info-section">
+                        <h1 className="product-title">{product.name}</h1>
 
-                        <div style={{
-                            display: 'flex',
-                            gap: '12px',
-                            fontSize: '0.85rem',
-                            color: '#666',
-                            paddingBottom: '15px',
-                            borderBottom: '1px solid #e0e0e0'
-                        }}>
-                            <span><strong>SKU:</strong> {product.sku}</span>
-                            <span>•</span>
-                            <span><strong>Danh mục:</strong> {product.categoryName}</span>
+                        <div className="product-meta">
+                            <div className="meta-item">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                    <path d="M20 7h-9M14 17H5M6 11l-3-3m0 0l3-3m-3 3h14"/>
+                                </svg>
+                                <span>SKU: {product.sku}</span>
+                            </div>
+                            <div className="meta-item">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                    <rect x="2" y="7" width="20" height="14" rx="2" ry="2"/>
+                                    <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/>
+                                </svg>
+                                <span>{product.categoryName}</span>
+                            </div>
                         </div>
 
                         {/* Price */}
-                        <div style={{
-                            background: 'linear-gradient(135deg, #6db4f7 0%, #4a9fe8 100%)',
-                            padding: '20px',
-                            borderRadius: '10px'
-                        }}>
-                            <p style={{
-                                fontSize: '2rem',
-                                fontWeight: '700',
-                                color: 'white',
-                                margin: '0',
-                                textAlign: 'center'
-                            }}>
+                        <div className="price-section">
+                            <span className="price-label">Giá bán</span>
+                            <p className="product-price">
                                 {Number(product.price || 0).toLocaleString("vi-VN")} đ
                             </p>
                         </div>
 
                         {/* Stock */}
-                        <div style={{
-                            padding: '12px',
-                            background: '#f8f9fa',
-                            borderRadius: '8px',
-                            textAlign: 'center'
-                        }}>
-                            <p style={{
-                                fontSize: '0.8rem',
-                                color: '#999',
-                                margin: '0 0 5px 0'
-                            }}>
-                                Tồn kho
-                            </p>
-                            <p style={{
-                                fontSize: '1.2rem',
-                                fontWeight: '600',
-                                color: outOfStock ? '#f44336' : '#4caf50',
-                                margin: '0'
-                            }}>
-                                {product.onHand}
-                            </p>
+                        <div className="stock-section">
+                            <div className="stock-info">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                    <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>
+                                    <polyline points="3.27 6.96 12 12.01 20.73 6.96"/>
+                                    <line x1="12" y1="22.08" x2="12" y2="12"/>
+                                </svg>
+                                <div>
+                                    <span className="stock-label">Tồn kho</span>
+                                    <p className={`stock-value ${outOfStock ? 'out-of-stock' : 'in-stock'}`}>
+                                        {product.onHand} sản phẩm
+                                    </p>
+                                </div>
+                            </div>
                         </div>
 
                         {/* Add to Cart */}
                         <button
                             onClick={handleAddToCart}
                             disabled={disableAdd}
-                            style={{
-                                width: '100%',
-                                padding: '14px',
-                                fontSize: '1rem',
-                                fontWeight: '600',
-                                color: disableAdd ? '#999' : 'white',
-                                background: disableAdd ? '#e0e0e0' : 'linear-gradient(135deg, #6db4f7 0%, #4a9fe8 100%)',
-                                border: 'none',
-                                borderRadius: '8px',
-                                cursor: disableAdd ? 'not-allowed' : 'pointer',
-                                transition: 'all 0.3s ease'
-                            }}
-                            onMouseEnter={(e) => {
-                                if (!disableAdd) {
-                                    e.currentTarget.style.transform = 'translateY(-2px)';
-                                    e.currentTarget.style.boxShadow = '0 4px 15px rgba(109, 180, 247, 0.4)';
-                                }
-                            }}
-                            onMouseLeave={(e) => {
-                                if (!disableAdd) {
-                                    e.currentTarget.style.transform = 'translateY(0)';
-                                    e.currentTarget.style.boxShadow = 'none';
-                                }
-                            }}
+                            className={`add-to-cart-btn ${disableAdd ? 'disabled' : ''}`}
                             title={
                                 disableAdd
                                     ? inactive
@@ -319,71 +206,47 @@ export default function ProductDetail() {
                                     : "Thêm vào giỏ hàng"
                             }
                         >
-                            {disableAdd ? '❌ Không thể thêm' : '🛒 Thêm vào giỏ hàng'}
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                <circle cx="9" cy="21" r="1"/>
+                                <circle cx="20" cy="21" r="1"/>
+                                <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/>
+                            </svg>
+                            {disableAdd ? 'Không thể thêm vào giỏ' : 'Thêm vào giỏ hàng'}
                         </button>
 
                         {disableAdd && (
-                            <p style={{
-                                fontSize: '0.85rem',
-                                color: '#f44336',
-                                textAlign: 'center',
-                                margin: '0'
-                            }}>
-                                {inactive ? '⚠️ Sản phẩm ngừng bán' : '⚠️ Sản phẩm đã hết hàng'}
-                            </p>
+                            <div className="warning-message">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                    <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+                                    <line x1="12" y1="9" x2="12" y2="13"/>
+                                    <line x1="12" y1="17" x2="12.01" y2="17"/>
+                                </svg>
+                                {inactive ? 'Sản phẩm ngừng bán' : 'Sản phẩm đã hết hàng'}
+                            </div>
                         )}
                     </div>
                 </div>
 
                 {/* Related Products Section */}
                 {relatedProducts.length > 0 && (
-                    <div>
-                        <h2 style={{
-                            fontSize: '1.5rem',
-                            fontWeight: '600',
-                            color: '#333',
-                            marginBottom: '20px',
-                            textAlign: 'center'
-                        }}>
-                            🎁 Sản phẩm tương tự
+                    <div className="related-products-section">
+                        <h2 className="related-title">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                <circle cx="9" cy="21" r="1"/>
+                                <circle cx="20" cy="21" r="1"/>
+                                <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/>
+                            </svg>
+                            Sản phẩm tương tự
                         </h2>
 
-                        <div style={{
-                            display: 'grid',
-                            gridTemplateColumns: 'repeat(4, 1fr)',
-                            gap: '20px'
-                        }}>
+                        <div className="related-products-grid">
                             {relatedProducts.map((p) => (
                                 <div
                                     key={p.productId}
                                     onClick={() => navigate(`/products/${p.productId}`)}
-                                    style={{
-                                        background: 'white',
-                                        borderRadius: '10px',
-                                        overflow: 'hidden',
-                                        boxShadow: '0 2px 10px rgba(0,0,0,0.08)',
-                                        cursor: 'pointer',
-                                        transition: 'all 0.3s ease',
-                                        border: '2px solid transparent'
-                                    }}
-                                    onMouseEnter={(e) => {
-                                        e.currentTarget.style.transform = 'translateY(-5px)';
-                                        e.currentTarget.style.boxShadow = '0 6px 20px rgba(109, 180, 247, 0.3)';
-                                        e.currentTarget.style.borderColor = '#6db4f7';
-                                    }}
-                                    onMouseLeave={(e) => {
-                                        e.currentTarget.style.transform = 'translateY(0)';
-                                        e.currentTarget.style.boxShadow = '0 2px 10px rgba(0,0,0,0.08)';
-                                        e.currentTarget.style.borderColor = 'transparent';
-                                    }}
+                                    className="related-product-card"
                                 >
-                                    {/* Image */}
-                                    <div style={{
-                                        width: '100%',
-                                        height: '200px',
-                                        overflow: 'hidden',
-                                        background: '#f0f0f0'
-                                    }}>
+                                    <div className="related-product-image">
                                         <img
                                             src={
                                                 (p.thumbnailUrl && p.thumbnailUrl.trim() !== "")
@@ -393,38 +256,12 @@ export default function ProductDetail() {
                                                         : "/img/no-image.png"
                                             }
                                             alt={p.name}
-                                            style={{
-                                                width: '100%',
-                                                height: '100%',
-                                                objectFit: 'cover',
-                                                transition: 'transform 0.3s ease'
-                                            }}
-                                            onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.05)'}
-                                            onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
                                         />
                                     </div>
 
-                                    {/* Info */}
-                                    <div style={{ padding: '15px' }}>
-                                        <h3 style={{
-                                            fontSize: '1rem',
-                                            fontWeight: '600',
-                                            color: '#333',
-                                            marginBottom: '8px',
-                                            minHeight: '40px',
-                                            display: '-webkit-box',
-                                            WebkitLineClamp: 2,
-                                            WebkitBoxOrient: 'vertical',
-                                            overflow: 'hidden'
-                                        }}>
-                                            {p.name}
-                                        </h3>
-                                        <p style={{
-                                            fontSize: '1.1rem',
-                                            fontWeight: '700',
-                                            color: '#6db4f7',
-                                            margin: '0'
-                                        }}>
+                                    <div className="related-product-info">
+                                        <h3 className="related-product-name">{p.name}</h3>
+                                        <p className="related-product-price">
                                             {Number(p.price || 0).toLocaleString("vi-VN")} đ
                                         </p>
                                     </div>
