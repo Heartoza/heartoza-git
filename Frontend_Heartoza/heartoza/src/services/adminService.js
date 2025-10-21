@@ -1,7 +1,6 @@
-﻿// src/services/adminService.js
+﻿
 import api from "./api";
 
-// helper build query từ object (bỏ field null/undefined/"")
 const buildQuery = (obj) =>
     Object.entries(obj)
         .filter(([, v]) => v !== undefined && v !== null && v !== "")
@@ -9,14 +8,7 @@ const buildQuery = (obj) =>
         .join("&");
 
 export const AdminService = {
-    // ================= USERS =================
-
-    /**
-     * Lấy danh sách users.
-     * Dùng linh hoạt:
-     *  - getUsers({ q, role, active, page, pageSize, sort })
-     *  - getUsers(page, pageSize)  // backward-compatible
-     */
+  
     getUsers: (arg1 = 1, arg2 = 20) => {
         let qs = "";
         if (typeof arg1 === "object") {
@@ -28,23 +20,18 @@ export const AdminService = {
         return api.get(`/admin/users?${qs}`).then((r) => r.data);
     },
 
-    /** Cập nhật user: { fullName?, phone?, role?, isActive? } */
     updateUser: (id, payload) =>
         api.put(`/admin/users/${id}`, payload).then((r) => r.data),
 
-    /** Khoá/Mở user */
     toggleUser: (id) =>
         api.post(`/admin/users/${id}/toggle`).then((r) => r.data),
 
-    /** Lấy 1 user theo id (nếu BE có) */
     getUserById: (id) =>
         api.get(`/admin/users/${id}`).then((r) => r.data),
 
-    /** Xoá user (nếu BE có) */
     deleteUser: (id) =>
         api.delete(`/admin/users/${id}`).then((r) => r.data),
 
-    // ================= ORDERS (để nguyên, chỉ sửa body status) =================
 
     getOrders: (page = 1, pageSize = 20) =>
         api.get(`/admin/orders?page=${page}&pageSize=${pageSize}`).then((r) => r.data),
@@ -52,7 +39,7 @@ export const AdminService = {
     getOrderById: (id) =>
         api.get(`/admin/orders/${id}`).then((r) => r.data),
 
-    /** Gửi body chuẩn { status: "..." } thay vì JSON.stringify(status) */
+   
     updateOrderStatus: (id, status) =>
         api.post(
             `/admin/orders/${id}/status`,
@@ -61,7 +48,6 @@ export const AdminService = {
         ).then((r) => r.data),
 
 
-    // ================= PRODUCTS (để nguyên, chỉ encode q) =================
 
     getProducts: (page = 1, pageSize = 20, q = "") =>
         api
