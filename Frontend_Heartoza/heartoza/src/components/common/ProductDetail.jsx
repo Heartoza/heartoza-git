@@ -74,7 +74,9 @@ export default function ProductDetail() {
                 quantity: 1,
             });
             alert("Đã thêm vào giỏ hàng thành công!");
+            localStorage.setItem("recentAddedProduct", product.productId);
             navigate("/cart");
+            
         } catch (error) {
             console.error("Lỗi khi thêm vào giỏ hàng:", error);
             alert("Thêm vào giỏ hàng thất bại.");

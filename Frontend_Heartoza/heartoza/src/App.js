@@ -20,7 +20,7 @@ import ResetPassword from "./components/customer/ResetPassword.jsx";
 import VerifyEmail from "./components/customer/VerifyEmail.jsx";
 import OrderList from "./components/customer/OrderList.jsx";
 import OrderDetail from "./components/customer/OrderDetail.jsx";
-import Cart from "./components/customer/Cart.jsx";   // ✅ thêm giỏ hàng
+import Cart from "./components/customer/Cart.jsx";
 
 // Admin pages
 import AdminDashboard from "./components/admin/AdminDashboard.jsx";
@@ -32,6 +32,11 @@ import AdminProductAdd from "./components/admin/AdminProductAdd.jsx";
 import AdminProductEdit from "./components/admin/AdminProductEdit";
 import AdminCategories from "./components/admin/AdminCategories.jsx";
 import AdminSidebar from "./components/admin/AdminSidebar.jsx";
+
+// ✅ Marketing (FE Admin)
+import AdminBanners from "./components/admin/marketing/AdminBanners.jsx";
+import AdminVouchers from "./components/admin/marketing/AdminVouchers.jsx";
+import AdminSeo from "./components/admin/marketing/AdminSeo.jsx";
 
 // Route guard
 import ProtectedRoute from "./routes/ProtectedRoute";
@@ -55,15 +60,17 @@ function App() {
                                     <Route path="/contact" element={<Contact />} />
 
                                     {/* Cart */}
-                                    <Route path="/cart" element={<Cart />} />  {/* ✅ route giỏ hàng */}
+                                    <Route path="/cart" element={<Cart />} />
                                     <Route path="/orders" element={<OrderList />} />
                                     <Route path="/orders/:id" element={<OrderDetail />} />
+
                                     {/* Auth */}
                                     <Route path="/login" element={<Login />} />
                                     <Route path="/register" element={<Register />} />
                                     <Route path="/forgot" element={<ForgotPassword />} />
                                     <Route path="/reset-password" element={<ResetPassword />} />
                                     <Route path="/verify-email" element={<VerifyEmail />} />
+
                                     {/* Protected (Customer) */}
                                     <Route
                                         path="/profile"
@@ -87,44 +94,44 @@ function App() {
                         }
                     />
 
-                    // Trong file App.js
+                    {/* ================= Admin layout ================= */}
+                    <Route
+                        path="/admin/*"
+                        element={
+                            <ProtectedRoute role="Admin">
+                                <div className="admin-layout">
+                                    {/* Sidebar bên trái */}
+                                    <AdminSidebar />
 
-{/* ================= Admin layout ================= */}
-<Route
-    path="/admin/*"
-    element={
-        <ProtectedRoute role="Admin">
-            {/* ✅ Dùng div với className="admin-layout" */}
-            <div className="admin-layout"> 
-                
-                {/* Sidebar nằm đây, nó đã có sẵn class từ file component */}
-                <AdminSidebar />
-                
-                {/* ✅ Bọc các Routes trong div với className="admin-content" */}
-                <div className="admin-content"> 
-                    <Routes>
-                        {/* Route mặc định cho /admin, trỏ về Dashboard */}
-                        <Route path="/" element={<AdminDashboard />} /> 
-                        
-                        <Route path="dashboard" element={<AdminDashboard />} />
-                        <Route path="users" element={<AdminUsers />} />
-                        <Route path="orders" element={<AdminOrders />} />
-                        <Route path="orders/:id" element={<AdminOrderDetail />} />
-                        <Route path="products" element={<AdminProducts />} />
-                        <Route path="products/new" element={<AdminProductAdd />} />
-                        <Route path="products/:id" element={<AdminProductEdit />} />
-                        <Route path="categories" element={<AdminCategories />} />
-                    </Routes>
-                </div>
-            </div>
-        </ProtectedRoute>
-    }
-/>
+                                    {/* Nội dung admin bên phải */}
+                                    <div className="admin-content">
+                                        <Routes>
+                                            {/* ✅ dùng index thay cho path="/" để target /admin */}
+                                            <Route index element={<AdminDashboard />} />
+                                            <Route path="dashboard" element={<AdminDashboard />} />
+
+                                            <Route path="users" element={<AdminUsers />} />
+                                            <Route path="orders" element={<AdminOrders />} />
+                                            <Route path="orders/:id" element={<AdminOrderDetail />} />
+                                            <Route path="products" element={<AdminProducts />} />
+                                            <Route path="products/new" element={<AdminProductAdd />} />
+                                            <Route path="products/:id" element={<AdminProductEdit />} />
+                                            <Route path="categories" element={<AdminCategories />} />
+
+                                            {/* ✅ Marketing */}
+                                            <Route path="marketing/banners" element={<AdminBanners />} />
+                                            <Route path="marketing/vouchers" element={<AdminVouchers />} />
+                                            <Route path="marketing/seo" element={<AdminSeo />} />
+                                        </Routes>
+                                    </div>
+                                </div>
+                            </ProtectedRoute>
+                        }
+                    />
                 </Routes>
             </BrowserRouter>
         </AuthProvider>
     );
 }
-
 
 export default App;

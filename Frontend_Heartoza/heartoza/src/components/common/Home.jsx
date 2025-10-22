@@ -2,10 +2,13 @@ import React, { useEffect, useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import "../css/Home.css";
 import api from "../../services/api";
+import useSeoMeta from "../../hooks/useSeoMeta";
+import BannerStrip from "../../components/marketing/BannerStrip";
 
 export default function Home() {
     const [featured, setFeatured] = useState([]);
     const navigate = useNavigate();
+    useSeoMeta("/"); // gắn tiêu đề + og
 
     const pickImage = (p) => {
         const candidates = [
@@ -72,20 +75,21 @@ export default function Home() {
 
     return (
         <div className="home-container">
+            <BannerStrip position="home-top" className="mb-4" />
             {/* Hero Section */}
             <section className="hero-section">
                 <div className="hero-content">
-                    <h1 className="hero-title">Quà Tặng Ý Nghĩa<br/>Cho Mọi Dịp Đặc Biệt</h1>
+                    <h1 className="hero-title">Quà Tặng Ý Nghĩa<br />Cho Mọi Dịp Đặc Biệt</h1>
                     <p className="hero-subtitle">
-                        Khám phá bộ sưu tập quà tặng độc đáo được chọn lọc kỹ lưỡng<br/>
+                        Khám phá bộ sưu tập quà tặng độc đáo được chọn lọc kỹ lưỡng<br />
                         Tạo nên những khoảnh khắc đáng nhớ cho người thân yêu
                     </p>
                     <div className="hero-actions">
                         <Link to="/products" className="btn-primary">
                             <span>Khám phá ngay</span>
                             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                                <line x1="5" y1="12" x2="19" y2="12"/>
-                                <polyline points="12 5 19 12 12 19"/>
+                                <line x1="5" y1="12" x2="19" y2="12" />
+                                <polyline points="12 5 19 12 12 19" />
                             </svg>
                         </Link>
                         <Link to="/about" className="btn-secondary">Về chúng tôi</Link>
@@ -97,7 +101,7 @@ export default function Home() {
                     <div className="decoration-circle circle-3"></div>
                 </div>
             </section>
-
+            <BannerStrip position="home-mid" className="my-6" />
             {/* Stats Section */}
             <section className="stats-section">
                 <div className="stat-item">
@@ -124,27 +128,29 @@ export default function Home() {
                     <h2>Sản Phẩm Nổi Bật</h2>
                     <p>Những món quà được yêu thích nhất</p>
                 </div>
-                
+
                 <div className="products-grid">
                     {featured.length > 0 ? featured.map((item) => (
                         <div key={item.productId} className="product-card">
                             <div className="product-image" onClick={() => navigate(`/products/${item.productId}`)}>
                                 <img src={item.img} alt={item.name} />
                                 <div className="product-overlay">
-                                    <button 
-                                        className="quick-view-btn"
+                                    <button
+                                        className="add-to-cart-card-btn"
                                         onClick={(e) => {
                                             e.stopPropagation();
-                                            navigate(`/products/${item.productId}`);
+                                            handleAddToCart(item.productId);
                                         }}
                                     >
-                                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                                            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
-                                            <circle cx="12" cy="12" r="3"/>
+                                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                            <circle cx="9" cy="21" r="1" />
+                                            <circle cx="20" cy="21" r="1" />
+                                            <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6" />
                                         </svg>
-                                        Xem chi tiết
+                                        Thêm vào giỏ
                                     </button>
                                 </div>
+
                                 {item.totalSold > 100 && (
                                     <span className="product-badge">🔥 Bán chạy</span>
                                 )}
@@ -159,7 +165,7 @@ export default function Home() {
                                     </span>
                                     <span className="product-sold">Đã bán {item.totalSold}</span>
                                 </div>
-                                <button 
+                                <button
                                     className="add-to-cart-btn"
                                     onClick={(e) => {
                                         e.stopPropagation();
@@ -167,9 +173,9 @@ export default function Home() {
                                     }}
                                 >
                                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                                        <circle cx="9" cy="21" r="1"/>
-                                        <circle cx="20" cy="21" r="1"/>
-                                        <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/>
+                                        <circle cx="9" cy="21" r="1" />
+                                        <circle cx="20" cy="21" r="1" />
+                                        <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6" />
                                     </svg>
                                     <span>Thêm vào giỏ</span>
                                 </button>
@@ -187,8 +193,8 @@ export default function Home() {
                     <Link to="/products" className="view-all-btn">
                         Xem tất cả sản phẩm
                         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                            <line x1="5" y1="12" x2="19" y2="12"/>
-                            <polyline points="12 5 19 12 12 19"/>
+                            <line x1="5" y1="12" x2="19" y2="12" />
+                            <polyline points="12 5 19 12 12 19" />
                         </svg>
                     </Link>
                 </div>
@@ -199,8 +205,8 @@ export default function Home() {
                 <div className="feature-card">
                     <div className="feature-icon">
                         <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
-                            <circle cx="12" cy="7" r="4"/>
+                            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+                            <circle cx="12" cy="7" r="4" />
                         </svg>
                     </div>
                     <h3>Miễn Phí Vận Chuyển</h3>
@@ -209,8 +215,8 @@ export default function Home() {
                 <div className="feature-card">
                     <div className="feature-icon">
                         <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                            <circle cx="12" cy="12" r="10"/>
-                            <path d="M12 6v6l4 2"/>
+                            <circle cx="12" cy="12" r="10" />
+                            <path d="M12 6v6l4 2" />
                         </svg>
                     </div>
                     <h3>Giao Hàng Nhanh</h3>
@@ -219,7 +225,7 @@ export default function Home() {
                 <div className="feature-card">
                     <div className="feature-icon">
                         <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
                         </svg>
                     </div>
                     <h3>Đảm Bảo Chất Lượng</h3>
@@ -228,7 +234,7 @@ export default function Home() {
                 <div className="feature-card">
                     <div className="feature-icon">
                         <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+                            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
                         </svg>
                     </div>
                     <h3>Hỗ Trợ 24/7</h3>

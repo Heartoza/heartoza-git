@@ -21,9 +21,9 @@ public partial class Order
 
     public string? Status { get; set; }
 
-    public DateTime? CreatedAt { get; set; }
-
     public string? Comment { get; set; }
+
+    public DateTime? CreatedAt { get; set; }
 
     public virtual ICollection<OrderItem> OrderItems { get; set; } = new List<OrderItem>();
 
@@ -34,4 +34,6 @@ public partial class Order
     public virtual Address ShippingAddress { get; set; } = null!;
 
     public virtual User User { get; set; } = null!;
+
+    public virtual ICollection<VoucherUsage> VoucherUsages { get; set; } = new List<VoucherUsage>();
 }

@@ -410,3 +410,227 @@ SELECT p.ProductId, m.MediaId, 1, 0
 FROM dbo.Products p
 JOIN dbo.Media m ON p.SKU='BX-M' AND m.ExternalUrl LIKE '%bxm%';
 GO
+
+/* =========================================================
+   7) MARKETING & SEO (Banners, Vouchers, SeoMeta)
+   Append safely to existing GiftBoxShop DB
+   ========================================================= */
+USE GiftBoxShop;
+GO
+
+/* -------------------------
+   7.1 BANNERS
+   - Lưu banner cho từng vị trí (Position: 'home-top', 'home-mid', 'sidebar', 'footer', ...)
+   - Có thể chọn ảnh từ Media (MediaId) hoặc dán URL ngoài (ExternalImageUrl)
+   - Thời gian hiệu lực: StartAt/EndAt (UTC)
+   ------------------------- */
+IF OBJECT_ID('dbo.Banners', 'U') IS NULL
+BEGIN
+    CREATE TABLE dbo.Banners (
+        BannerId        INT IDENTITY(1,1) PRIMARY KEY,
+        Title           NVARCHAR(200)         NULL,
+        -- Ưu tiên MediaId; nếu null thì dùng ExternalImageUrl
+        MediaId         BIGINT                NULL,
+        ExternalImageUrl NVARCHAR(500)        NULL,
+
+        LinkUrl         NVARCHAR(500)         NULL,   -- URL chuyển hướng khi click
+        OpenInNewTab    BIT                   NOT NULL DEFAULT 1,
+
+        Position        VARCHAR(50)           NOT NULL,  -- ví dụ: 'home-top', 'home-mid', 'sidebar', 'footer'
+        SortOrder       INT                   NOT NULL DEFAULT 0,
+
+        IsActive        BIT                   NOT NULL DEFAULT 1,
+        StartAt         DATETIME2             NULL,   -- UTC
+        EndAt           DATETIME2             NULL,   -- UTC
+
+        CreatedAt       DATETIME2             NOT NULL DEFAULT SYSUTCDATETIME(),
+        CreatedByUserId INT                   NULL,   -- optional
+        UpdatedAt       DATETIME2             NULL,
+        UpdatedByUserId INT                   NULL
+    );
+
+    -- Khóa ngoại mềm tới Media (nếu anh dùng bảng Media hiện có)
+    IF OBJECT_ID('dbo.Media', 'U') IS NOT NULL
+        ALTER TABLE dbo.Banners
+        ADD CONSTRAINT FK_Banners_Media
+            FOREIGN KEY (MediaId) REFERENCES dbo.Media(MediaId);
+
+    -- (optional) FK người tạo/cập nhật (nếu dùng dbo.Users)
+    IF OBJECT_ID('dbo.Users', 'U') IS NOT NULL
+    BEGIN
+        ALTER TABLE dbo.Banners
+        ADD CONSTRAINT FK_Banners_Users_CreatedBy
+            FOREIGN KEY (CreatedByUserId) REFERENCES dbo.Users(UserId);
+        ALTER TABLE dbo.Banners
+        ADD CONSTRAINT FK_Banners_Users_UpdatedBy
+            FOREIGN KEY (UpdatedByUserId) REFERENCES dbo.Users(UserId);
+    END
+
+    -- Tối ưu tra cứu theo vị trí + trạng thái + thời gian
+    CREATE INDEX IX_Banners_Position_Active_Time
+        ON dbo.Banners (Position, IsActive, StartAt, EndAt, SortOrder);
+
+    -- Gợi ý constraint cơ bản cho Position (để tự do, không chặt quá)
+    -- Anh có thể thay bằng CHECK nếu muốn whitelist vị trí.
+END
+GO
+
+/* -------------------------
+   7.2 VOUCHERS
+   - Mã giảm giá với 2 kiểu: percent / amount
+   - Ràng buộc thời gian, giới hạn lượt dùng tổng và theo người dùng
+   - Theo scope MVP: áp cho toàn shop; có thể mở rộng theo Category/Product sau
+   ------------------------- */
+IF OBJECT_ID('dbo.Vouchers', 'U') IS NULL
+BEGIN
+    CREATE TABLE dbo.Vouchers (
+        VoucherId       INT IDENTITY(1,1) PRIMARY KEY,
+        Code            VARCHAR(50)            NOT NULL,    -- mã dùng khi checkout
+        Name            NVARCHAR(200)          NULL,        -- tên hiển thị nội bộ/MKT
+
+        DiscountType    VARCHAR(20)            NOT NULL,    -- 'percent' | 'amount'
+        DiscountValue   DECIMAL(18,2)          NOT NULL,    -- % (0–100) hoặc số tiền
+        MaxDiscount     DECIMAL(18,2)          NULL,        -- trần giảm (áp dụng khi percent)
+        MinOrder        DECIMAL(18,2)          NULL,        -- đơn tối thiểu để dùng
+
+        StartAt         DATETIME2              NULL,        -- UTC
+        EndAt           DATETIME2              NULL,        -- UTC
+        IsActive        BIT                    NOT NULL DEFAULT 1,
+
+        UsageLimit      INT                    NULL,        -- tổng số lượt dùng cho toàn shop
+        PerUserLimit    INT                    NULL,        -- mỗi user được dùng tối đa
+        UsageCount      INT                    NOT NULL DEFAULT 0, -- đếm lượt dùng (tăng khi áp cho order thành công)
+
+        CreatedAt       DATETIME2              NOT NULL DEFAULT SYSUTCDATETIME(),
+        CreatedByUserId INT                    NULL,
+        UpdatedAt       DATETIME2              NULL,
+        UpdatedByUserId INT                    NULL
+    );
+
+    -- Mã phải duy nhất
+    CREATE UNIQUE INDEX UX_Vouchers_Code ON dbo.Vouchers(Code);
+
+    -- Ràng buộc kiểu giảm giá
+    ALTER TABLE dbo.Vouchers WITH NOCHECK
+        ADD CONSTRAINT CK_Vouchers_DiscountType
+        CHECK (DiscountType IN ('percent','amount'));
+
+    -- Nếu là percent thì 0 < DiscountValue <= 100 (đơn giản hóa; có thể nới trong BE)
+    ALTER TABLE dbo.Vouchers WITH NOCHECK
+        ADD CONSTRAINT CK_Vouchers_PercentRange
+        CHECK (
+            (DiscountType = 'percent' AND DiscountValue > 0 AND DiscountValue <= 100)
+            OR (DiscountType = 'amount' AND DiscountValue > 0)
+        );
+
+    -- FK người tạo/cập nhật
+    IF OBJECT_ID('dbo.Users', 'U') IS NOT NULL
+    BEGIN
+        ALTER TABLE dbo.Vouchers
+        ADD CONSTRAINT FK_Vouchers_Users_CreatedBy
+            FOREIGN KEY (CreatedByUserId) REFERENCES dbo.Users(UserId);
+        ALTER TABLE dbo.Vouchers
+        ADD CONSTRAINT FK_Vouchers_Users_UpdatedBy
+            FOREIGN KEY (UpdatedByUserId) REFERENCES dbo.Users(UserId);
+    END
+END
+GO
+
+/* Log lượt sử dụng voucher theo user & order (giúp enforce PerUserLimit, báo cáo) */
+IF OBJECT_ID('dbo.VoucherUsages', 'U') IS NULL
+BEGIN
+    CREATE TABLE dbo.VoucherUsages (
+        VoucherUsageId  INT IDENTITY(1,1) PRIMARY KEY,
+        VoucherId       INT                NOT NULL,
+        UserId          INT                NULL,            -- có thể null nếu guest (nếu sau này hỗ trợ)
+        OrderId         INT                NULL,            -- gắn order nào
+        UsedAt          DATETIME2          NOT NULL DEFAULT SYSUTCDATETIME(),
+        DiscountApplied DECIMAL(18,2)      NOT NULL         -- số tiền thực giảm lần đó
+    );
+
+    ALTER TABLE dbo.VoucherUsages
+        ADD CONSTRAINT FK_VoucherUsages_Vouchers
+        FOREIGN KEY (VoucherId) REFERENCES dbo.Vouchers(VoucherId);
+
+    IF OBJECT_ID('dbo.Users', 'U') IS NOT NULL
+        ALTER TABLE dbo.VoucherUsages
+        ADD CONSTRAINT FK_VoucherUsages_Users
+        FOREIGN KEY (UserId) REFERENCES dbo.Users(UserId);
+
+    IF OBJECT_ID('dbo.Orders', 'U') IS NOT NULL
+        ALTER TABLE dbo.VoucherUsages
+        ADD CONSTRAINT FK_VoucherUsages_Orders
+        FOREIGN KEY (OrderId) REFERENCES dbo.Orders(OrderId);
+
+    CREATE INDEX IX_VoucherUsages_Voucher ON dbo.VoucherUsages(VoucherId);
+    CREATE INDEX IX_VoucherUsages_User ON dbo.VoucherUsages(UserId);
+END
+GO
+
+/* -------------------------
+   7.3 SEO META
+   - Lưu meta cho từng slug (đường dẫn) của site
+   - Dùng cho FE để set <title>, <meta>, OpenGraph, Twitter Card...
+   ------------------------- */
+IF OBJECT_ID('dbo.SeoMeta', 'U') IS NULL
+BEGIN
+    CREATE TABLE dbo.SeoMeta (
+        SeoMetaId       INT IDENTITY(1,1) PRIMARY KEY,
+        Slug            NVARCHAR(300)         NOT NULL,    -- ví dụ: '/', '/qua-valentine', '/san-pham/123'
+        Title           NVARCHAR(300)         NULL,
+        [Description]   NVARCHAR(500)         NULL,
+        Keywords        NVARCHAR(500)         NULL,
+
+        -- Ảnh chia sẻ (ưu tiên MediaId, fallback OgImageUrl)
+        ImageMediaId    BIGINT                NULL,
+        OgImageUrl      NVARCHAR(500)         NULL,
+
+        CanonicalUrl    NVARCHAR(500)         NULL,
+        NoIndex         BIT                   NOT NULL DEFAULT 0,
+        NoFollow        BIT                   NOT NULL DEFAULT 0,
+
+        CreatedAt       DATETIME2             NOT NULL DEFAULT SYSUTCDATETIME(),
+        UpdatedAt       DATETIME2             NULL
+    );
+
+    CREATE UNIQUE INDEX UX_SeoMeta_Slug ON dbo.SeoMeta(Slug);
+
+    IF OBJECT_ID('dbo.Media', 'U') IS NOT NULL
+        ALTER TABLE dbo.SeoMeta
+        ADD CONSTRAINT FK_SeoMeta_Media
+            FOREIGN KEY (ImageMediaId) REFERENCES dbo.Media(MediaId);
+END
+GO
+
+
+/* -------------------------
+   7.x (Optional) SEED NHẸ để test màn Admin/FE
+   ------------------------- */
+IF NOT EXISTS (SELECT 1 FROM dbo.Banners)
+BEGIN
+    INSERT INTO dbo.Banners (Title, MediaId, ExternalImageUrl, LinkUrl, OpenInNewTab, Position, SortOrder, IsActive, StartAt, EndAt)
+    VALUES
+    (N'Banner Trang Chủ', NULL, N'https://picsum.photos/1200/400', N'/collections/valentine', 1, 'home-top', 0, 1, DATEADD(DAY, -1, SYSUTCDATETIME()), DATEADD(DAY, 30, SYSUTCDATETIME())),
+    (N'Ưu đãi sidebar',   NULL, N'https://picsum.photos/400/600',  N'/voucher',              1, 'sidebar',  1, 1, NULL, NULL);
+END
+GO
+
+IF NOT EXISTS (SELECT 1 FROM dbo.Vouchers WHERE Code = 'LOVE20')
+BEGIN
+    INSERT INTO dbo.Vouchers (Code, Name, DiscountType, DiscountValue, MaxDiscount, MinOrder, StartAt, EndAt, IsActive, UsageLimit, PerUserLimit)
+    VALUES
+    ('LOVE20', N'Giảm 20% tối đa 50k', 'percent', 20, 50000, 200000, DATEADD(DAY, -1, SYSUTCDATETIME()), DATEADD(DAY, 15, SYSUTCDATETIME()), 1, 500, 2);
+END
+GO
+
+IF NOT EXISTS (SELECT 1 FROM dbo.SeoMeta WHERE Slug = N'/')
+BEGIN
+    INSERT INTO dbo.SeoMeta (Slug, Title, [Description], Keywords, OgImageUrl, CanonicalUrl, NoIndex, NoFollow)
+    VALUES
+    (N'/', N'Heartoza – Món quà độc nhất từ trái tim',
+     N'Gift box cá nhân hóa, giao nhanh toàn quốc. Chọn – ghép – gửi quà thật dễ.',
+     N'gift box, quà tặng, heartoza, quà valentine',
+     N'https://picsum.photos/800/420',
+     N'https://heartoza.example.com/', 0, 0);
+END
+GO
