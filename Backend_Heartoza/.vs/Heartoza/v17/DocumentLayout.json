@@ -3,8 +3,12 @@
   "WorkspaceRootPath": "E:\\heartoza-git\\Backend_Heartoza\\",
   "Documents": [
     {
+<<<<<<< HEAD
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|D:\\FA25\\EXE201\\heartoza-git\\Frontend_Heartoza\\heartoza\\src\\components\\css\\Profile.css||{A5401142-F49D-43DB-90B1-F57BA349E55C}"
+=======
       "AbsoluteMoniker": "D:0:0:{9F51160A-07B4-4347-8F06-B7D5DEC004B4}|Heartoza\\Heartoza.csproj|e:\\heartoza-git\\backend_heartoza\\heartoza\\controllers\\orderscontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{9F51160A-07B4-4347-8F06-B7D5DEC004B4}|Heartoza\\Heartoza.csproj|solutionrelative:heartoza\\controllers\\orderscontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+>>>>>>> 7a831955f62a8ba08a093bf7d1b78b385bed8595
     },
     {
       "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|D:\\FA25\\EXE201\\heartoza-git\\Frontend_Heartoza\\heartoza\\src\\hooks\\useVNAddress.js||{14D17961-FE51-464D-9111-C4AF11D7D99A}"
@@ -14,9 +18,6 @@
     },
     {
       "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|D:\\FA25\\EXE201\\heartoza-git\\Frontend_Heartoza\\heartoza\\src\\components\\common\\VNAddressPicker.jsx||{14D17961-FE51-464D-9111-C4AF11D7D99A}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|D:\\FA25\\EXE201\\heartoza-git\\Frontend_Heartoza\\heartoza\\src\\components\\css\\Profile.css||{A5401142-F49D-43DB-90B1-F57BA349E55C}"
     }
   ],
   "DocumentGroupContainers": [
@@ -26,7 +27,11 @@
       "DocumentGroups": [
         {
           "DockedWidth": 272,
+<<<<<<< HEAD
+          "SelectedChildIndex": 206,
+=======
           "SelectedChildIndex": 213,
+>>>>>>> 7a831955f62a8ba08a093bf7d1b78b385bed8595
           "Children": [
             {
               "$type": "Bookmark",
@@ -854,7 +859,63 @@
             },
             {
               "$type": "Bookmark",
+<<<<<<< HEAD
+              "Name": "ST:128:0:{116d2292-e37d-41cd-a077-ebacac4c8cc4}"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "Profile.css",
+              "DocumentMoniker": "D:\\FA25\\EXE201\\heartoza-git\\Frontend_Heartoza\\heartoza\\src\\components\\css\\Profile.css",
+              "RelativeDocumentMoniker": "..\\Frontend_Heartoza\\heartoza\\src\\components\\css\\Profile.css",
+              "ToolTip": "D:\\FA25\\EXE201\\heartoza-git\\Frontend_Heartoza\\heartoza\\src\\components\\css\\Profile.css",
+              "RelativeToolTip": "..\\Frontend_Heartoza\\heartoza\\src\\components\\css\\Profile.css",
+              "ViewState": "AgIAAJgCAAAAAAAAAADwv90CAAAcAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003000|",
+              "WhenOpened": "2025-10-15T20:30:03.755Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "Profile.jsx",
+              "DocumentMoniker": "D:\\FA25\\EXE201\\heartoza-git\\Frontend_Heartoza\\heartoza\\src\\components\\customer\\Profile.jsx",
+              "RelativeDocumentMoniker": "..\\Frontend_Heartoza\\heartoza\\src\\components\\customer\\Profile.jsx",
+              "ToolTip": "D:\\FA25\\EXE201\\heartoza-git\\Frontend_Heartoza\\heartoza\\src\\components\\customer\\Profile.jsx",
+              "RelativeToolTip": "..\\Frontend_Heartoza\\heartoza\\src\\components\\customer\\Profile.jsx",
+              "ViewState": "AgIAAMEBAAAAAAAAAAAUwM0BAAA2AAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003663|",
+              "WhenOpened": "2025-10-15T20:03:07.511Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
+              "Title": "VNAddressPicker.jsx",
+              "DocumentMoniker": "D:\\FA25\\EXE201\\heartoza-git\\Frontend_Heartoza\\heartoza\\src\\components\\common\\VNAddressPicker.jsx",
+              "RelativeDocumentMoniker": "..\\Frontend_Heartoza\\heartoza\\src\\components\\common\\VNAddressPicker.jsx",
+              "ToolTip": "D:\\FA25\\EXE201\\heartoza-git\\Frontend_Heartoza\\heartoza\\src\\components\\common\\VNAddressPicker.jsx",
+              "RelativeToolTip": "..\\Frontend_Heartoza\\heartoza\\src\\components\\common\\VNAddressPicker.jsx",
+              "ViewState": "AgIAAAYAAAAAAAAAAAAuwBEAAAAkAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003663|",
+              "WhenOpened": "2025-10-15T20:01:59.673Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "useVNAddress.js",
+              "DocumentMoniker": "D:\\FA25\\EXE201\\heartoza-git\\Frontend_Heartoza\\heartoza\\src\\hooks\\useVNAddress.js",
+              "RelativeDocumentMoniker": "..\\Frontend_Heartoza\\heartoza\\src\\hooks\\useVNAddress.js",
+              "ToolTip": "D:\\FA25\\EXE201\\heartoza-git\\Frontend_Heartoza\\heartoza\\src\\hooks\\useVNAddress.js",
+              "RelativeToolTip": "..\\Frontend_Heartoza\\heartoza\\src\\hooks\\useVNAddress.js",
+              "ViewState": "AgIAAEQAAAAAAAAAAAAAAEsAAAASAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001646|",
+              "WhenOpened": "2025-10-15T20:01:27.742Z",
+              "EditorCaption": ""
+=======
               "Name": "ST:0:0:{e1b7d1f8-9b3c-49b1-8f4f-bfc63a88835d}"
+>>>>>>> 7a831955f62a8ba08a093bf7d1b78b385bed8595
             },
             {
               "$type": "Bookmark",
