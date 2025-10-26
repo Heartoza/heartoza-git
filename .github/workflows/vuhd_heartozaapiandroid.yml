@@ -1,0 +1,66 @@
+name: Build and deploy ASP.NET Core app - heartozaapiAndroid
+
+on:
+  push:
+    branches: [ vuhd ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: windows-latest
+    permissions:
+      contents: read
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+
+      # ⚠️ Đổi đường dẫn này cho đúng folder chứa .csproj
+      - name: Restore
+        working-directory: Backend_Heartoza/Heartoza
+        run: dotnet restore
+
+      - name: Build
+        working-directory: Backend_Heartoza/Heartoza
+        run: dotnet build --configuration Release --no-restore
+
+      - name: Publish
+        working-directory: Backend_Heartoza/Heartoza
+        run: dotnet publish -c Release -o "${{ github.workspace }}/publish" --no-build
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: api-publish
+          path: ${{ github.workspace }}/publish
+
+  deploy:
+    runs-on: windows-latest
+    needs: build
+    permissions:
+      id-token: write
+      contents: read
+
+    steps:
+      - name: Download artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: api-publish
+          path: ./publish   # ✅ kéo về đúng thư mục ./publish
+
+      - name: Azure login (OIDC)
+        uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_FEA99DEC0A1048F69E10C671896E518C }}
+          tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_7874A631F2234B929FC1772EF589FAB9 }}
+          subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_7A095F37DF3E4FC4B39F5AE65057D919 }}
+
+      - name: Deploy to Azure Web App
+        uses: azure/webapps-deploy@v3
+        with:
+          app-name: 'heartozaapiAndroid'
+          package: './publish'   # ✅ deploy đúng thư mục publish
