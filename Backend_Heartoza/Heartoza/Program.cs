@@ -116,8 +116,62 @@ namespace Heartoza
 
             // ===== Diagnostic Endpoints =====
             app.MapGet("/", () => Results.Redirect("/swagger"));
-            app.MapGet("/diag/ef-conn", (GiftBoxShopContext db) => { /* ... */ });
-            app.MapGet("/diag/db-ping", async (IConfiguration cfg) => { /* ... */ });
+            // =========================================================
+            // Diagnostic endpoints (for Azure troubleshooting)
+            // =========================================================
+
+            app.MapGet("/diag/ef-conn", (GiftBoxShopContext db) =>
+            {
+                try
+                {
+                    // Thử query nhỏ để kiểm tra EF và connection string
+                    var canConnect = db.Database.CanConnect();
+                    var provider = db.Database.ProviderName;
+                    var dbName = db.Database.GetDbConnection().Database;
+                    var connStr = db.Database.GetDbConnection().ConnectionString;
+
+                    return Results.Json(new
+                    {
+                        ok = canConnect,
+                        provider,
+                        dbName,
+                        connStr = connStr?.Replace("Password=", "Password=***"), // ẩn pass
+                    });
+                }
+                catch (Exception ex)
+                {
+                    return Results.Problem($"EF connection test failed: {ex.Message}");
+                }
+            });
+
+            app.MapGet("/diag/db-ping", async (IConfiguration cfg) =>
+            {
+                try
+                {
+                    var connStr = cfg.GetConnectionString("DefaultConnection")
+                                 ?? cfg["ConnectionStrings:DefaultConnection"]
+                                 ?? "(null)";
+                    using var conn = new System.Data.SqlClient.SqlConnection(connStr);
+                    await conn.OpenAsync();
+
+                    using var cmd = conn.CreateCommand();
+                    cmd.CommandText = "SELECT TOP 1 name FROM sys.tables";
+                    var firstTable = (string?)await cmd.ExecuteScalarAsync();
+
+                    return Results.Json(new
+                    {
+                        ok = true,
+                        message = "SQL connection opened successfully.",
+                        firstTable,
+                        connStr = connStr.Replace("Password=", "Password=***"),
+                    });
+                }
+                catch (Exception ex)
+                {
+                    return Results.Problem($"SQL ping failed: {ex.Message}");
+                }
+            });
+
 
             app.UseHttpsRedirection();
             app.UseStaticFiles();

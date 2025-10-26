@@ -5,12 +5,10 @@
     "\\Frontend_Heartoza\\heartoza",
     "\\Frontend_Heartoza\\heartoza\\src",
     "\\Frontend_Heartoza\\heartoza\\src\\components",
-    "\\Frontend_Heartoza\\heartoza\\src\\components\\admin",
+    "\\Frontend_Heartoza\\heartoza\\src\\components\\common",
     "\\Frontend_Heartoza\\heartoza\\src\\components\\css",
-    "\\Frontend_Heartoza\\heartoza\\src\\context",
-    "\\Frontend_Heartoza\\heartoza\\src\\hooks",
-    "\\Frontend_Heartoza\\heartoza\\src\\services"
+    "\\Frontend_Heartoza\\heartoza\\src\\components\\customer"
   ],
-  "SelectedNode": "\\Backend_Heartoza\\Heartoza.sln",
+  "SelectedNode": "\\Frontend_Heartoza\\heartoza\\src\\components\\common\\Home.jsx",
   "PreviewInSolutionExplorer": false
 }
