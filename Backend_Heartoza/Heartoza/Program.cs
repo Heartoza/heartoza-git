@@ -1,10 +1,12 @@
-﻿using System.Text;
-using Heartoza.Models;
+﻿using Heartoza.Models;
 using Heartoza.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using System.Diagnostics;
+using System.Text;
 
 namespace Heartoza
 {
@@ -116,62 +118,113 @@ namespace Heartoza
 
             // ===== Diagnostic Endpoints =====
             app.MapGet("/", () => Results.Redirect("/swagger"));
-            // =========================================================
-            // Diagnostic endpoints (for Azure troubleshooting)
-            // =========================================================
-
-            app.MapGet("/diag/ef-conn", (GiftBoxShopContext db) =>
+            app.MapGet("/diag/ef-conn", async (GiftBoxShopContext db) =>
             {
                 try
                 {
-                    // Thử query nhỏ để kiểm tra EF và connection string
-                    var canConnect = db.Database.CanConnect();
-                    var provider = db.Database.ProviderName;
-                    var dbName = db.Database.GetDbConnection().Database;
-                    var connStr = db.Database.GetDbConnection().ConnectionString;
+                    var sw = Stopwatch.StartNew();
+                    var canConnect = await db.Database.CanConnectAsync();
+                    sw.Stop();
 
-                    return Results.Json(new
+                    var cnn = db.Database.GetDbConnection();
+
+                    return Results.Ok(new
                     {
-                        ok = canConnect,
-                        provider,
-                        dbName,
-                        connStr = connStr?.Replace("Password=", "Password=***"), // ẩn pass
+                        efProvider = db.Database.ProviderName,
+                        canConnect,
+                        openState = cnn.State.ToString(),
+                        dataSource = cnn.DataSource,
+                        database = cnn.Database,
+                        elapsedMs = sw.ElapsedMilliseconds
                     });
                 }
                 catch (Exception ex)
                 {
-                    return Results.Problem($"EF connection test failed: {ex.Message}");
+                    return Results.Problem(
+                        title: "EF connection failed",
+                        detail: ex.ToString(),
+                        statusCode: 500
+                    );
                 }
             });
+            static string Redact(string cs)
+            {
+                if (string.IsNullOrWhiteSpace(cs)) return cs ?? "";
+                // Ẩn password trong chuỗi kết nối
+                try
+                {
+                    var sb = new SqlConnectionStringBuilder(cs);
+                    if (!string.IsNullOrEmpty(sb.Password)) sb.Password = "****";
+                    return sb.ToString();
+                }
+                catch { return cs; }
+            }
 
             app.MapGet("/diag/db-ping", async (IConfiguration cfg) =>
             {
+                var cs = cfg.GetConnectionString("DefaultConnection");
+                if (string.IsNullOrWhiteSpace(cs))
+                    return Results.Problem("Missing ConnectionStrings:DefaultConnection", statusCode: 500);
+
                 try
                 {
-                    var connStr = cfg.GetConnectionString("DefaultConnection")
-                                 ?? cfg["ConnectionStrings:DefaultConnection"]
-                                 ?? "(null)";
-                    using var conn = new System.Data.SqlClient.SqlConnection(connStr);
-                    await conn.OpenAsync();
+                    var sw = Stopwatch.StartNew();
+                    using var con = new SqlConnection(cs);
+                    await con.OpenAsync();
 
-                    using var cmd = conn.CreateCommand();
-                    cmd.CommandText = "SELECT TOP 1 name FROM sys.tables";
-                    var firstTable = (string?)await cmd.ExecuteScalarAsync();
+                    using var cmd = con.CreateCommand();
+                    cmd.CommandText = @"
+SELECT 
+  DB_NAME()                          AS DbName,
+  SUSER_SNAME()                      AS LoginName,
+  CAST(SERVERPROPERTY('ProductVersion') AS nvarchar(50)) AS SqlVersion,
+  IIF(OBJECT_ID('dbo.Users','U') IS NULL, 0, 1) AS HasUsersTable,
+  IIF(OBJECT_ID('dbo.Banners','U') IS NULL, 0, 1) AS HasBannersTable,
+  IIF(OBJECT_ID('dbo.Vouchers','U') IS NULL, 0, 1) AS HasVouchersTable,
+  IIF(OBJECT_ID('dbo.SeoMeta','U')  IS NULL, 0, 1) AS HasSeoMetaTable
+";
+                    using var r = await cmd.ExecuteReaderAsync();
+                    object? row = null;
+                    if (await r.ReadAsync())
+                    {
+                        row = new
+                        {
+                            DbName = r["DbName"]?.ToString(),
+                            LoginName = r["LoginName"]?.ToString(),
+                            SqlVersion = r["SqlVersion"]?.ToString(),
+                            HasUsersTable = (int)r["HasUsersTable"] == 1,
+                            HasBannersTable = (int)r["HasBannersTable"] == 1,
+                            HasVouchersTable = (int)r["HasVouchersTable"] == 1,
+                            HasSeoMetaTable = (int)r["HasSeoMetaTable"] == 1
+                        };
+                    }
+                    sw.Stop();
 
-                    return Results.Json(new
+                    return Results.Ok(new
                     {
                         ok = true,
-                        message = "SQL connection opened successfully.",
-                        firstTable,
-                        connStr = connStr.Replace("Password=", "Password=***"),
+                        connection = new
+                        {
+                            dataSource = con.DataSource,
+                            database = con.Database,
+                            redacted = Redact(cs)
+                        },
+                        elapsedMs = sw.ElapsedMilliseconds,
+                        info = row
                     });
                 }
                 catch (Exception ex)
                 {
-                    return Results.Problem($"SQL ping failed: {ex.Message}");
+                    return Results.Problem(
+                        title: "DB ping failed",
+                        detail: ex.ToString(),
+                        statusCode: 500,
+                        extensions: new Dictionary<string, object?>
+                        {
+                            ["connectionString"] = Redact(cs)
+                        });
                 }
             });
-
 
             app.UseHttpsRedirection();
             app.UseStaticFiles();
