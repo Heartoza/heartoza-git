@@ -46,6 +46,25 @@ public class ProfileController : ControllerBase
 
     // ========= PROFILE =========
 
+    [HttpPost("change-password")]
+    public async Task<IActionResult> ChangePassword([FromBody] ChangePasswordRequest req, CancellationToken ct)
+    {
+        var uid = GetUserId();
+        var u = await _db.Users.FirstOrDefaultAsync(x => x.UserId == uid, ct);
+        if (u == null) return NotFound();
+
+        if (!BCrypt.Net.BCrypt.Verify(req.CurrentPassword, u.PasswordHash))
+            return BadRequest("Mật khẩu hiện tại không đúng.");
+
+        // rule nhẹ: >=8, có chữ & số
+        if (req.NewPassword.Length < 8 || !req.NewPassword.Any(char.IsLetter) || !req.NewPassword.Any(char.IsDigit))
+            return BadRequest("Mật khẩu mới tối thiểu 8 ký tự, gồm cả chữ và số.");
+
+        u.PasswordHash = BCrypt.Net.BCrypt.HashPassword(req.NewPassword);
+        await _db.SaveChangesAsync(ct);
+        return Ok(new { message = "Đổi mật khẩu thành công." });
+    }
+
     [HttpGet("me")]
     public async Task<IActionResult> Me(CancellationToken ct)
     {
